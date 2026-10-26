@@ -1,0 +1,121 @@
+---
+title: "DTS 201 – Introduction to Data Science"
+subtitle: "Week 4 Practical (PH, Part B): Sampling and Bias – SOLUTIONS (lecturer copy)"
+author: "Dr. Sakinat Folorunso — Associate Professor of AI Systems and FAIR Data, Department of Computer Sciences, Olabisi Onabanjo University, Ago-Iwoye, Ogun State, Nigeria"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: readable
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.width = 7, fig.height = 4.5)
+set.seed(42)
+data_dir <- if (dir.exists("../data")) "../data" else "data"
+```
+
+**Course Code:** DTS 201  **Practical Week:** 4 – Distributions, Probability and Sampling
+
+---
+
+### 🎯 Practical Learning Objectives
+
+- **Draw** simple random, stratified and systematic samples.
+- **Observe** sampling variability and the standard error.
+- **Demonstrate** how a biased sampling method distorts an estimate.
+
+---
+
+## 1. The Population
+
+We treat the 4,257 simulated retail sales as the **population**, so we know the true mean and can see how well each sampling method estimates it.
+
+```{r load}
+library(tidyverse)
+theme_set(theme_minimal(base_size = 12))
+pop <- read_csv(file.path(data_dir, "retail_sales_ng.csv"))
+true_mean <- mean(pop$Sales_Amount)
+c(N = nrow(pop), true_mean = true_mean)
+```
+
+---
+
+## 2. Three Sampling Methods
+
+```{r methods}
+set.seed(42)
+srs   <- slice_sample(pop, n = 200)                                   # simple random
+strat <- pop |> group_by(Region) |> slice_sample(n = 40) |> ungroup() # stratified: 40 per region
+k     <- floor(nrow(pop) / 200)
+sys   <- pop[seq(sample(k, 1), nrow(pop), by = k), ]                  # systematic: every k-th row
+
+tibble(method = c("Simple random", "Stratified", "Systematic"),
+       n = c(nrow(srs), nrow(strat), nrow(sys)),
+       estimate = c(mean(srs$Sales_Amount), mean(strat$Sales_Amount), mean(sys$Sales_Amount)),
+       error = estimate - true_mean)
+```
+
+Stratified sampling gives equal numbers from each region, so unless regions have the same size it needs **weights** to estimate the population mean. Here the regions differ in size, so the unweighted stratified mean is not an unbiased estimate of the population mean.
+
+> ✏️ **Student Task 1:** Compute the **weighted** stratified estimate, weighting each region's sample mean by the region's share of the population.
+
+```{r task1}
+# TODO: write your code here
+```
+
+---
+
+## 3. Sampling Variability and the Standard Error
+
+One sample gives one estimate. Repeating the sampling shows how much estimates vary.
+
+```{r se}
+set.seed(42)
+means <- replicate(1000, mean(slice_sample(pop, n = 200)$Sales_Amount))
+c(mean_of_means = mean(means), empirical_SE = sd(means),
+  theory_SE = sd(pop$Sales_Amount) / sqrt(200))
+
+ggplot(tibble(means), aes(means)) +
+  geom_histogram(bins = 30, fill = "steelblue", colour = "white") +
+  geom_vline(xintercept = true_mean, colour = "firebrick", linewidth = 1) +
+  labs(title = "Sampling distribution of the mean (n = 200)", x = "Sample mean", y = "Count")
+```
+
+The distribution is centred on the true mean (red line) and its spread is the **standard error**, $SE = \sigma / \sqrt{n}$. (The simulation samples without replacement from a finite population, so it is slightly smaller than the formula.)
+
+> ✏️ **Student Task 2:** Repeat the simulation for n = 50, 200 and 800. How does the standard error change when the sample size is multiplied by 4?
+
+```{r task2}
+# TODO: write your code here
+```
+
+*Your answer here:*
+
+---
+
+## 4. Sampling Bias
+
+```{r bias}
+biased <- pop |> arrange(desc(Sales_Amount)) |> slice_head(n = 200)    # only the biggest sales are "surveyed"
+c(true_mean = true_mean, biased_mean = mean(biased$Sales_Amount))
+```
+
+> ✏️ **Student Task 3:** Create a **convenience sample** of 200 sales from a single city (choose one). Compare its mean with the true mean. Would a larger convenience sample fix the problem?
+
+```{r task3}
+# TODO: write your code here
+```
+
+*Your answer here:*
+
+---
+
+## 5. Summary and Reflection
+
+- Random sampling gives estimates centred on the truth; the spread shrinks with $\sqrt{n}$.
+- Stratified sampling guarantees representation but needs weights.
+- Bias cannot be removed by a bigger sample.
+
+> 🧠 **Reflection:** Name two sources of bias in a survey of student opinions carried out only in the university library on a Monday morning.

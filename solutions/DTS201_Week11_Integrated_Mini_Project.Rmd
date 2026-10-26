@@ -1,0 +1,409 @@
+---
+title: "DTS 201 – Introduction to Data Science"
+subtitle: "Week 11 Practical (PH): Integrated Mini Data Science Project – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy)"
+author: "Dr. Sakinat Folorunso — Associate Professor of AI Systems and FAIR Data, Department of Computer Sciences, Olabisi Onabanjo University, Ago-Iwoye, Ogun State, Nigeria"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: readable
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.width = 7, fig.height = 4.5)
+set.seed(42)
+data_dir <- if (dir.exists("../data")) "../data" else "data"
+```
+
+**Course Code:** DTS 201  **Practical Week:** 11 – Laboratory Applications
+
+---
+
+### 🎯 Practical Learning Objectives (Week 11)
+
+This week is a **revision and integration** of what you have learned so far. By the end of this practical session, you should be able to:
+
+- **Formulate** a simple **data science question** from a real or sample dataset.
+- **Carry out** basic **EDA** (loading, cleaning, summarising, visualising).
+- **Apply** at least **one analysis or model** you have seen before (correlation, regression, clustering, association rules, hypothesis test, simple prediction).
+- **Interpret** results in **plain language** and connect them to a real-world context.
+- **Document** your work clearly in a **notebook-style report**.
+
+> 💡 Think of this as a **mini-project** that brings together ideas from Weeks 1–10. In the course outline: *"Mini-project – predictive modelling, data mining, and BI dashboard development."*
+
+> 📌 **How this notebook works.** The notebook is already filled in with a **worked example** on the `heart.csv` data so that every chunk runs. You will **replace the dataset, variables and interpretation with your own**. The worked example shows the *method*, not the answer to your project.
+
+---
+
+## 1. Choosing Your Dataset and Question
+
+For this mini-project you may use:
+
+- A dataset provided by your lecturer (recommended), from the `data` folder.
+- A small open dataset (students' performance, sales records, survey responses).
+- A dataset you used in previous weeks (the cleaned version).
+
+| File in `data/` | One row is... | Example numeric variables | Example categorical / binary |
+|---|---|---|---|
+| `heart.csv` | a patient (anonymised) | `age`, `trestbps`, `chol`, `thalach` | `sex`, `cp`, `target` |
+| `titanic_clean.csv` | a passenger | `Age`, `Fare` | `Survived`, `Pclass`, `Sex` |
+| `advertising.csv` | a website user | `Age`, `Area Income`, `Daily Internet Usage` | `Male`, `Clicked on Ad` |
+| `student_score.csv` | a student | `Hours`, `Scores` | – |
+| `amazon_products_clean.csv` | a product | `actual_price`, `discount_pct`, `rating` | `main_category` |
+| `retail_sales_ng.csv` (synthetic) | a sales transaction | `Sales_Amount`, `Quantity`, `Profit` | `Region`, `Product_Category` |
+| `grocery_transactions.csv` (synthetic) | an item in a basket | – | `Item` (use association rules) |
+| `data.csv` | a breast-tissue sample | `radius_mean`, `texture_mean`, ... | `diagnosis` |
+
+> ✏️ **Student Task 1 – Project Definition:**
+> In the text area below (or in your report), write:
+> 1. **Dataset Description:** the source of your dataset; what one row represents; at least **5 key variables** and what they mean.
+> 2. **Main Question:** one main question you want to explore. Examples:
+>    - "What factors are associated with higher exam scores?"
+>    - "Which product category generates the highest revenue?"
+>    - "Is there a relationship between gender and pass/fail rates?"
+
+<!-- >>> SOLUTION -->
+**Dataset description (worked example).** `heart.csv` is an anonymised public teaching dataset of 303 patients tested for heart disease (a version of the UCI Cleveland data). One row = one patient. Key variables: `age` (years); `sex` (1 = male, 0 = female); `trestbps` (resting blood pressure, mm Hg); `chol` (serum cholesterol, mg/dl); `thalach` (maximum heart rate achieved during a stress test, beats per minute); `target` (a 0/1 diagnosis indicator).
+
+**Main question.** *Is the maximum heart rate achieved related to age, and does it differ between the two `target` groups?*
+
+> ⚠️ **Ethics note.** This is a teaching dataset; its results must **not** be used for clinical decisions. Also be aware that public copies of this file disagree about whether `target = 1` means "disease" or "no disease", so we use the neutral labels `target = 0` and `target = 1` and make no clinical claim.
+<!-- <<< SOLUTION -->
+
+---
+
+## 2. Loading Required Packages
+
+```{r packages}
+library(tidyverse)
+theme_set(theme_minimal(base_size = 12))
+
+# Helper: regression metrics used in Week 5
+metrics <- function(y, yhat) {
+  c(RMSE = sqrt(mean((y - yhat)^2)),
+    MAE  = mean(abs(y - yhat)),
+    R2   = 1 - sum((y - yhat)^2) / sum((y - mean(y))^2))
+}
+```
+
+---
+
+## 3. Loading Your Dataset
+
+> 🔧 **Instruction:** Change `dataset_file` to your chosen dataset. If the file has columns with spaces, rename them with `rename_with(~ str_replace_all(.x, " ", "_"))`.
+
+```{r load}
+dataset_file <- "heart.csv"          # TODO: change this to your chosen dataset
+
+df <- read_csv(file.path(data_dir, dataset_file))
+head(df)
+```
+
+> ✏️ **Student Task 2:**
+> - Check visually: do the columns and values look reasonable?
+> - Are there any obvious issues (strange characters, missing column names)?
+
+### 3.1 Basic Structure and Data Types
+
+```{r structure}
+dim(df)
+glimpse(df)
+summary(df)
+```
+
+> ✏️ **Student Task 3:**
+> - Identify at least **three numerical** variables and **two categorical** variables.
+> - Which of these variables are most relevant to your main question?
+
+---
+
+## 4. Light Data Cleaning
+
+Before analysis we may need to handle **missing values**, remove **duplicates**, and convert **data types**. Use only what your dataset needs: do not over-clean.
+
+```{r missing}
+colSums(is.na(df))                 # missing values per column
+```
+
+```{r duplicates}
+duplicates_count <- sum(duplicated(df))
+cat("Number of duplicate rows:", duplicates_count, "\n")
+
+df <- distinct(df)                 # keep one copy of each row
+cat("New shape after removing duplicates:", dim(df), "\n")
+```
+
+> ℹ️ Examples of other cleaning steps (edit and use if needed):
+> `df <- drop_na(df, ImportantColumn)` · `df <- mutate(df, Col = replace_na(Col, median(Col, na.rm = TRUE)))` · `df <- mutate(df, Date = as.Date(Date))`
+
+> ✏️ **Student Task 4:**
+> - Describe **two cleaning steps** you applied (or decided were not necessary).
+> - Explain why they were appropriate for your dataset.
+
+<!-- >>> SOLUTION -->
+*Worked example.* (1) There were **no missing values**, so no imputation was needed (imputing when nothing is missing would only add noise). (2) One **exact duplicate row** was found and removed, because a repeated patient record would be counted twice and slightly distort means and tests. The binary `target` was converted to a factor only for plotting.
+<!-- <<< SOLUTION -->
+
+---
+
+## 5. Exploratory Data Analysis (EDA)
+
+Now explore the data in relation to your **main question**. Suggested steps:
+
+- Look at **distributions** (histograms, boxplots) of key numerical variables.
+- Look at **counts** (bar charts) for important categorical variables.
+- Examine **relationships** (scatter plots, group means, correlations).
+
+### 5.1 Distributions of Numerical Variables
+
+```{r hist}
+num_col <- "thalach"          # TODO: change to a numeric variable related to your question
+
+ggplot(df, aes(x = .data[[num_col]])) +
+  geom_histogram(aes(y = after_stat(density)), bins = 25, fill = "steelblue", colour = "white") +
+  geom_density(colour = "firebrick", linewidth = 1) +
+  labs(title = paste("Distribution of", num_col), x = num_col, y = "Density")
+```
+
+### 5.2 Frequency of a Categorical Variable
+
+```{r bar}
+cat_col <- "target"           # TODO: change to a categorical variable
+
+ggplot(df, aes(x = factor(.data[[cat_col]]))) +
+  geom_bar(fill = "steelblue") +
+  geom_text(stat = "count", aes(label = after_stat(count)), vjust = -0.4) +
+  labs(title = paste("Counts of", cat_col), x = cat_col, y = "Count")
+```
+
+### 5.3 Relationship Between Two Numerical Variables
+
+```{r scatter}
+x_col <- "age"                # TODO: change
+y_col <- "thalach"            # TODO: change
+
+pair_df <- df |> select(all_of(c(x_col, y_col))) |> drop_na()
+
+ggplot(pair_df, aes(x = .data[[x_col]], y = .data[[y_col]])) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", colour = "firebrick") +
+  labs(title = paste(y_col, "versus", x_col), x = x_col, y = y_col)
+
+ct <- cor.test(pair_df[[x_col]], pair_df[[y_col]])
+cat(sprintf("Correlation between %s and %s: r = %.3f, 95%% CI [%.3f, %.3f], p = %s\n",
+            x_col, y_col, ct$estimate, ct$conf.int[1], ct$conf.int[2], format.pval(ct$p.value, digits = 3)))
+```
+
+> ✏️ **Student Task 5 – EDA Summary:**
+> Write **3–5 bullet points** summarising what you learned from your EDA. Mention any interesting distributions, patterns, or relationships.
+
+<!-- >>> SOLUTION -->
+*Worked example.*
+
+- `thalach` is roughly bell-shaped with a slight left tail (mean about 149.6 bpm).
+- The two `target` groups are of similar size (138 vs 164 patients), so no serious class imbalance.
+- `age` and `thalach` have a **moderate negative correlation** (r = −0.395, 95% CI [−0.486, −0.296]): older patients reach a lower maximum heart rate.
+- The scatter plot supports a roughly linear decline of about 0.9 bpm per year of age, with wide scatter around the line.
+<!-- <<< SOLUTION -->
+
+---
+
+## 6. Main Analysis or Model (Choose One Approach)
+
+Choose **one** of the following options (depending on your dataset and question):
+
+1. **Simple Linear Regression** – predict a numerical target from one numerical predictor (Week 5).
+2. **Group Comparison** – compare means between two groups (t-test) or test an association (chi-square) (Week 7).
+3. **Clustering** – group similar records with k-means (Week 6).
+4. **Association Rules (Market Basket)** – if your data are transactional with items per basket (Week 6; use `grocery_transactions.csv`).
+
+Your lecturer may specify which option to use. Below are **templates for options 1–3**; adapt as needed.
+
+### 6.1 Option A: Simple Linear Regression (Prediction)
+
+```{r regression}
+# >>> SOLUTION
+feature_col <- "age"        # predictor
+target_col  <- "thalach"    # target
+
+model_data <- df |> select(all_of(c(feature_col, target_col))) |> drop_na()
+f <- as.formula(paste(target_col, "~", feature_col))
+
+# 80/20 split
+set.seed(42)
+idx   <- sample(nrow(model_data), floor(0.8 * nrow(model_data)))
+train <- model_data[idx, ]; test <- model_data[-idx, ]
+
+model <- lm(f, data = train)
+cat(sprintf("Model: %s = %.3f + %.3f x %s\n", target_col, coef(model)[1], coef(model)[2], feature_col))
+confint(model)
+
+round(metrics(test[[target_col]], predict(model, test)), 3)
+
+# Variability of the metrics over 200 random splits
+set.seed(42)
+reps <- t(replicate(200, {
+  i <- sample(nrow(model_data), floor(0.8 * nrow(model_data)))
+  m <- lm(f, data = model_data[i, ])
+  metrics(model_data[[target_col]][-i], predict(m, model_data[-i, ]))
+}))
+tibble(metric = colnames(reps), mean = colMeans(reps), sd = apply(reps, 2, sd)) |>
+  mutate(across(where(is.numeric), ~ round(.x, 3)))
+# <<< SOLUTION
+```
+
+```{r regression-plot}
+# >>> SOLUTION
+ggplot(model_data, aes(.data[[feature_col]], .data[[target_col]])) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", colour = "firebrick") +
+  labs(title = paste(target_col, "versus", feature_col, "with regression line"),
+       x = feature_col, y = target_col)
+# <<< SOLUTION
+```
+
+### 6.2 Option B: Group Comparison (Means / t-Test)
+
+```{r group-comparison}
+# >>> SOLUTION
+group_col   <- "target"
+numeric_col <- "thalach"
+
+df |>
+  group_by(.data[[group_col]]) |>
+  summarise(n = n(), mean = mean(.data[[numeric_col]]), sd = sd(.data[[numeric_col]]), .groups = "drop")
+
+tt <- t.test(as.formula(paste(numeric_col, "~", group_col)), data = df)       # Welch
+tt
+
+g  <- split(df[[numeric_col]], df[[group_col]])
+sp <- sqrt(((length(g[[1]]) - 1) * var(g[[1]]) + (length(g[[2]]) - 1) * var(g[[2]])) /
+           (length(g[[1]]) + length(g[[2]]) - 2))
+cat(sprintf("Cohen's d = %.2f\n", (mean(g[[2]]) - mean(g[[1]])) / sp))
+
+ggplot(df, aes(factor(.data[[group_col]]), .data[[numeric_col]], fill = factor(.data[[group_col]]))) +
+  geom_boxplot(show.legend = FALSE) +
+  labs(title = paste(numeric_col, "by", group_col), x = group_col, y = numeric_col)
+
+# Is the group difference just an age effect? Adjust for age (multiple regression)
+summary(lm(thalach ~ age + target, data = df))$coefficients
+# <<< SOLUTION
+```
+
+### 6.3 Option C: Clustering (k-Means)
+
+```{r clustering}
+# >>> SOLUTION
+cluster_vars <- c("age", "trestbps", "chol", "thalach", "oldpeak")
+x <- df |> select(all_of(cluster_vars)) |> drop_na() |> scale()      # standardise: mean 0, sd 1
+
+set.seed(42)
+sil <- map_dfr(2:6, function(k) {
+  km <- kmeans(x, centers = k, nstart = 25)
+  tibble(k = k, avg_silhouette = mean(cluster::silhouette(km$cluster, dist(x))[, "sil_width"]))
+})
+sil
+
+km <- kmeans(x, centers = 2, nstart = 25)
+df |> select(all_of(cluster_vars)) |> drop_na() |>
+  mutate(Cluster = factor(km$cluster)) |>
+  group_by(Cluster) |>
+  summarise(n = n(), across(everything(), ~ round(mean(.x), 1)))
+# <<< SOLUTION
+```
+
+> ✏️ **Student Task 6 – Main Analysis Interpretation:**
+> In 4–6 sentences, interpret the key result from your chosen method.
+> - **Regression:** what does the slope mean? Is the model fit good?
+> - **Group comparison:** which group has the higher mean? Is the difference statistically significant, and how large is it?
+> - **Clustering or association rules:** briefly describe two interesting patterns.
+
+<!-- >>> SOLUTION -->
+*Worked example (regression and group comparison).* The regression slope is about −0.94 bpm per year on the training split (95% CI −1.25 to −0.64): each additional year of age is associated with a maximum heart rate roughly 1 bpm lower. On the held-out 20% the model has RMSE = 19.8 bpm and R² = 0.23, but over 200 random splits the mean is RMSE = 21.2 (SD 1.8) and R² = 0.12 (SD 0.10), so the single split was optimistic: age explains roughly an eighth of the variation, which is useful for trend and poor for individual prediction. The `target = 1` group has a **higher** mean `thalach` (158.4 vs 139.1 bpm; Welch t = −7.90, p < 0.001; difference 19.3 bpm, 95% CI 14.5 to 24.1; Cohen's d = 0.93, a large effect). The `target = 0` group is also older on average (56.6 vs 52.6 years), so part of the gap could be an age effect; the age-adjusted model still shows a clear difference of about 16 bpm (t = 6.9). Clustering found only weak structure (average silhouette 0.24 at k = 2, falling to 0.20 by k = 6), so we would not interpret the clusters as real patient subtypes.
+<!-- <<< SOLUTION -->
+
+---
+
+## 7. Optional: Visual Summary or Dashboard Snippet
+
+If time permits, create a small **dashboard-style summary** (Week 8):
+
+- One or two **KPIs** (e.g. average score, total revenue).
+- One main plot (e.g. bar chart, line chart).
+- One secondary plot (e.g. boxplot or scatter plot).
+
+This is not compulsory but helps develop your **communication** skills as a data scientist.
+
+```{r dashboard}
+# >>> SOLUTION
+kpis <- tibble(
+  KPI   = c("Patients", "Mean age (years)", "Mean max heart rate (bpm)", "Share male"),
+  Value = c(nrow(df), round(mean(df$age), 1), round(mean(df$thalach), 1),
+            scales::percent(mean(df$sex == 1), accuracy = 0.1))
+)
+knitr::kable(kpis, align = c("l", "r"))
+
+df |>
+  mutate(age_band = cut(age, c(0, 44, 54, 64, Inf), labels = c("<45", "45-54", "55-64", "65+"))) |>
+  group_by(age_band) |>
+  summarise(mean_thalach = mean(thalach), n = n(), .groups = "drop") |>
+  ggplot(aes(age_band, mean_thalach)) +
+  geom_col(fill = "steelblue") +
+  geom_text(aes(label = paste0("n=", n)), vjust = -0.4) +
+  labs(title = "Mean maximum heart rate by age band", x = "Age band", y = "Mean thalach (bpm)")
+# <<< SOLUTION
+```
+
+---
+
+## 8. Writing a Short Mini-Report (Inside the Notebook)
+
+> 🧪 **Student Activity – Mini-Report Outline:**
+> Create a section at the end of your notebook with the following headings and fill in brief content under each:
+
+1. **Title and Dataset** – e.g. "Analysis of Maximum Heart Rate in a Cardiac Teaching Dataset".
+2. **Main Question** – clearly state the question you tried to answer.
+3. **Data & Methods** – 4–6 sentences summarising the data you used and the methods (EDA, regression, tests, ...).
+4. **Key Findings** – 3–5 bullet points with the most important results (with effect sizes and confidence intervals).
+5. **Limitations** – 2–3 things you could not do (small sample, missing variables, observational data, time).
+6. **Next Steps** – 2–3 ideas for further analysis or for turning this into a bigger project.
+
+<!-- >>> SOLUTION -->
+### Example mini-report (worked example)
+
+**1. Title and dataset.** Maximum heart rate, age and diagnosis group in 302 patients (anonymised public teaching dataset, `heart.csv`).
+
+**2. Main question.** Is the maximum heart rate achieved during a stress test related to age, and does it differ between the two `target` groups?
+
+**3. Data and methods.** After removing one duplicate row (302 patients, no missing values) we explored distributions and relationships graphically. We fitted a simple linear regression of `thalach` on `age` (80/20 split, seed 42, 200 repeated splits to measure variability), compared the two groups with a Welch t-test and Cohen's d, and checked the group difference with an age-adjusted regression. A k-means analysis on five standardised clinical variables was used to look for subgroups.
+
+**4. Key findings.**
+
+- Maximum heart rate falls by about 0.9 bpm per year of age (r = −0.395).
+- Age explains only about 12% of the variance in held-out data (mean R² = 0.12, SD 0.10 over 200 splits; RMSE about 21 bpm).
+- The `target = 1` group reaches a higher maximum heart rate (about 19 bpm, d = 0.93), and the difference persists after adjusting for age.
+- Clustering shows weak structure (average silhouette 0.24 at best).
+
+**5. Limitations.** Observational data, so no causal claims; unclear coding of `target` in public copies of the file; only 302 patients; no information on medication or fitness, which affect heart rate.
+
+**6. Next steps.** Fit a multiple regression with sex, blood pressure and cholesterol; try a logistic regression to predict `target`; validate with an independent dataset.
+<!-- <<< SOLUTION -->
+
+---
+
+## 9. Summary and Reflection (Week 11 PH)
+
+In this Week 11 mini-project practical, you have:
+
+- Chosen a dataset and defined a **clear analytical question**.
+- Performed **EDA** and basic cleaning.
+- Applied at least **one analysis or modelling method** from earlier weeks.
+- Interpreted your results in **plain language**, with effect sizes and uncertainty.
+- Structured your work in a **notebook mini-report** format.
+
+> 🧠 **Final Reflection (1–2 paragraphs):**
+> - What part of this mini-project did you enjoy the most (EDA, modelling, visualisation, writing)?
+> - Which skills do you feel more confident about after completing this?
+> - If you had more time and data, how would you extend this mini-project into a full project for a higher-level course?

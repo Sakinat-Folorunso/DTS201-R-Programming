@@ -1,0 +1,403 @@
+---
+title: "DTS 201 – Introduction to Data Science"
+subtitle: "Week 4 Practical (PH): Distributions, Probability and Simulation – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy)"
+author: "Dr. Sakinat Folorunso — Associate Professor of AI Systems and FAIR Data, Department of Computer Sciences, Olabisi Onabanjo University, Ago-Iwoye, Ogun State, Nigeria"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: readable
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.width = 7, fig.height = 4.2)
+data_dir <- if (dir.exists("../data")) "../data" else "data"
+```
+
+**Course Code:** DTS 201  **Practical Week:** 4 – Distributions and Probability
+
+---
+
+### 🎯 Practical Learning Objectives (Week 4)
+
+By the end of this practical session, you should be able to:
+
+- **Simulate** coin tosses and dice rolls using a computer.
+- **Estimate** empirical probabilities from simulation results, with a confidence interval.
+- **Compare** simulated frequencies with theoretical probabilities.
+- **Generate and visualise** normal, binomial, and uniform distributions.
+- **Interpret** basic properties of distributions (centre, spread, and shape).
+
+> 💡 This notebook uses base R's random-number functions (`sample`, `rnorm`, `rbinom`, `runif`) and `ggplot2`, exactly as in the course outline: *"Simulating dice/coin toss; plotting normal, binomial, and uniform distributions in R."*
+
+---
+
+## 1. Getting Started: Why Simulate?
+
+In real life, it may be difficult or time-consuming to toss a coin 10,000 times or roll a die 5,000 times. With a computer we can simulate such experiments **very quickly** and use the results to:
+
+- Understand probability concepts.
+- Visualise distributions.
+- Build intuition for randomness and variation.
+
+In this practical, you will simulate coin tosses (Heads/Tails), dice rolls (1–6), and random values from normal, binomial, and uniform distributions.
+
+> 🔑 **Reproducibility.** Computers generate *pseudo-random* numbers from a starting value called the **seed**. Setting `set.seed(42)` makes your "random" results identical every time you run the code, so you, your classmates and your lecturer all see the same numbers. In this course we always use seed **42**.
+
+---
+
+## 2. Loading Required Packages
+
+```{r packages}
+library(tidyverse)
+theme_set(theme_minimal(base_size = 12))
+```
+
+---
+
+## 3. Simulating a Fair Coin Toss
+
+We start with a **fair coin**, where $P(H) = P(T) = 0.5$. We will simulate many tosses and see how often we get Heads vs Tails.
+
+```{r coin}
+set.seed(42)                  # reproducible results
+
+n_tosses <- 1000              # TODO: try 50, 5000, ...
+
+# sample(x, size, replace = TRUE, prob) draws `size` values from x
+coin_outcomes <- sample(c("H", "T"), size = n_tosses, replace = TRUE, prob = c(0.5, 0.5))
+
+# Counts and relative frequencies
+coin_counts <- table(coin_outcomes)
+coin_rel    <- prop.table(coin_counts)
+
+coin_counts
+round(coin_rel, 3)
+```
+
+With $n$ tosses, the estimated probability of Heads is $\hat{p} = (\text{number of heads})/n$. Its **standard error** is $\sqrt{p(1-p)/n}$, and a **95% confidence interval** can be obtained with an exact binomial test:
+
+```{r coin-ci}
+heads <- sum(coin_outcomes == "H")
+bt <- binom.test(heads, n_tosses, p = 0.5)       # exact binomial test of H0: p = 0.5
+
+cat(sprintf("Estimated P(H) = %.3f, 95%% CI [%.3f, %.3f], p-value for H0: p = 0.5 is %.3f\n",
+            bt$estimate, bt$conf.int[1], bt$conf.int[2], bt$p.value))
+```
+
+```{r coin-plot}
+as_tibble(coin_counts) |>
+  ggplot(aes(x = coin_outcomes, y = n, fill = coin_outcomes)) +
+  geom_col(show.legend = FALSE) +
+  geom_hline(yintercept = n_tosses / 2, linetype = "dashed") +      # expected count
+  labs(title = paste("Results of", n_tosses, "simulated coin tosses"),
+       subtitle = "Dashed line = expected count under a fair coin", x = "Outcome", y = "Count")
+```
+
+> ✏️ **Student Task 1:**
+> - Change `n_tosses` to 50, then 5000, and re-run the simulation.
+> - Compare the relative frequencies with the theoretical probabilities (0.5 for H and 0.5 for T).
+> - Do the relative frequencies get closer to 0.5 as `n_tosses` increases? What happens to the **width of the confidence interval**?
+
+```{r task1}
+# >>> SOLUTION
+set.seed(42)
+results <- map_dfr(c(50, 1000, 5000, 100000), function(n) {
+  tosses <- sample(c("H", "T"), n, replace = TRUE)
+  bt <- binom.test(sum(tosses == "H"), n)
+  tibble(n = n, p_hat = bt$estimate, ci_low = bt$conf.int[1], ci_high = bt$conf.int[2],
+         ci_width = ci_high - ci_low)
+})
+results
+# As n grows, p_hat approaches 0.5 and the 95% CI narrows roughly like 1/sqrt(n).
+# <<< SOLUTION
+```
+
+### 3.1 Simulating a Biased Coin (Optional Extension)
+
+```{r biased-coin}
+set.seed(42)
+biased_outcomes <- sample(c("H", "T"), size = 1000, replace = TRUE, prob = c(0.7, 0.3))
+round(prop.table(table(biased_outcomes)), 3)
+
+# Can we detect the bias? Test H0: p = 0.5
+binom.test(sum(biased_outcomes == "H"), 1000, p = 0.5)$p.value
+```
+
+---
+
+## 4. Simulating a Fair Six-Sided Die
+
+A standard die has six faces and, for a **fair die**, $P(1) = P(2) = \dots = P(6) = 1/6 \approx 0.1667$.
+
+```{r dice}
+set.seed(42)
+n_rolls <- 2000                                   # TODO: experiment with different values
+
+dice_outcomes <- sample(1:6, size = n_rolls, replace = TRUE)
+
+dice_counts <- table(dice_outcomes)
+dice_rel    <- prop.table(dice_counts)
+
+dice_counts
+round(dice_rel, 4)
+```
+
+```{r dice-plot}
+as_tibble(dice_counts) |>
+  ggplot(aes(x = dice_outcomes, y = n)) +
+  geom_col(fill = "steelblue") +
+  geom_hline(yintercept = n_rolls / 6, colour = "firebrick", linetype = "dashed") +
+  labs(title = paste("Results of", n_rolls, "simulated dice rolls"),
+       subtitle = "Red dashed line = expected count if the die is fair", x = "Die face", y = "Count")
+```
+
+Are the differences between faces just chance? A **chi-square goodness-of-fit test** compares the observed counts $O_i$ with the expected counts $E_i = n/6$:
+
+$$\chi^2 = \sum_{i=1}^{6}\frac{(O_i - E_i)^2}{E_i}, \qquad \text{df} = 6-1 = 5.$$
+
+```{r dice-chisq}
+chisq.test(dice_counts, p = rep(1/6, 6))
+```
+
+A large p-value (for example > 0.05) means the data are **consistent with a fair die**.
+
+> ✏️ **Student Task 2:**
+> - Compare the relative frequencies with the theoretical probability (≈ 0.1667 for each face).
+> - Are some faces slightly more frequent than others in your simulation? Is that expected? Why or why not?
+> - Simulate a **loaded die** in which face 6 has probability 0.25 and the other faces share the rest equally. Does the chi-square test detect it with 2000 rolls?
+
+```{r task2}
+# >>> SOLUTION
+set.seed(42)
+loaded_probs <- c(rep(0.15, 5), 0.25)               # sums to 1
+loaded_rolls <- sample(1:6, 2000, replace = TRUE, prob = loaded_probs)
+table(loaded_rolls)
+chisq.test(table(loaded_rolls), p = rep(1/6, 6))
+# p-value is far below 0.05: the test detects the loaded die.
+# <<< SOLUTION
+```
+
+---
+
+## 5. Law of Large Numbers (Informal Demonstration)
+
+The **Law of Large Numbers** says that the sample proportion $\hat{p}_n$ converges to the true probability $p$ as $n \to \infty$. We watch the running proportion of sixes as we roll more times:
+
+```{r lln}
+set.seed(42)
+n_max <- 5000
+rolls <- sample(1:6, n_max, replace = TRUE)
+
+lln <- tibble(
+  n     = 1:n_max,
+  p_hat = cumsum(rolls == 6) / n                  # running proportion of sixes
+) |>
+  mutate(se = sqrt((1/6) * (5/6) / n))            # theoretical standard error
+
+ggplot(lln, aes(x = n, y = p_hat)) +
+  geom_ribbon(aes(ymin = 1/6 - 2 * se, ymax = 1/6 + 2 * se), fill = "grey85") +
+  geom_line(colour = "steelblue") +
+  geom_hline(yintercept = 1/6, colour = "firebrick", linetype = "dashed") +
+  scale_x_log10() +
+  labs(title = "Estimated probability of rolling a 6 versus number of rolls",
+       subtitle = "Grey band = theoretical 95% range, 1/6 ± 2·SE; red line = true value 1/6",
+       x = "Number of rolls (log scale)", y = "Running proportion of sixes")
+```
+
+The estimates are wild for small $n$ and settle near $1/6$ as $n$ grows, staying inside the shrinking grey band.
+
+> ✏️ **Student Reflection 3:**
+> - As the number of rolls increases, what happens to the estimated probability of rolling a 6?
+> - How does this support the **Law of Large Numbers**?
+
+---
+
+## 6. Visualising Probability Distributions
+
+We now simulate and visualise three important distributions:
+
+1. **Normal distribution** – continuous, bell-shaped (heights, exam scores).
+2. **Binomial distribution** – discrete, number of successes in repeated yes/no trials.
+3. **Uniform distribution** – continuous, all values in an interval equally likely.
+
+R names each distribution's functions with a prefix: `r` = **r**andom numbers, `d` = **d**ensity/mass, `p` = cumulative **p**robability, `q` = **q**uantile. So `rnorm`, `dnorm`, `pnorm`, `qnorm` all belong to the normal distribution.
+
+### 6.1 Normal Distribution
+
+$X \sim N(\mu, \sigma^2)$ has density
+
+$$f(x) = \frac{1}{\sigma\sqrt{2\pi}}\exp\!\left(-\frac{(x-\mu)^2}{2\sigma^2}\right).$$
+
+```{r normal}
+set.seed(42)
+mean_val <- 0       # centre of the distribution (mu)
+sd_val   <- 1       # standard deviation (sigma)
+n_samples_normal <- 5000
+
+normal_samples <- rnorm(n_samples_normal, mean = mean_val, sd = sd_val)
+
+ggplot(tibble(x = normal_samples), aes(x)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 40, fill = "steelblue", colour = "white") +
+  stat_function(fun = dnorm, args = list(mean = mean_val, sd = sd_val),
+                colour = "firebrick", linewidth = 1) +
+  labs(title = "Normal distribution simulation (mean = 0, sd = 1)",
+       subtitle = "Red curve = theoretical density", x = "Value", y = "Density")
+```
+
+The **empirical rule**: about 68%, 95% and 99.7% of values lie within 1, 2 and 3 standard deviations of the mean. Check it on the simulated data:
+
+```{r empirical-rule}
+tibble(k = 1:3,
+       simulated   = sapply(1:3, function(k) mean(abs(normal_samples - mean_val) <= k * sd_val)),
+       theoretical = 2 * pnorm(1:3) - 1) |>
+  mutate(across(c(simulated, theoretical), ~ round(.x, 4)))
+```
+
+> ✏️ **Student Task 4:**
+> - Change `mean_val` to 10 and `sd_val` to 2, re-run, and observe how the shape and position of the curve change.
+> - How does increasing the standard deviation affect the spread of the distribution?
+> - Overlay **three** normal curves ($N(0,1)$, $N(0,2^2)$, $N(3,1)$) on one plot.
+
+```{r task4}
+# >>> SOLUTION
+ggplot(tibble(x = c(-8, 8)), aes(x)) +
+  stat_function(fun = dnorm, args = list(0, 1), aes(colour = "N(0, 1)"),   linewidth = 1) +
+  stat_function(fun = dnorm, args = list(0, 2), aes(colour = "N(0, 2^2)"), linewidth = 1) +
+  stat_function(fun = dnorm, args = list(3, 1), aes(colour = "N(3, 1)"),   linewidth = 1) +
+  labs(title = "Normal densities with different means and standard deviations",
+       x = "x", y = "Density", colour = NULL)
+# The mean shifts the curve left/right; a larger sd makes it wider and flatter.
+# <<< SOLUTION
+```
+
+### 6.2 Binomial Distribution
+
+Example: the number of **Heads** in 10 tosses of a fair coin. $X \sim \mathrm{Binomial}(n, p)$ has
+
+$$P(X = k) = \binom{n}{k}p^k(1-p)^{n-k},\quad k = 0,1,\dots,n; \qquad E[X] = np,\quad \mathrm{Var}(X) = np(1-p).$$
+
+```{r binomial}
+set.seed(42)
+n_trials      <- 10     # number of coin tosses in each experiment
+p_success     <- 0.5    # probability of getting Heads
+n_experiments <- 5000
+
+binomial_samples <- rbinom(n_experiments, size = n_trials, prob = p_success)
+
+theory <- tibble(k = 0:n_trials, prob = dbinom(0:n_trials, n_trials, p_success))
+
+ggplot(tibble(k = binomial_samples), aes(k)) +
+  geom_bar(aes(y = after_stat(prop)), fill = "steelblue") +
+  geom_point(data = theory, aes(y = prob), colour = "firebrick", size = 3) +
+  scale_x_continuous(breaks = 0:n_trials) +
+  labs(title = paste0("Binomial distribution simulation (n = ", n_trials, ", p = ", p_success, ")"),
+       subtitle = "Bars = simulated proportions; red dots = theoretical probabilities",
+       x = "Number of successes (Heads)", y = "Proportion")
+
+# Compare simulated and theoretical mean and variance
+c(sim_mean = mean(binomial_samples), theory_mean = n_trials * p_success,
+  sim_var  = var(binomial_samples),  theory_var  = n_trials * p_success * (1 - p_success))
+```
+
+> ✏️ **Student Task 5:**
+> - Change `p_success` to 0.2 and then to 0.8 and re-run.
+> - How does the shape of the distribution change as the probability of success increases or decreases?
+> - Use `dbinom()` to compute the exact probability of getting **exactly 5** heads and **at least 8** heads in 10 tosses.
+
+```{r task5}
+# >>> SOLUTION
+set.seed(42)
+bind_rows(lapply(c(0.2, 0.5, 0.8), function(prob)
+  tibble(setting = paste("p =", prob), k = rbinom(5000, 10, prob)))) |>
+  ggplot(aes(k)) +
+  geom_bar(aes(y = after_stat(prop)), fill = "steelblue") +
+  facet_wrap(~ setting) +
+  scale_x_continuous(breaks = 0:10) +
+  labs(title = "Binomial(10, p): effect of p", x = "Number of successes", y = "Proportion")
+
+dbinom(5, size = 10, prob = 0.5)                         # P(X = 5)  = 0.2461
+1 - pbinom(7, size = 10, prob = 0.5)                     # P(X >= 8) = 0.0547
+# p = 0.2 is right-skewed, p = 0.5 symmetric, p = 0.8 left-skewed.
+# <<< SOLUTION
+```
+
+### 6.3 Uniform Distribution
+
+Example: a random real number chosen between $a$ and $b$ where all values are equally likely: $f(x) = \dfrac{1}{b-a}$ for $a \le x \le b$.
+
+```{r uniform}
+set.seed(42)
+low  <- 0.0
+high <- 1.0
+n_samples_uniform <- 5000
+
+uniform_samples <- runif(n_samples_uniform, min = low, max = high)
+
+ggplot(tibble(x = uniform_samples), aes(x)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 40, fill = "steelblue", colour = "white") +
+  stat_function(fun = dunif, args = list(min = low, max = high), colour = "firebrick", linewidth = 1) +
+  labs(title = paste0("Uniform distribution simulation (low = ", low, ", high = ", high, ")"),
+       x = "Value", y = "Density")
+```
+
+> ✏️ **Student Task 6:**
+> - Change `low` to -3 and `high` to 5 and re-run.
+> - Compare the shape of the histogram with the normal distribution. What is the main difference?
+
+---
+
+## 7. Mini Simulation Exercise
+
+> 🧪 **Student Activity:**
+> Design a small simulation experiment of your own. Examples:
+
+- Model the number of customers arriving per hour (hint: `rpois()`).
+- Simulate the total score when rolling **two dice** and adding the results.
+- Simulate marks for an exam using a normal distribution with a chosen mean and standard deviation.
+
+For your experiment:
+
+1. Explain the **real-world scenario** you are modelling.
+2. Justify which distribution you chose (normal/binomial/uniform or combination).
+3. Generate simulated data and visualise it with at least **two plots**.
+4. Write a short paragraph interpreting your results.
+
+*Worked example – the sum of two dice.* The theoretical probability of sum $s$ is $P(S=s) = \dfrac{6 - |s-7|}{36}$ for $s = 2,\dots,12$.
+
+```{r mini-example}
+set.seed(42)
+n <- 10000
+two_dice <- tibble(s = sample(1:6, n, replace = TRUE) + sample(1:6, n, replace = TRUE))
+
+theory <- tibble(s = 2:12, prob = (6 - abs(s - 7)) / 36)
+
+ggplot(two_dice, aes(s)) +
+  geom_bar(aes(y = after_stat(prop)), fill = "steelblue") +
+  geom_point(data = theory, aes(y = prob), colour = "firebrick", size = 3) +
+  scale_x_continuous(breaks = 2:12) +
+  labs(title = "Sum of two dice (10,000 rolls)",
+       subtitle = "Bars = simulation; red dots = theory", x = "Sum", y = "Proportion")
+
+mean(two_dice$s >= 10)        # simulated P(S >= 10); theory = 6/36 = 0.1667
+```
+
+*Your own experiment starts here:*
+
+---
+
+## 8. Summary and Reflection (Week 4 PH)
+
+In this Week 4 practical, you have:
+
+- Simulated coin tosses and dice rolls to approximate theoretical probabilities, with confidence intervals and a goodness-of-fit test.
+- Observed how increasing the number of trials makes empirical frequencies approach theoretical values (**Law of Large Numbers**).
+- Generated and visualised **normal**, **binomial**, and **uniform** distributions and compared them with their theoretical formulas.
+- Built intuition about the **shape**, **centre**, and **spread** of common probability distributions.
+
+> 🧠 **Final Reflection (write 1–2 paragraphs):**
+> - Which simulation or distribution did you find easiest to understand? Which was most challenging?
+> - How can simulation help you understand probability concepts better than formulas alone?
+> - How might these ideas be useful later for data science modelling and hypothesis testing?

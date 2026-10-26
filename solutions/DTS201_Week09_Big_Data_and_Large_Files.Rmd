@@ -1,0 +1,380 @@
+---
+title: "DTS 201 – Introduction to Data Science"
+subtitle: "Week 9 Practical (PH): Big Data, Large Files & Working in RStudio / Jupyter / Google Colab – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy)"
+author: "Dr. Sakinat Folorunso — Associate Professor of AI Systems and FAIR Data, Department of Computer Sciences, Olabisi Onabanjo University, Ago-Iwoye, Ogun State, Nigeria"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: readable
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.width = 7, fig.height = 4.2)
+set.seed(42)
+data_dir <- if (dir.exists("../data")) "../data" else "data"
+```
+
+**Course Code:** DTS 201  **Practical Week:** 9 – Big Data Integration and Analytics
+
+---
+
+### 🎯 Practical Learning Objectives (Week 9)
+
+By the end of this practical session, you should be able to:
+
+- **Explain** the basic idea of **Big Data** and why large files are challenging.
+- **Describe** key features of **notebook environments** (R Markdown in RStudio, Jupyter, Google Colab, Posit Cloud) for data science.
+- **Simulate** a **large dataset** and inspect its memory usage.
+- **Load and process** data using **chunking** instead of reading everything at once.
+- **Apply** simple analytics (totals, means, standard deviations, group means) on large files in a **memory-efficient** way.
+
+> 💡 This lab is a gentle introduction to "big data thinking" using **simulated large CSV files** rather than real multi-GB datasets, to keep it safe for student laptops and lab machines.
+
+---
+
+## 1. What Do We Mean by "Big Data"?
+
+In practice, **Big Data** often means data that is:
+
+- Too **large** (**V**olume) to fit into memory (RAM) on a single machine.
+- Too **fast** (**V**elocity: high-speed streams) to process one record at a time without special tools.
+- Too **complex** (**V**ariety: text, images, logs, clicks, sensors) to handle with simple spreadsheets.
+
+In this course we will **not** work with terabytes of data, but we will:
+
+- Think about how **file size** and **memory** affect analysis.
+- Practise techniques such as **chunking** and **type optimisation**.
+- Use notebook tools such as **RStudio, Jupyter, and Google Colab** effectively.
+
+### 1.1 Notebooks: RStudio, Jupyter and Google Colab (Quick Orientation)
+
+All of these environments let you:
+
+- Write and run code in small blocks called **cells** (or **chunks**).
+- Mix **code**, **output**, and **explanatory text** in one document.
+- Save, share, and re-run experiments easily.
+
+| Idea | Jupyter / Google Colab | R Markdown in RStudio / Posit Cloud |
+|---|---|---|
+| File type | `.ipynb` | `.Rmd` |
+| Code block | **Code cell** | **Code chunk** (starts with `` ```{r} ``) |
+| Text block | **Markdown cell** | Plain Markdown text between chunks |
+| Run one block | `Shift + Enter` | `Ctrl/Cmd + Shift + Enter` or the green ▶ |
+| Publish a report | Download as HTML/PDF | **Knit** to HTML, PDF or Word |
+| Language | Python (default) or R (choose the R runtime in Colab) | R |
+
+> 🔧 **Using R on Google Colab:** *Runtime → Change runtime type → R.* Upload files from the **Files** panel on the left, set `data_dir <- "/content"`, and run `install.packages("tidyverse")` once per session (it takes a few minutes).
+
+> ✏️ **Student Task (orientation):**
+> - Click in the Markdown text of this notebook and edit a sentence. Knit (or re-run) it and watch the formatting update.
+> - Run a code chunk with the green ▶ button and find the output beneath it.
+
+---
+
+## 2. Loading Required Packages
+
+```{r packages}
+library(tidyverse)         # includes readr (chunked reading), dplyr, ggplot2, lubridate
+theme_set(theme_minimal(base_size = 12))
+```
+
+---
+
+## 3. Simulating a Large Dataset in Memory
+
+To avoid downloading very large files, we **simulate** a dataset with many rows:
+
+- an `id` column (1, 2, 3, ...),
+- a `category` column (A, B, C, D),
+- a numerical column `value` (random numbers),
+- a `date` column (simulated dates in 2024).
+
+> ⚠️ **Warning:** Do not make this too large on a weak machine (avoid 5 million rows on an old laptop). Start with 100,000 rows and increase only if your system stays responsive.
+
+```{r simulate}
+n_rows <- 100000          # TODO: adjust (10000 ... 500000) based on your machine
+
+set.seed(42)              # reproducible random numbers
+
+df_large <- tibble(
+  id       = 1:n_rows,                                              # unique identifier
+  category = sample(c("A", "B", "C", "D"), n_rows, replace = TRUE), # random category
+  value    = rnorm(n_rows, mean = 100, sd = 15),                    # normal(mean 100, sd 15)
+  date     = as.Date("2024-01-01") + sample(0:364, n_rows, replace = TRUE)   # random 2024 dates
+)
+
+head(df_large)
+```
+
+> ✏️ **Student Task 1:**
+> - Change `n_rows` to a smaller value (10,000) and then a larger value (300,000, if your machine can handle it) and re-run.
+> - Use `system.time()` around the simulation code to measure how the time grows with `n_rows`.
+
+```{r task1}
+# >>> SOLUTION
+simulate <- function(n) {
+  tibble(id = 1:n, category = sample(c("A", "B", "C", "D"), n, replace = TRUE),
+         value = rnorm(n, 100, 15),
+         date = as.Date("2024-01-01") + sample(0:364, n, replace = TRUE))
+}
+timings <- map_dfr(c(10000, 100000, 300000), function(n) {
+  t <- system.time(simulate(n))[["elapsed"]]
+  tibble(n_rows = n, seconds = round(t, 3))
+})
+timings
+# Time grows roughly in proportion to n_rows.
+# <<< SOLUTION
+```
+
+### 3.1 Checking Memory Usage of the Data Frame
+
+```{r memory}
+# object.size() reports the memory used by an object, in bytes
+mem_per_column <- sapply(df_large, object.size)
+mem_per_column
+
+total_memory_mb <- as.numeric(object.size(df_large)) / 1024^2
+cat(sprintf("Total memory usage of df_large: %.2f MB\n", total_memory_mb))
+```
+
+> ✏️ **Student Reflection 2:**
+> - How much memory (in MB) does your `df_large` use?
+> - What happens to the memory usage if you double `n_rows`? Does it roughly double as well?
+
+---
+
+## 4. Saving the Large Dataset to CSV (Simulating a Large File)
+
+To simulate working with a **large file from disk**, we:
+
+1. Save `df_large` to a CSV file.
+2. Pretend that we are now another analyst who must load this file in **chunks** instead of reading everything at once.
+
+```{r save-csv}
+out_dir <- file.path(dirname(normalizePath(data_dir)), "outputs")     # project's outputs folder
+dir.create(out_dir, showWarnings = FALSE)
+
+large_csv_path <- file.path(out_dir, "simulated_large_dataset.csv")   # created if it does not exist
+write_csv(df_large, large_csv_path)
+
+cat(sprintf("Saved to %s\nFile size on disk: %.2f MB\n", large_csv_path, file.size(large_csv_path) / 1024^2))
+```
+
+---
+
+## 5. Loading and Processing the Large CSV File in Chunks
+
+When a file is too large for memory, we use **chunking**:
+
+- The file is read in **small portions** (e.g. 20,000 rows at a time).
+- Each chunk is processed and a small **partial result** is kept.
+- The partial results are then **combined**.
+
+This works for any statistic that can be built from **sufficient statistics**. To get the overall mean *and* standard deviation we only need, from each chunk $c$, three numbers: the count $n_c$, the sum $S_c = \sum x$, and the sum of squares $Q_c = \sum x^2$. Then
+
+$$n = \sum_c n_c,\qquad \bar{x} = \frac{\sum_c S_c}{n},\qquad
+s^2 = \frac{\sum_c Q_c - n\bar{x}^2}{n-1}.$$
+
+In `readr`, `read_csv_chunked()` calls a function you supply on every chunk:
+
+```{r chunked-global}
+chunk_size <- 20000            # TODO: try 5000 and 50000
+
+# This function receives ONE chunk and returns a tiny summary of it
+summarise_chunk <- function(chunk, pos) {
+  tibble(n = nrow(chunk), sum_x = sum(chunk$value), sum_x2 = sum(chunk$value^2))
+}
+
+partials <- read_csv_chunked(
+  large_csv_path,
+  callback   = DataFrameCallback$new(summarise_chunk),   # stack the per-chunk summaries
+  chunk_size = chunk_size,
+  col_types  = cols(id = "i", category = "c", value = "d", date = "D")
+)
+
+partials          # one row per chunk
+```
+
+```{r chunked-combine}
+n_total  <- sum(partials$n)
+mean_chk <- sum(partials$sum_x) / n_total
+var_chk  <- (sum(partials$sum_x2) - n_total * mean_chk^2) / (n_total - 1)
+sd_chk   <- sqrt(var_chk)
+
+cat("Processed file in chunks of size:", chunk_size, "\n")
+cat("Total rows processed            :", n_total, "\n")
+cat(sprintf("Overall mean (chunks): %.6f   SD (chunks): %.6f\n", mean_chk, sd_chk))
+```
+
+For comparison, compute the same quantities directly from the in-memory data frame:
+
+```{r direct}
+cat(sprintf("Direct  mean         : %.6f   SD        : %.6f\n", mean(df_large$value), sd(df_large$value)))
+```
+
+> 💡 The two answers agree to many decimals, but with a very different memory cost: the chunked version never holds more than `chunk_size` rows. (For extreme data, the sum-of-squares formula can lose precision; statisticians then use *Welford's* update, which is also one-pass.)
+
+> ✏️ **Student Task 3:**
+> - Compare the chunk-based mean and SD with the direct in-memory values. Are they (almost) the same?
+> - Change `chunk_size` to a smaller number (e.g. 5,000) and re-run. Did the result change? Did the process become slower or faster? (Use `system.time()`.)
+
+```{r task3}
+# >>> SOLUTION
+time_chunked <- function(cs) {
+  system.time(
+    read_csv_chunked(large_csv_path, DataFrameCallback$new(summarise_chunk),
+                     chunk_size = cs, col_types = cols(id = "i", category = "c", value = "d", date = "D"))
+  )[["elapsed"]]
+}
+tibble(chunk_size = c(1000, 5000, 20000, 100000),
+       seconds    = sapply(c(1000, 5000, 20000, 100000), time_chunked)) |>
+  mutate(seconds = round(seconds, 3))
+# The mean and SD do not change with the chunk size (they are exact). Very small chunks
+# add overhead (more calls); very large chunks use more memory. Choose a middle value.
+# <<< SOLUTION
+```
+
+---
+
+## 6. Grouped Aggregation in Chunks (By Category)
+
+Real big-data tasks usually need **grouped** statistics (by branch, product, date, patient group). We keep a per-group count, sum and sum of squares from every chunk, then add them up:
+
+```{r chunked-group}
+summarise_chunk_by_cat <- function(chunk, pos) {
+  chunk |>
+    group_by(category) |>
+    summarise(n = n(), sum_x = sum(value), sum_x2 = sum(value^2), .groups = "drop")
+}
+
+partials_cat <- read_csv_chunked(
+  large_csv_path,
+  callback   = DataFrameCallback$new(summarise_chunk_by_cat),
+  chunk_size = chunk_size,
+  col_types  = cols(id = "i", category = "c", value = "d", date = "D")
+)
+
+category_summary <- partials_cat |>
+  group_by(category) |>
+  summarise(n = sum(n), sum_x = sum(sum_x), sum_x2 = sum(sum_x2), .groups = "drop") |>
+  mutate(mean_value = sum_x / n,
+         sd_value   = sqrt((sum_x2 - n * mean_value^2) / (n - 1))) |>
+  select(category, n, mean_value, sd_value)
+
+category_summary
+```
+
+```{r group-check}
+# The in-memory answer for comparison
+df_large |> group_by(category) |> summarise(n = n(), mean_value = mean(value), sd_value = sd(value))
+```
+
+> ✏️ **Student Task 4:**
+> - Which category has the highest mean value? Which has the lowest?
+> - Because the data were simulated with the *same* mean (100) for every category, differences are pure chance. Test this with a one-way ANOVA on `df_large` (`aov(value ~ category)`). What do you conclude?
+> - How could such grouped statistics be useful in a business or scientific context?
+
+```{r task4}
+# >>> SOLUTION
+category_summary |> arrange(desc(mean_value))
+summary(aov(value ~ category, data = df_large))
+# The group means differ by only a fraction of a unit; the ANOVA p-value is large (0.31), so there
+# is no evidence of a difference: the categories were simulated from the same distribution.
+# <<< SOLUTION
+```
+
+---
+
+## 7. Reducing Memory Usage with Data Type Optimisation
+
+An important way to cope with large data is to choose **more efficient data types**:
+
+- Store whole numbers as **integer** rather than double precision.
+- Convert repeated text (categories) to **factors** (small integer codes plus a label table).
+- Use proper **Date** objects rather than text.
+- Read **only the columns you need**.
+
+> ℹ️ *Difference from Python:* R has no 32-bit decimal type, so `numeric` columns always use 8 bytes per value. Savings come from integers, factors and dates.
+
+```{r types}
+# A "naive" version, as you might get from careless import: numbers as doubles, text as character
+df_naive <- df_large |>
+  mutate(id = as.numeric(id), category = as.character(category), date = as.character(date))
+
+# An optimised version
+df_optimised <- df_large |>
+  mutate(id = as.integer(id), category = factor(category), date = as.Date(date))
+
+sapply(df_naive, class)
+sapply(df_optimised, class)
+```
+
+```{r compare-memory}
+mem_tbl <- tibble(
+  column    = names(df_large),
+  naive_MB  = sapply(df_naive,     function(x) as.numeric(object.size(x)) / 1024^2),
+  optimised = sapply(df_optimised, function(x) as.numeric(object.size(x)) / 1024^2)
+)
+mem_tbl <- bind_rows(mem_tbl, tibble(column = "TOTAL",
+                                     naive_MB = sum(mem_tbl$naive_MB), optimised = sum(mem_tbl$optimised)))
+mem_tbl |> mutate(across(where(is.numeric), ~ round(.x, 3)))
+
+saving <- 1 - sum(mem_tbl$optimised[mem_tbl$column != "TOTAL"]) / sum(mem_tbl$naive_MB[mem_tbl$column != "TOTAL"])
+cat(sprintf("Memory saved by optimising types: %.1f%%\n", 100 * saving))
+```
+
+You can also **declare the types while reading** the file, and skip unwanted columns, so the data are never held in the wasteful form:
+
+```{r read-typed}
+df_typed <- read_csv(
+  large_csv_path,
+  col_types  = cols(id = col_integer(), category = readr::col_factor(), value = col_double(), date = col_date()),
+  col_select = c(id, category, value)               # skip the date column entirely
+)
+sapply(df_typed, class)
+cat(sprintf("Memory: %.2f MB\n", as.numeric(object.size(df_typed)) / 1024^2))
+```
+
+> ✏️ **Student Reflection 5:**
+> - How much memory did you save (in MB and as a percentage) after optimisation?
+> - Why is this kind of optimisation important when working with much larger datasets (millions of rows, many columns)?
+
+---
+
+## 8. Mini Big Data Exercise
+
+> 🧪 **Student Activity:**
+> Using the techniques in this notebook, complete the following:
+
+1. Change `n_rows` to simulate a dataset that is **large but still manageable** on your machine.
+2. Save it to CSV and process it in chunks to compute:
+   - the overall mean and standard deviation of `value`;
+   - the mean value by category.
+3. Optimise the data types and report the original and optimised memory usage.
+4. Write a short paragraph describing:
+   - what challenges you observed when increasing the dataset size;
+   - how chunking and type optimisation can help in real big-data scenarios.
+
+*Your report starts here:*
+
+---
+
+## 9. Summary and Reflection (Week 9 PH)
+
+In this Week 9 practical, you have:
+
+- Reviewed the concept of **Big Data** and its challenges for memory and computation.
+- Compared **RStudio / R Markdown**, **Jupyter** and **Google Colab** as interactive environments.
+- Simulated a **large dataset** and examined its memory usage with `object.size()`.
+- Processed a large CSV file in **chunks** with `read_csv_chunked()`, computing exact global and grouped statistics from sufficient statistics.
+- Reduced the memory footprint with **type optimisation**.
+
+> 🧠 **Final Reflection (1–2 paragraphs):**
+> - How do today's activities change your thinking about working with "big" datasets in practice?
+> - What limitations do notebook tools such as RStudio and Colab still have when dealing with truly massive data (terabytes or more)?
+> - Which of the techniques (chunking, type optimisation, simulation) do you think you will use again in future projects?
+
+> 🧹 **Housekeeping:** the file `outputs/simulated_large_dataset.csv` can be deleted when you finish; running the notebook again will recreate it.

@@ -1,0 +1,363 @@
+---
+title: "DTS 201 – Introduction to Data Science"
+subtitle: "Week 2 Practical (PH): Data Collection, Cleaning, and Quality Assessment – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy)"
+author: "Dr. Sakinat Folorunso — Associate Professor of AI Systems and FAIR Data, Department of Computer Sciences, Olabisi Onabanjo University, Ago-Iwoye, Ogun State, Nigeria"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: readable
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.width = 7, fig.height = 4.2)
+set.seed(42)
+data_dir <- if (dir.exists("../data")) "../data" else "data"
+```
+
+**Course Code:** DTS 201  **Practical Week:** 2 – Data Science Process I
+
+---
+
+### 🎯 Practical Learning Objectives (Week 2)
+
+By the end of this practical session, you should be able to:
+
+- **Collect** data from multiple sources (manual entry, web files, shared documents).
+- **Import and combine** raw datasets using R (CSV, Excel, TXT).
+- **Detect** common data quality problems (missing values, inconsistent labels, wrong data types, duplicates).
+- **Clean and standardise** real-world data for analysis.
+- **Apply** basic validation checks to ensure the correctness and reliability of your dataset.
+
+> 💡 **This notebook is highly student-centred.** You will perform each task hands-on, modify the code, interpret results, and submit your own reflections.
+
+---
+
+## 1. Getting Started: Where Will Your Data Come From?
+
+In this practical, you will practise collecting datasets from these common sources:
+
+1. **Files downloaded from the web** (CSV, XLSX).
+2. **Manual entry**, where you create a data frame from scratch.
+3. **Shared departmental data** (provided by your lecturer in the `data` folder).
+
+You may work with your own dataset, the sample datasets provided, or create a small dataset of your own.
+
+> 🔧 **Working outside RStudio Desktop?** On Posit Cloud, upload the data folder. On Google Colab (R runtime), upload files in the Files panel and set `data_dir <- "/content"`.
+
+---
+
+## 2. Loading Required Packages
+
+```{r packages}
+library(tidyverse)   # readr, dplyr, tidyr, ggplot2, stringr ...
+library(readxl)      # Excel files
+```
+
+---
+
+## 3. Collecting and Importing Raw Datasets
+
+We will work with datasets that may contain typos, missing values, inconsistent labels, duplicate entries, and wrong data types. You will load three datasets of the *same* product catalogue stored in three formats:
+
+- A **CSV** file (`Sales_data.csv`)
+- An **Excel** file (`Sales_data.xlsx`)
+- A **TXT** (tab-delimited) file (`Sales_data.txt`)
+
+This is an **Amazon India product and review dataset**. Each row is a product listing together with review information.
+
+### 3.1 Importing a CSV File
+
+`read_csv()` *guesses* each column's type by looking at the first 1000 rows. That is convenient but can hide problems. Run this chunk and read the message carefully:
+
+```{r csv-default}
+csv_path <- file.path(data_dir, "Sales_data.csv")      # TODO: change for other files
+
+df_csv_guess <- read_csv(csv_path)                     # let readr guess the types
+
+# Which cells could readr NOT parse with the types it guessed?
+problems(df_csv_guess)
+```
+
+readr guessed that `rating` is numeric, but one row contains the text `|`. To stay in control we can read **everything as text first**, inspect, and then convert deliberately:
+
+```{r csv-raw}
+df_csv <- read_csv(csv_path, col_types = cols(.default = col_character()))
+
+# Show a few columns (the full table is wide)
+head(select(df_csv, product_id, category, discounted_price, discount_percentage, rating, rating_count))
+```
+
+### 3.2 Importing an Excel File
+
+```{r excel-raw}
+excel_path <- file.path(data_dir, "Sales_data.xlsx")   # TODO: change for other files
+
+# col_types = "text" reads every column as text, as we did for the CSV
+df_excel <- read_excel(excel_path, col_types = "text")
+
+head(select(df_excel, product_id, category, discounted_price, discount_percentage, rating, rating_count))
+```
+
+> 🔍 **Compare:** In the CSV, `discount_percentage` looks like `64%`. In the Excel file it looks like `0.64`. Same information, different representation. Also look at the price column in the Excel version: the ₹ symbol may appear as strange characters (an **encoding** problem).
+
+### 3.3 Importing a TXT / Delimited File
+
+Text files can be separated by commas, tabs, semicolons, or pipes. If you pick the wrong separator you get one giant column. First **peek at the raw lines** to see what the separator is:
+
+```{r txt-peek}
+txt_path <- file.path(data_dir, "Sales_data.txt")      # TODO: change for other files
+
+# Read the first 3 raw lines and show only the first 150 characters of each
+raw_lines <- readLines(txt_path, n = 3, warn = FALSE, encoding = "UTF-8")
+for (i in seq_along(raw_lines)) {
+  cat("Line", i, ":", substr(raw_lines[i], 1, 150), "\n")
+}
+```
+
+The columns appear to be separated by a **tab** (`\t`), so we use `read_tsv()`:
+
+```{r txt-read}
+df_txt <- read_tsv(txt_path, col_types = cols(.default = col_character()))
+
+dim(df_txt)
+head(select(df_txt, product_id, category, discounted_price, rating))
+```
+
+### 3.4 Manual Entry (Creating a Dataset from Scratch)
+
+Sometimes data are typed by hand, for example from a paper register. Manual entry is very error-prone, so the next small dataset deliberately contains typical human mistakes. We will use it for cleaning practice.
+
+```{r manual-entry}
+# tribble() lets you type a table row by row
+messy_students <- tribble(
+  ~Student, ~Gender,   ~Age, ~Score,
+  "S01",    "Male",     20,   "72",
+  "S02",    "male ",    19,   "65",
+  "S03",    "M",        21,   "88",
+  "S04",    "Female",   NA,   "54",
+  "S05",    "F",        22,   "91",
+  "S06",    "FEMALE",   20,   "N/A",
+  "S07",    "female",   19,   "67",
+  "S01",    "Male",     20,   "72"      # S01 typed twice
+)
+messy_students
+```
+
+> ✏️ **Student Task 1:**
+> For each dataset (CSV, Excel, TXT, manual):
+> 1. State what the **rows** represent.
+> 2. Identify at least **3 columns**.
+> 3. Explain which dataset looks "cleanest" and which looks "messiest".
+
+*Your answer here:*
+
+---
+
+## 4. Assessing Data Quality
+
+### 4.1 Checking for Missing Values
+
+```{r missing-count}
+# Count missing values (NA) per column in the manual dataset
+colSums(is.na(messy_students))
+
+# Same for the CSV dataset (all columns read as text)
+colSums(is.na(df_csv))
+```
+
+Real data often hide missing values as *text* such as `"N/A"`, `""`, `"-"` or `"|"`. `is.na()` cannot see those. Let us use the **Titanic** passenger list, a famous dataset with plenty of genuine gaps, to visualise missingness:
+
+```{r titanic-load}
+titanic_raw <- read_csv(file.path(data_dir, "titanic_train.csv"),
+                        na = c("", "NA"))      # treat empty cells as missing
+dim(titanic_raw)
+colSums(is.na(titanic_raw))
+```
+
+```{r missing-heatmap, fig.height=5}
+# Build a "missingness map": each tile is one cell of the data
+miss_map <- is.na(titanic_raw) |>
+  as_tibble() |>
+  mutate(row = row_number()) |>
+  pivot_longer(-row, names_to = "column", values_to = "missing")
+
+ggplot(miss_map, aes(x = column, y = row, fill = missing)) +
+  geom_tile() +
+  scale_y_reverse() +
+  scale_fill_manual(values = c(`FALSE` = "grey90", `TRUE` = "firebrick"),
+                    labels = c("Present", "Missing"), name = NULL) +
+  labs(title = "Missing values in the Titanic dataset",
+       x = NULL, y = "Row (passenger)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+### 4.2 Checking for Inconsistent Categories
+
+```{r inconsistent}
+# unique() / count() reveal typos and variants
+unique(messy_students$Gender)
+
+messy_students |> count(Gender)
+```
+
+`"Male"`, `"male "` (with a trailing space), `"M"`, `"Female"`, `"FEMALE"`, `"F"`, `"female"` are really only **two** categories.
+
+### 4.3 Detecting Wrong Data Types
+
+```{r wrong-types}
+# Inspect column types
+sapply(messy_students, class)           # Score should be numeric, but it is text
+sapply(select(df_csv, discounted_price, rating, rating_count), class)
+```
+
+Look at the product prices: they carry a currency symbol and a thousands separator, so they cannot be used in arithmetic until cleaned.
+
+```{r price-example}
+head(select(df_csv, discounted_price, actual_price, rating_count), 5)
+```
+
+### 4.4 Detecting Duplicates
+
+```{r duplicates}
+# Completely identical rows
+sum(duplicated(messy_students))
+
+# Repeated KEY values (same product listed more than once)
+n_distinct(df_csv$product_id)       # unique products
+nrow(df_csv)                        # total rows
+```
+
+> 💡 **Think about the unit of analysis.** The product catalogue has repeated `product_id` values because the file contains product *and review* information. If your question is about **products**, you want one row per product.
+
+> ✏️ **Student Reflection:**
+> - Identify 2 data quality issues in any of the datasets.
+> - Describe why each issue would create problems during analysis.
+
+*Your answer here:*
+
+---
+
+## 5. Cleaning and Standardising Data
+
+Below is a **worked example** that cleans the Amazon product file. Study it line by line; then you will clean other datasets yourself.
+
+```{r amazon-clean}
+amazon_clean <- df_csv |>
+  mutate(
+    # "₹1,099"  ->  1099   (parse_number drops symbols and thousands separators)
+    discounted_price = parse_number(discounted_price),
+    actual_price     = parse_number(actual_price),
+
+    # "64%"  ->  0.64
+    discount_pct     = parse_number(discount_percentage) / 100,
+
+    # "24,269"  ->  24269
+    rating_count     = parse_number(rating_count),
+
+    # One rating is the text "|"; as.numeric() turns it into NA
+    rating           = suppressWarnings(as.numeric(rating)),
+
+    # The category column is a path: "Computers&Accessories|Accessories&Peripherals|..."
+    # Keep only the first (main) level
+    main_category    = str_extract(category, "^[^|]+")
+  ) |>
+  select(product_id, product_name, main_category,
+         discounted_price, actual_price, discount_pct, rating, rating_count) |>
+  # one row per product (keep the first occurrence of each product_id)
+  distinct(product_id, .keep_all = TRUE)
+
+glimpse(amazon_clean)
+```
+
+**Validation checks.** A cleaning step is only trustworthy if you test its result. `stopifnot()` stops with an error when a rule is broken:
+
+```{r amazon-validate}
+stopifnot(
+  n_distinct(amazon_clean$product_id) == nrow(amazon_clean),            # unique key
+  all(amazon_clean$rating >= 0 & amazon_clean$rating <= 5, na.rm = TRUE),  # valid range
+  all(amazon_clean$discounted_price <= amazon_clean$actual_price, na.rm = TRUE),  # logic
+  all(amazon_clean$discount_pct >= 0 & amazon_clean$discount_pct <= 1, na.rm = TRUE)
+)
+cat("All validation checks passed.\n")
+colSums(is.na(amazon_clean))
+```
+
+```{r amazon-save}
+# Save the cleaned file so that later weeks can reuse it
+write_csv(amazon_clean, file.path(data_dir, "amazon_products_clean.csv"))
+```
+
+### 5.1 Handling Missing Values
+
+Three common strategies: **delete** rows, **fill in** (impute) values, or **flag** them. Here we practise on the manual dataset.
+
+```{r impute-demo}
+# Fill the missing Age with the MEDIAN age (robust to outliers)
+messy_students |>
+  mutate(Age = replace_na(Age, median(Age, na.rm = TRUE)))
+```
+
+> ⚠️ Filling with the median keeps the sample size but **shrinks the variability** of the variable. Always report what you did.
+
+### 5.2 Correcting Wrong Data Types
+
+```{r type-demo}
+# Convert Score to numeric; "N/A" cannot be converted and becomes NA
+messy_students |>
+  mutate(Score = suppressWarnings(as.numeric(Score)))
+```
+
+### 5.3 Standardising Category Labels
+
+```{r label-demo}
+messy_students |>
+  mutate(Gender = Gender |> str_trim() |> str_to_lower(),          # "male " -> "male"
+         Gender = case_when(Gender %in% c("m", "male")   ~ "male",
+                            Gender %in% c("f", "female") ~ "female",
+                            TRUE                         ~ NA_character_)) |>
+  count(Gender)
+```
+
+### 5.4 Removing Duplicates
+
+```{r dup-demo}
+# Count duplicates, then remove them
+sum(duplicated(messy_students))
+messy_students |> distinct()
+```
+
+> ✏️ **Student Task 2 – Clean the manual dataset:**
+> Apply **all four** techniques to `messy_students` in one pipeline and store the result in `students_clean`: (1) trim and standardise `Gender` to `"male"`/`"female"`, (2) convert `Score` to numeric, (3) fill the missing `Age` with the median and the missing `Score` with the mean score, (4) remove duplicate rows. Then print `students_clean` and verify that `Gender` has exactly two categories.
+
+```{r task2}
+# TODO: write your code here
+```
+
+> ✏️ **Student Task 3 – Clean the Titanic dataset:**
+> Using `titanic_raw`, create `titanic_clean` by: (1) filling the missing `Age` with the median **and** creating a flag column `Age_missing` (TRUE/FALSE) *before* filling, (2) filling the 2 missing `Embarked` values with the most frequent port, (3) replacing `Cabin` by a logical column `Has_Cabin`, (4) converting `Survived`, `Pclass`, `Sex`, `Embarked` to factors with meaningful labels, (5) checking that no passenger id is duplicated. Save the result as `titanic_clean.csv` in the `data` folder (Week 3 uses it).
+> Then write 2–3 sentences: *what did you clean, and why was it appropriate?*
+
+```{r task3}
+# TODO: write your code here
+```
+
+*Your written explanation here:*
+
+---
+
+## 6. Summary of Week 2 Practical
+
+In this week's PH, you:
+
+- Collected multiple raw datasets from files (**CSV, Excel, TXT**) and by **manual entry**.
+- Imported them and read columns as text first, to stay in control of type conversion.
+- Detected **missing values**, **wrong types**, **inconsistent categories** and **duplicates**.
+- Cleaned the data using standard techniques and **validated** the result with `stopifnot()`.
+- Saved cleaned files (`amazon_products_clean.csv`, `titanic_clean.csv`) for later weeks.
+
+> 🧠 **Final Reflection:**
+> Which cleaning step was the most useful, and which dataset needed the most work?

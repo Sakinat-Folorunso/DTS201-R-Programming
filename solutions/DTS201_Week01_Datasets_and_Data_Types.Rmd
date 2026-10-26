@@ -1,0 +1,295 @@
+---
+title: "DTS 201 – Introduction to Data Science"
+subtitle: "Week 1 Practical (PH): Exploring Sample Datasets and Data Types – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy)"
+author: "Dr. Sakinat Folorunso — Associate Professor of AI Systems and FAIR Data, Department of Computer Sciences, Olabisi Onabanjo University, Ago-Iwoye, Ogun State, Nigeria"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: readable
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.width = 7, fig.height = 4.2)
+set.seed(42)
+data_dir <- if (dir.exists("../data")) "../data" else "data"
+```
+
+**Course Code:** DTS 201  **Practical Week:** 1 – Introduction to Data and File Types
+
+---
+
+### 🎯 Practical Learning Objectives
+
+By the end of this practical session, you should be able to:
+
+- **Open and explore** sample datasets stored in **CSV** and **Excel** formats.
+- **Inspect** the **rows, columns, data types, and basic structure** of a dataset.
+- **Distinguish** between **structured**, **semi-structured**, and **unstructured** data using real examples.
+- **Describe**, in your own words, what type of data each sample file represents and why.
+
+> ✅ This notebook is **student-centred**: you will run the code, modify it, and answer short reflection questions in the provided spaces.
+
+> 📌 **Before you start:** complete the **Week 0** practical so that R, RStudio and the course packages are installed, and open the project file `DTS201_R.Rproj`.
+
+---
+
+## 1. Getting Started: Where Is Your Data?
+
+R can only read a file if it knows **where the file is**. In this course the datasets live in the project's `data` folder. You can run this notebook in one of three common ways:
+
+1. **RStudio Desktop (recommended).** Open `DTS201_R.Rproj`. When you knit or run this notebook, the first code chunk sets `data_dir` to `"../data"` (the data folder, one level above `notebooks`).
+2. **Posit Cloud.** Upload the whole `DTS201_R` folder and open the project; the same paths work.
+3. **Google Colab (R runtime).** Upload the data files using the Files panel on the left, then set `data_dir <- "/content"`.
+
+> ✏️ You do **not** need to bring your own data. Your lecturer provides sample files such as `student_score.csv` and `Sales_data.xlsx`. You can also practise with any simple CSV/Excel file you already have.
+
+Run the next chunk to confirm that R can see the data folder:
+
+```{r where-is-data}
+data_dir                      # the folder this notebook will read from
+list.files(data_dir)          # the files R can see inside it
+```
+
+> 🔧 **Tip:** If `list.files(data_dir)` prints `character(0)`, R is looking in the wrong folder. Re-open `DTS201_R.Rproj` and check `getwd()`.
+
+---
+
+## 2. Loading Required Packages
+
+```{r packages}
+# tidyverse: a family of packages for importing, transforming and plotting data.
+# It loads readr (read CSV files), dplyr (data manipulation), ggplot2 (plots), tibble, etc.
+library(tidyverse)
+
+# readxl: reads Excel (.xlsx) files.
+library(readxl)
+```
+
+---
+
+## 3. Exploring a Sample CSV Dataset
+
+In this section, you will:
+
+- Load a sample **CSV** file into a **data frame** (R's name for a table; the tidyverse version is called a *tibble*).
+- Look at the first few rows.
+- Inspect the structure of the data (columns, types).
+
+> 🔧 **Instruction:**
+> - The file is `student_score.csv`. To use another file, change the file name in `csv_file`.
+> - `file.path()` safely joins the folder and the file name.
+
+```{r read-csv}
+# Name of the CSV file inside the data folder
+csv_file <- "student_score.csv"          # TODO: change to another CSV file to explore it
+
+# Full path = folder + file name
+data_path_csv <- file.path(data_dir, csv_file)
+
+# read_csv() reads a CSV file into a tibble (a modern data frame)
+df_csv <- read_csv(data_path_csv)
+
+# Show the first 6 rows
+head(df_csv)
+```
+
+> ✏️ **Student Task 1:**
+> - What does each **row** represent in this dataset (e.g., a student, a transaction, a product)?
+> - Name at least **three columns** and say what kind of information they contain. (This dataset has only two columns; for a second example, repeat with `titanic_train.csv`.)
+> - Write your answers in a separate Markdown cell or on your answer sheet.
+
+*Your answer here:*
+
+### 3.1 Understanding the Structure of the CSV Dataset
+
+```{r csv-structure}
+# Number of rows and columns: dim() returns c(rows, columns)
+dim(df_csv)
+
+# nrow() and ncol() give each count separately
+nrow(df_csv)
+ncol(df_csv)
+```
+
+```{r csv-glimpse}
+# glimpse() shows every column, its data type (<dbl> = decimal number, <int> = integer,
+# <chr> = text, <lgl> = TRUE/FALSE) and the first few values
+glimpse(df_csv)
+```
+
+```{r csv-class}
+# The class of every column, explicitly
+sapply(df_csv, class)
+
+# Base-R alternative that prints structure in one go
+str(df_csv)
+```
+
+```{r csv-summary}
+# summary() gives min, quartiles, median, mean and max for numeric columns
+summary(df_csv)
+```
+
+> ✏️ **Student Reflection 2:**
+> - How many rows and columns does your CSV dataset have?
+> - Which columns are **numerical** (integers or decimals)?
+> - Which columns are **categorical/text** (names, categories)?
+
+> ✏️ **Student Task 1b – try a bigger CSV:** Load `titanic_train.csv` into `df_titanic`, then (a) print its dimensions and (b) count how many columns are numeric and how many are text.
+
+```{r task1b}
+# >>> SOLUTION
+df_titanic <- read_csv(file.path(data_dir, "titanic_train.csv"))
+dim(df_titanic)                                  # 891 rows, 12 columns
+table(sapply(df_titanic, class))                 # numeric vs character columns
+# <<< SOLUTION
+```
+
+---
+
+## 4. Data Types: Structured, Semi-Structured, and Unstructured
+
+Before we explore Excel files, let us recall three important categories of data:
+
+1. **Structured Data**
+   - Organised in a clear tabular format (rows and columns).
+   - Each column has a defined data type (e.g., number, text, date).
+   - Examples: Excel tables, CSV files, relational databases.
+
+2. **Semi-Structured Data**
+   - Contains some organisation but not strictly tabular.
+   - Uses tags or markers (e.g., key–value pairs).
+   - Examples: JSON, XML, some log files.
+
+3. **Unstructured Data**
+   - Has no fixed format or layout.
+   - Examples: raw text documents, images, audio, video.
+
+> 💡 In this practical, your CSV and Excel files are examples of **structured data** because they are arranged in rows and columns.
+
+Let us *see* the difference. The next chunk creates one tiny example of each type.
+
+```{r three-types}
+# 1. STRUCTURED: a table. Every row has the same columns.
+structured <- tibble(
+  student = c("Amina", "Bola", "Chidi"),
+  score   = c(72, 65, 88)
+)
+structured
+
+# 2. SEMI-STRUCTURED: JSON text. It has labels (keys) but a flexible, nested shape.
+json_text <- '{"student": "Amina", "scores": [72, 65, 88], "contact": {"phone": "0800000000"}}'
+semi <- jsonlite::fromJSON(json_text)       # parse into an R list
+str(semi)                                   # a nested list, NOT a rectangular table
+
+# 3. UNSTRUCTURED: free text. No columns, no fixed layout.
+chat <- c("Amina: Good morning class, has anyone started the assignment?",
+          "Bola: yes o, I'm on question 3",
+          "Chidi: 😂😂 I haven't even opened it")
+chat
+```
+
+Notice that `structured` fits into a table immediately. `semi` has structure (names such as `student`, `scores`) but is nested. `chat` must be processed (for example with text-mining methods in NLP) before it can be analysed numerically.
+
+---
+
+## 5. Exploring a Sample Excel Dataset
+
+Now, we repeat the process with an **Excel** file (`.xlsx`).
+
+> 🔧 **Instruction:**
+> - The file is `Sales_data.xlsx` (product listings and customer reviews).
+> - If the file has multiple sheets, choose one with the `sheet` argument. `excel_sheets()` lists the sheet names.
+
+```{r read-excel}
+excel_file <- "Sales_data.xlsx"                       # TODO: change to another Excel file
+data_path_excel <- file.path(data_dir, excel_file)
+
+# Which sheets does the workbook contain?
+excel_sheets(data_path_excel)
+
+# read_excel() reads the FIRST sheet by default
+df_excel <- read_excel(data_path_excel)
+
+# Show only the first few columns so the output fits on screen
+head(select(df_excel, product_id, category, discounted_price, rating, rating_count))
+```
+
+> ✏️ **Student Task 3:**
+> - Compare the Excel dataset with the CSV dataset you loaded earlier.
+> - How are they similar? How are they different (e.g., columns, data types, context)?
+
+### 5.1 Inspecting the Structure of the Excel Dataset
+
+```{r excel-structure}
+dim(df_excel)                      # rows and columns
+```
+
+```{r excel-glimpse}
+# Wide data: glimpse the first 8 columns only
+glimpse(select(df_excel, 1:8))
+```
+
+```{r excel-class}
+# Data type of every column (note which numbers were read as text!)
+sapply(df_excel, class)
+```
+
+> 🔍 **Look carefully:** `discounted_price` and `actual_price` are stored as **text** (`character`), not numbers, because they contain currency symbols such as ₹ and thousands separators. In Week 2 you will learn to clean this.
+
+> ✏️ **Student Reflection 4:**
+> - Are the data types in the Excel dataset mostly similar to those in the CSV file?
+> - Identify one column that you think is **categorical** and one that is **numerical** in the Excel dataset.
+
+> ✏️ **Student Task 3b – count the types:** Using `sapply(df_excel, class)`, produce a table that shows how many columns are `character` and how many are `numeric`.
+
+```{r task3b}
+# >>> SOLUTION
+table(sapply(df_excel, class))
+# <<< SOLUTION
+```
+
+---
+
+## 6. Classifying Datasets by Type (Activity)
+
+Using the definitions from Section 4, classify the following as **structured**, **semi-structured**, or **unstructured**:
+
+1. The CSV dataset you loaded (`df_csv`).
+2. The Excel dataset you loaded (`df_excel`).
+3. A folder of `.jpg` images.
+4. A collection of WhatsApp chat exports in `.txt` format.
+5. A JSON file containing product data (e.g., from an API).
+
+> ✏️ **Student Task 5:**
+> For each of the five items above, write:
+> - The **type of data** (structured / semi-structured / unstructured).
+> - A **one-line justification** of your choice.
+
+*Your answers here:*
+
+| # | Item | Type | Justification |
+|---|---|---|---|
+| 1 | `df_csv` | | |
+| 2 | `df_excel` | | |
+| 3 | Folder of .jpg images | | |
+| 4 | WhatsApp chat exports (.txt) | | |
+| 5 | JSON product file | | |
+
+---
+
+## 7. Summary and Reflection (Week 1 PH)
+
+In this practical, you:
+
+- Loaded **CSV** and **Excel** files into R data frames (tibbles) using `read_csv()` and `read_excel()`.
+- Used `head()`, `dim()`, `glimpse()`, `str()`, `summary()` and `sapply(df, class)` to understand the structure of your data.
+- Reviewed the concepts of **structured**, **semi-structured**, and **unstructured** data.
+- Practised classifying different real-world data examples by type.
+
+> 🧠 **Final Reflection (write in your own words):**
+> - What was the most **surprising** thing you learned about data formats today?
+> - Which function (e.g., `head()`, `glimpse()`) do you think you will use the most in future practicals, and why?

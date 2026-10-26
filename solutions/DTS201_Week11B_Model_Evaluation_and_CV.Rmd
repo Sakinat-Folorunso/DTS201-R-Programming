@@ -1,0 +1,164 @@
+---
+title: "DTS 201 – Introduction to Data Science"
+subtitle: "Week 11 Practical (PH, Part B): Model Evaluation, Overfitting and Cross-Validation – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy)"
+author: "Dr. Sakinat Folorunso — Associate Professor of AI Systems and FAIR Data, Department of Computer Sciences, Olabisi Onabanjo University, Ago-Iwoye, Ogun State, Nigeria"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: readable
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.width = 7, fig.height = 4.5)
+set.seed(42)
+data_dir <- if (dir.exists("../data")) "../data" else "data"
+```
+
+**Course Code:** DTS 201  **Practical Week:** 11 – Laboratory Applications (evaluation)
+
+---
+
+### 🎯 Practical Learning Objectives
+
+- **Separate** training and test performance and explain why training error is optimistic.
+- **Demonstrate** overfitting with a flexible model.
+- **Run** k-fold cross-validation and report the mean and spread.
+
+---
+
+## 1. Training Error versus Test Error
+
+```{r load}
+library(tidyverse)
+theme_set(theme_minimal(base_size = 12))
+df <- read_csv(file.path(data_dir, "student_score.csv"))
+rmse <- function(y, yhat) sqrt(mean((y - yhat)^2))
+
+set.seed(42)
+idx   <- sample(nrow(df), 18)
+train <- df[idx, ]; test <- df[-idx, ]
+c(train = nrow(train), test = nrow(test))
+```
+
+---
+
+## 2. Overfitting: More Flexibility Is Not Always Better
+
+We fit polynomials of increasing degree $d$: $\hat y = \beta_0 + \beta_1 x + \dots + \beta_d x^d$.
+
+```{r overfit}
+res <- map_dfr(1:8, function(d) {
+  m <- lm(Scores ~ poly(Hours, d), data = train)
+  tibble(degree = d,
+         train_rmse = rmse(train$Scores, fitted(m)),
+         test_rmse  = rmse(test$Scores, predict(m, test)))
+})
+res |> mutate(across(where(is.numeric), ~ round(.x, 2)))
+
+res |> pivot_longer(-degree, names_to = "set", values_to = "RMSE") |>
+  ggplot(aes(degree, RMSE, colour = set)) + geom_line() + geom_point() +
+  labs(title = "Training error always falls; test error does not", colour = "")
+```
+
+Training error never increases as the model becomes more flexible. Test error stops improving (and here rises again after degree 5): the extra flexibility is fitting noise (**overfitting**). A model that is too simple has high error on both sets (**underfitting**).
+
+> ✏️ **Student Task 1:** Which degree has the lowest test RMSE? Rerun with `set.seed(7)` and a new split. Is the best degree stable?
+
+```{r task1}
+# >>> SOLUTION
+best <- function(seed) {
+  set.seed(seed)
+  i <- sample(nrow(df), 18); tr <- df[i, ]; te <- df[-i, ]
+  e <- sapply(1:8, function(d) rmse(te$Scores, predict(lm(Scores ~ poly(Hours, d), data = tr), te)))
+  which.min(e)
+}
+sapply(c(42, 7, 1, 2, 3), best)
+# <<< SOLUTION
+```
+
+<!-- >>> SOLUTION -->
+On every one of these splits the lowest test RMSE occurs at degree 5, but the gain over the straight line is small (about 0.6 points of RMSE on a test set of only 7 rows), while the training RMSE falls steadily with degree. The data are almost perfectly linear (r = 0.98), so the extra flexibility is mostly fitting noise. Cross-validation (below) uses all 25 rows for testing and favours the straight line, which shows how a single small test set can mislead.
+<!-- <<< SOLUTION -->
+
+---
+
+## 3. k-Fold Cross-Validation
+
+Split the data into $k$ folds. Train on $k-1$ folds, test on the remaining fold, and repeat so that every row is used for testing once.
+
+```{r cv}
+cv_rmse <- function(k, degree = 1, seed = 42) {
+  set.seed(seed)
+  fold <- sample(rep(1:k, length.out = nrow(df)))
+  map_dbl(1:k, function(f) {
+    m <- lm(Scores ~ poly(Hours, degree), data = df[fold != f, ])
+    rmse(df$Scores[fold == f], predict(m, df[fold == f, ]))
+  })
+}
+cv <- cv_rmse(5)
+round(cv, 2)
+c(mean = mean(cv), sd = sd(cv))
+```
+
+Report the **mean and standard deviation** across folds, not a single number.
+
+> ✏️ **Student Task 2:** Use 5-fold cross-validation to compare degrees 1, 2 and 5. Which degree has the lowest mean CV RMSE?
+
+```{r task2}
+# >>> SOLUTION
+map_dfr(c(1, 2, 5), function(d) {
+  e <- cv_rmse(5, degree = d)
+  tibble(degree = d, cv_mean = mean(e), cv_sd = sd(e))
+})
+# <<< SOLUTION
+```
+
+> ✏️ **Student Task 3:** Compute leave-one-out cross-validation (k = number of rows) for the straight-line model and compare with 5-fold.
+
+```{r task3}
+# >>> SOLUTION
+loo <- cv_rmse(nrow(df))
+c(LOOCV = sqrt(mean(loo^2)), fold5 = mean(cv_rmse(5)))
+# <<< SOLUTION
+```
+
+---
+
+## 4. Confusion Matrix Revisited
+
+```{r confusion}
+heart <- read_csv(file.path(data_dir, "heart.csv"))
+g <- glm(target ~ age + thalach + chol, data = heart, family = binomial)
+table(Actual = heart$target, Predicted = as.integer(fitted(g) > 0.5))
+```
+
+This matrix uses the **same** data that trained the model, so it is optimistic.
+
+> ✏️ **Student Task 4:** Redo the confusion matrix using a train/test split and report the test accuracy. Explain in two sentences why test accuracy is the honest number.
+
+```{r task4}
+# >>> SOLUTION
+set.seed(42)
+i  <- sample(nrow(heart), floor(0.8 * nrow(heart)))
+g2 <- glm(target ~ age + thalach + chol, data = heart[i, ], family = binomial)
+p2 <- as.integer(predict(g2, heart[-i, ], type = "response") > 0.5)
+table(Actual = heart$target[-i], Predicted = p2)
+mean(p2 == heart$target[-i])
+# <<< SOLUTION
+```
+
+<!-- >>> SOLUTION -->
+Test accuracy is honest because the model never saw those rows during fitting; accuracy on training rows rewards memorisation. Report the test (or cross-validated) accuracy together with the size of the test set, since a few hundred rows give an uncertainty of a few percentage points.
+<!-- <<< SOLUTION -->
+
+---
+
+## 5. Summary and Reflection
+
+- Training error is optimistic; evaluate on unseen data.
+- Too simple = underfitting; too flexible = overfitting.
+- Cross-validation gives a more reliable estimate than one split; report mean and SD.
+
+> 🧠 **Reflection:** Explain overfitting in two sentences to a first-year student, using an exam-revision analogy.

@@ -1,0 +1,385 @@
+---
+title: "DTS 201 – Introduction to Data Science"
+subtitle: "Week 5 Practical (PH): Prediction and Simple Regression Modelling – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy)"
+author: "Dr. Sakinat Folorunso — Associate Professor of AI Systems and FAIR Data, Department of Computer Sciences, Olabisi Onabanjo University, Ago-Iwoye, Ogun State, Nigeria"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: readable
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.width = 7, fig.height = 4.5)
+set.seed(42)
+data_dir <- if (dir.exists("../data")) "../data" else "data"
+```
+
+**Course Code:** DTS 201  **Practical Week:** 5 – Prediction and Models
+
+---
+
+### 🎯 Practical Learning Objectives (Week 5)
+
+By the end of this practical session, you should be able to:
+
+- **Explain** the basic idea of **prediction** and how it differs from description.
+- **Identify** a **target variable** and **predictor feature(s)** in a dataset.
+- **Split** data into **training** and **test** sets.
+- **Build** a simple **linear regression** model in R with `lm()`.
+- **Evaluate** model performance using **Mean Squared Error (MSE)**, **Mean Absolute Error (MAE)** and **R²**.
+- **Visualise** a regression line on a scatter plot and **interpret** the relationship, including its uncertainty.
+
+> 💡 This notebook uses base R's `lm()`, mirroring the course outline: *"Building a simple regression model in R; evaluating predictions using mean squared error."*
+
+---
+
+## 1. Getting Started: Choosing a Dataset for Prediction
+
+For simple regression you need:
+
+- At least **one numerical predictor**, e.g. `Hours`, `Age`, `Years_of_Experience`.
+- One **numerical target variable** (what you want to predict), e.g. `Scores`, `Salary`, `Sales`.
+
+We will use `student_score.csv`: the hours a student studied per day (`Hours`) and the exam score obtained (`Scores`). Later you will repeat the pipeline on a second dataset (`advertising.csv`).
+
+> ✅ **Goal:** Build a simple regression model with **one predictor** and **one target** to understand the full pipeline from data to prediction.
+
+---
+
+## 2. Loading Required Packages
+
+```{r packages}
+library(tidyverse)
+theme_set(theme_minimal(base_size = 12))
+```
+
+---
+
+## 3. Loading the Dataset
+
+```{r load}
+data_path <- file.path(data_dir, "student_score.csv")   # TODO: change to another dataset
+df <- read_csv(data_path)
+head(df)
+```
+
+> ✏️ **Student Task 1:**
+> - What does **one row** of this dataset represent?
+> - List at least **three columns** (or two, for this file) and describe what each contains.
+> - Identify which column you intend to predict (the **target**) and which you will use as the **predictor**.
+
+*Your answer here:*
+
+### 3.1 Checking the Structure of the Dataset
+
+```{r structure}
+dim(df)
+glimpse(df)
+summary(df)
+colSums(is.na(df))        # any missing values?
+```
+
+---
+
+## 4. Choosing Predictor and Target Variables
+
+For simple linear regression we use **one numerical column** as the predictor $x$ and **one numerical column** as the target $y$.
+
+```{r vars}
+feature_col <- "Hours"     # TODO: predictor (x)
+target_col  <- "Scores"    # TODO: target (y)
+
+head(df[, c(feature_col, target_col)])
+```
+
+Before modelling, **look at the data**:
+
+```{r eda-scatter}
+ggplot(df, aes(x = .data[[feature_col]], y = .data[[target_col]])) +
+  geom_point(size = 2) +
+  labs(title = paste(target_col, "versus", feature_col), x = feature_col, y = target_col)
+
+cor.test(df[[feature_col]], df[[target_col]])$estimate        # Pearson r
+```
+
+> ✏️ **Student Task 2:**
+> - Write down in words what `feature_col` and `target_col` represent.
+> - Do you expect a **positive**, **negative**, or **no clear** relationship between them? Why?
+
+---
+
+## 5. Splitting Data into Training and Test Sets
+
+To evaluate how well a model **generalises** to unseen data, we split the dataset into a **training set** (to fit the model) and a **test set** (to evaluate it on data it has not seen). A common split is **80% training / 20% test**.
+
+```{r split}
+set.seed(42)                                         # reproducible split
+
+n         <- nrow(df)
+train_idx <- sample(seq_len(n), size = floor(0.8 * n))   # random row numbers for training
+
+train <- df[train_idx, ]
+test  <- df[-train_idx, ]                            # the minus sign means "all the others"
+
+cat("Training set size:", nrow(train), "samples\n")
+cat("Test set size    :", nrow(test),  "samples\n")
+```
+
+> ⚠️ This dataset is small ($n = 25$), so the test set contains only 5 students. Metrics computed on such a tiny test set are **very noisy**. In Section 8.1 you will measure *how* noisy.
+
+---
+
+## 6. Building and Training a Simple Linear Regression Model
+
+We fit a model of the form
+
+$$\hat{y} = b_0 + b_1 x,$$
+
+where $x$ is the predictor, $\hat{y}$ the predicted target, $b_0$ the **intercept** (prediction when $x = 0$), and $b_1$ the **slope** (change in $\hat{y}$ for a one-unit increase in $x$). **Ordinary least squares (OLS)** chooses $b_0, b_1$ to minimise the sum of squared residuals $\sum_i (y_i - \hat{y}_i)^2$, which gives
+
+$$b_1 = \frac{\sum_i (x_i - \bar{x})(y_i - \bar{y})}{\sum_i (x_i - \bar{x})^2}, \qquad b_0 = \bar{y} - b_1\bar{x}.$$
+
+In R the formula `Scores ~ Hours` reads "Scores *is modelled by* Hours".
+
+```{r fit}
+model <- lm(Scores ~ Hours, data = train)       # fit on the TRAINING data only
+
+intercept <- coef(model)[["(Intercept)"]]
+slope     <- coef(model)[["Hours"]]
+
+cat(sprintf("Learned model:\n  Intercept (b0): %.3f\n  Slope (b1)    : %.3f\n", intercept, slope))
+cat(sprintf("\nRegression equation: Scores = %.3f + %.3f x Hours\n", intercept, slope))
+```
+
+Check that `lm()` agrees with the OLS formulas:
+
+```{r ols-check}
+x <- train$Hours; y <- train$Scores
+b1_manual <- sum((x - mean(x)) * (y - mean(y))) / sum((x - mean(x))^2)
+b0_manual <- mean(y) - b1_manual * mean(x)
+c(b0_manual = b0_manual, b1_manual = b1_manual)
+```
+
+`summary()` adds standard errors, t-tests and $R^2$ on the training data, and `confint()` gives 95% confidence intervals for the coefficients:
+
+```{r model-summary}
+summary(model)
+confint(model, level = 0.95)
+```
+
+> ✏️ **Student Task 3:**
+> - Interpret the slope in plain language: *"For every one-unit increase in Hours, the model predicts that Scores increase by approximately … units (95% CI …)."*
+> - Does this interpretation make **real-world sense**? Does the intercept make sense?
+
+---
+
+## 7. Making Predictions on the Test Set
+
+```{r predict}
+test_pred <- test |>
+  mutate(Predicted = predict(model, newdata = test),
+         Residual  = Scores - Predicted)
+
+test_pred
+```
+
+You can also predict for **new** values. A *prediction interval* is the plausible range for one **new student**; it is wider than the confidence interval for the average student.
+
+```{r predict-new}
+new_student <- tibble(Hours = 7.5)
+predict(model, new_student, interval = "prediction", level = 0.95)
+```
+
+---
+
+## 8. Evaluating Model Performance
+
+We use three common regression metrics on the **test** set, with $m$ test observations:
+
+$$\mathrm{MSE} = \frac{1}{m}\sum_{i=1}^{m}(y_i - \hat{y}_i)^2,\qquad
+\mathrm{MAE} = \frac{1}{m}\sum_{i=1}^{m}\lvert y_i - \hat{y}_i\rvert,\qquad
+R^2 = 1 - \frac{\sum_i (y_i - \hat{y}_i)^2}{\sum_i (y_i - \bar{y})^2}.$$
+
+$\mathrm{RMSE} = \sqrt{\mathrm{MSE}}$ is in the same units as the target, which makes it easy to interpret.
+
+```{r metrics}
+# A reusable function: takes true values and predictions, returns the four metrics
+metrics <- function(y, yhat) {
+  c(MSE  = mean((y - yhat)^2),
+    RMSE = sqrt(mean((y - yhat)^2)),
+    MAE  = mean(abs(y - yhat)),
+    R2   = 1 - sum((y - yhat)^2) / sum((y - mean(y))^2))
+}
+
+round(metrics(test$Scores, test_pred$Predicted), 3)
+```
+
+> ✏️ **Student Reflection 4:**
+> - Is the MAE small or large relative to the typical values of your target variable?
+> - Is your R² closer to 0 (poor fit) or 1 (good fit)?
+> - Based on these metrics, how well is your model performing?
+
+### 8.1 How Reliable Are These Numbers? (Repeated Splits and Cross-Validation)
+
+With only five test students, a different random split would give different metrics. We can *measure* this variability by repeating the 80/20 split 200 times and summarising the results (mean and standard deviation):
+
+```{r repeated-splits}
+set.seed(42)
+repeat_results <- t(replicate(200, {
+  idx <- sample(nrow(df), floor(0.8 * nrow(df)))
+  m   <- lm(Scores ~ Hours, data = df[idx, ])
+  metrics(df$Scores[-idx], predict(m, df[-idx, ]))
+}))
+
+tibble(metric = colnames(repeat_results),
+       mean   = colMeans(repeat_results),
+       sd     = apply(repeat_results, 2, sd)) |>
+  mutate(across(c(mean, sd), ~ round(.x, 3)))
+```
+
+A more efficient estimate is **leave-one-out cross-validation (LOOCV)**: fit the model $n$ times, each time leaving one student out and predicting that student.
+
+```{r loocv}
+loo_pred <- sapply(seq_len(nrow(df)), function(i) {
+  m <- lm(Scores ~ Hours, data = df[-i, ])
+  predict(m, df[i, ])
+})
+round(metrics(df$Scores, loo_pred), 3)
+```
+
+> 💡 Report your result as, for example, *"RMSE = 5.3 points (mean of 200 random 80/20 splits, SD = 2.1)"* rather than a single number from one lucky split.
+
+---
+
+## 9. Visualising the Regression Line
+
+```{r plot-line}
+x_line <- tibble(Hours = seq(min(df$Hours), max(df$Hours), length.out = 100))
+band   <- bind_cols(x_line, as_tibble(predict(model, x_line, interval = "confidence")))
+
+ggplot() +
+  geom_ribbon(data = band, aes(x = Hours, ymin = lwr, ymax = upr), fill = "grey80") +
+  geom_line(data = band, aes(x = Hours, y = fit), colour = "firebrick", linewidth = 1) +
+  geom_point(data = train, aes(x = Hours, y = Scores, shape = "Training"), size = 2.5) +
+  geom_point(data = test,  aes(x = Hours, y = Scores, shape = "Test"), size = 3, colour = "steelblue") +
+  labs(title = "Regression line: Scores versus Hours",
+       subtitle = "Red line = fitted model; grey band = 95% confidence band for the mean",
+       x = "Hours studied per day", y = "Exam score", shape = NULL)
+```
+
+A good model leaves residuals that look like random noise. A **residual plot** (residuals against fitted values) should show no pattern:
+
+```{r residuals}
+tibble(fitted = fitted(model), resid = resid(model)) |>
+  ggplot(aes(fitted, resid)) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_point(size = 2) +
+  labs(title = "Residuals versus fitted values (training data)", x = "Fitted value", y = "Residual")
+```
+
+> ✏️ **Student Task 5:**
+> - Look at the scatter plot and regression line. Do most points lie close to the line or far away?
+> - Are there any **outliers** that are far from the line? How might they affect the model?
+> - Does the residual plot show any curve or funnel shape? What would that suggest?
+
+---
+
+## 10. Extension: Trying a Different Dataset and Predictor
+
+We package the whole pipeline in one function so that it can be re-run for any pair of variables:
+
+```{r pipeline-fn}
+fit_eval <- function(data, x, y, reps = 200, seed = 42) {
+  set.seed(seed)
+  f   <- as.formula(paste0("`", y, "` ~ `", x, "`"))
+  res <- t(replicate(reps, {
+    idx <- sample(nrow(data), floor(0.8 * nrow(data)))
+    m   <- lm(f, data = data[idx, ])
+    metrics(data[[y]][-idx], predict(m, data[-idx, ]))
+  }))
+  full <- lm(f, data = data)
+  tibble(predictor = x, target = y, n = nrow(data),
+         slope = coef(full)[[2]],
+         RMSE_mean = mean(res[, "RMSE"]), RMSE_sd = sd(res[, "RMSE"]),
+         R2_mean = mean(res[, "R2"]),     R2_sd = sd(res[, "R2"]))
+}
+
+adv <- read_csv(file.path(data_dir, "advertising.csv"))
+names(adv)
+```
+
+Predict **daily internet usage (minutes)** from two alternative predictors and compare:
+
+```{r extension}
+bind_rows(
+  fit_eval(adv, "Daily Time Spent on Site", "Daily Internet Usage"),
+  fit_eval(adv, "Age",                      "Daily Internet Usage"),
+  fit_eval(adv, "Area Income",              "Daily Internet Usage")
+) |>
+  mutate(across(where(is.numeric), ~ round(.x, 3)))
+```
+
+> ✏️ **Student Task 6:**
+> - Which predictor gives the lowest RMSE and the highest R²? Is the difference larger than the split-to-split variability (the SD columns)?
+> - Which predictor would you choose, and why?
+
+*Your answer here:*
+
+---
+
+## 11. Mini Regression Exercise (Apply the Full Pipeline)
+
+> 🧪 **Student Activity:**
+> Using your chosen dataset, complete the following steps and prepare a brief report (bullet points or a paragraph):
+
+1. Clearly state your **prediction problem** (e.g., "Predict exam score from hours studied").
+2. Identify the **predictor** and **target** columns.
+3. Split the data into training and test sets (`set.seed(42)`).
+4. Train a linear regression model with `lm()`.
+5. Report MSE, MAE, and R² (and their variability over repeated splits).
+6. Include a scatter plot with the regression line.
+7. Write **3–5 sentences** interpreting the results and limitations of your model.
+
+*Worked example:* predict the discounted price of an Amazon product from its list price. Prices are right-skewed, so we model on the **log scale**: $\log_{10}(\text{discounted}) = b_0 + b_1\log_{10}(\text{actual})$.
+
+```{r mini}
+# >>> SOLUTION
+amazon <- read_csv(file.path(data_dir, "amazon_products_clean.csv")) |>
+  mutate(log_actual = log10(actual_price), log_discounted = log10(discounted_price))
+
+fit_eval(amazon, "log_actual", "log_discounted") |> mutate(across(where(is.numeric), ~ round(.x, 3)))
+
+amazon_model <- lm(log_discounted ~ log_actual, data = amazon)
+summary(amazon_model)$coefficients
+
+ggplot(amazon, aes(log_actual, log_discounted)) +
+  geom_point(alpha = 0.3) +
+  geom_smooth(method = "lm", colour = "firebrick") +
+  labs(title = "Discounted vs list price (log10 scale)", x = "log10(actual price)", y = "log10(discounted price)")
+# The log-log slope is about 1.0 (1.01): the discounted price is roughly proportional to the
+# list price (about 45% of it, since 10^-0.35 = 0.45), i.e. a similar percentage discount
+# across price levels.
+# Limitation: both variables come from the same listing, so this is a descriptive
+# relationship, not a causal one.
+# <<< SOLUTION
+```
+
+---
+
+## 12. Summary and Reflection (Week 5 PH)
+
+In this Week 5 practical, you have:
+
+- Identified predictor and target variables in a dataset.
+- Split data into training and test sets to evaluate generalisation.
+- Trained a simple linear regression model with `lm()` and verified the OLS formulas.
+- Evaluated performance using MSE, RMSE, MAE and R², and quantified their variability with repeated splits and LOOCV.
+- Visualised the regression line, its confidence band, and the residuals.
+
+> 🧠 **Final Reflection (write 1–2 paragraphs):**
+> - In your own words, what is the goal of a prediction model?
+> - How would you explain the meaning of "overfitting" to a non-technical friend (even if we did not fully explore it here)?
+> - How do you think more complex models (with more features or non-linear relationships) might improve or complicate prediction?

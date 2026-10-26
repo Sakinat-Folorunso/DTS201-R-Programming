@@ -1,0 +1,403 @@
+---
+title: "DTS 201 – Introduction to Data Science"
+subtitle: "Week 6 Practical (PH): Data Mining – Market Basket Analysis & Clustering – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy)"
+author: "Dr. Sakinat Folorunso — Associate Professor of AI Systems and FAIR Data, Department of Computer Sciences, Olabisi Onabanjo University, Ago-Iwoye, Ogun State, Nigeria"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: readable
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.width = 7, fig.height = 4.5)
+set.seed(42)
+data_dir <- if (dir.exists("../data")) "../data" else "data"
+```
+
+**Course Code:** DTS 201  **Practical Week:** 6 – Data Mining
+
+---
+
+### 🎯 Practical Learning Objectives (Week 6)
+
+By the end of this practical session, you should be able to:
+
+- **Explain** the basic ideas of **data mining**, **market basket analysis**, and **clustering**.
+- **Represent** transactional data (e.g. shopping baskets) in a form suitable for analysis.
+- **Use** frequent itemset mining (**Apriori**) to discover common item combinations.
+- **Derive** simple **association rules** and interpret support, confidence, and lift.
+- **Perform** **k-means clustering** and choose the number of clusters $k$ with evidence.
+- **Interpret** clusters and rules in plain language for decision-making.
+
+> 💡 This notebook uses the R package `arules` for association rules and base R `kmeans()` for clustering, mirroring the course outline: *"Market basket analysis and clustering on transactional datasets using R."*
+
+---
+
+## 1. Getting Started: What Is Data Mining?
+
+**Data mining** is the process of discovering **patterns**, **relationships**, and **structures** in large datasets. In this lab we focus on two classic tasks:
+
+1. **Market Basket Analysis (association rules)** – find which items are frequently bought together. Useful in retail, e-commerce and recommender systems.
+2. **Clustering** – group similar records (e.g. customers with similar behaviour). Useful for segmentation, targeting and profiling.
+
+You will work with a **transactional dataset**: each transaction (basket) contains the items bought together.
+
+> 📌 **About the data.** `grocery_transactions.csv` is a **synthetic (simulated)** dataset of 1,000 baskets from a Nigerian-style grocery shop with 20 items (bread, garri, rice, palm oil, ...). It was generated with `set.seed(42)` by `scripts/make_datasets.R` so that real shopping patterns exist for you to discover. It is not a real shop's record.
+
+---
+
+## 2. Loading Required Packages
+
+```{r packages}
+library(tidyverse)
+library(arules)          # transactions, Apriori, association rules
+theme_set(theme_minimal(base_size = 12))
+```
+
+---
+
+## 3. Loading the Transactional Dataset
+
+The file is in **long format**: each row is one item in one transaction.
+
+| TransactionID | Item |
+|---|---|
+| 1 | Bread |
+| 1 | Butter |
+| 2 | Rice |
+| 2 | Tomatoes |
+
+Several rows share the same `TransactionID` but have different items.
+
+```{r load}
+data_path <- file.path(data_dir, "grocery_transactions.csv")   # TODO: change to your own file
+transactions <- read_csv(data_path)
+head(transactions, 8)
+```
+
+> ✏️ **Student Task 1:**
+> - What does one row in the `transactions` data frame represent?
+> - Identify the column that represents the **transaction/basket ID** and the column that represents the **item**.
+> - Are there any additional useful columns (e.g. customer ID, quantity, date) that a real shop would record?
+
+### 3.1 Basic Inspection of the Transactional Data
+
+```{r inspect}
+dim(transactions)
+glimpse(transactions)
+
+n_transactions <- n_distinct(transactions$TransactionID)
+n_items        <- n_distinct(transactions$Item)
+cat("Number of unique transactions:", n_transactions, "\n")
+cat("Number of unique items       :", n_items, "\n")
+
+# Basket size = number of items in each basket
+basket_sizes <- count(transactions, TransactionID, name = "size")
+summary(basket_sizes$size)
+```
+
+```{r item-freq}
+# Which items are bought most often?
+item_freq <- transactions |>
+  count(Item, name = "baskets") |>
+  mutate(support = baskets / n_transactions) |>
+  arrange(desc(baskets))
+
+ggplot(item_freq, aes(x = reorder(Item, baskets), y = support)) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  scale_y_continuous(labels = scales::percent) +
+  labs(title = "How often is each item bought?", x = NULL, y = "Share of baskets containing the item")
+```
+
+---
+
+## 4. Preparing Data for Market Basket Analysis
+
+`arules` works with a special `transactions` object (a sparse list of baskets). We create it by splitting the item column by basket ID. We also create the **basket × item indicator matrix** (1 if the item appears in the basket, otherwise 0), also called a *one-hot encoded* matrix; this is the form needed for clustering.
+
+```{r make-transactions}
+baskets <- split(transactions$Item, transactions$TransactionID)   # a list: one element per basket
+trans   <- as(baskets, "transactions")                            # arules transactions object
+trans
+
+basket <- 1 * as(trans, "matrix")        # logical TRUE/FALSE -> 1/0
+dim(basket)
+basket[1:5, 1:6]
+```
+
+> ✏️ **Student Task 2:**
+> - Count how many items are represented as columns in `basket`.
+> - Is this number small (e.g. ≤ 20) or large? How might a very large number of items (a supermarket may sell 50,000) affect computation?
+
+---
+
+## 5. Discovering Frequent Itemsets (Apriori Algorithm)
+
+We find **frequent itemsets**: combinations of items that occur together in many transactions. For an itemset $X$ the **support** is
+
+$$\mathrm{supp}(X) = \frac{\#\{\text{transactions containing } X\}}{\#\{\text{all transactions}\}} = P(X).$$
+
+Apriori exploits one fact: *if an itemset is infrequent, every larger itemset containing it is also infrequent*, so those larger sets never need to be counted.
+
+```{r apriori-itemsets}
+frequent_itemsets <- apriori(
+  trans,
+  parameter = list(supp = 0.1,                  # TODO: try 0.05 and 0.2
+                   target = "frequent itemsets"),
+  control = list(verbose = FALSE)
+)
+
+# Show the most frequent itemsets first
+inspect(head(sort(frequent_itemsets, by = "support"), 10))
+```
+
+> ✏️ **Student Task 3:**
+> - Increase or decrease `supp` and observe how the number of frequent itemsets changes.
+> - What happens if the minimum support is very high? What happens if it is very low?
+
+```{r task3}
+# >>> SOLUTION
+supports <- c(0.30, 0.20, 0.10, 0.05, 0.02, 0.01)
+tibble(min_support = supports,
+       n_itemsets  = sapply(supports, function(s)
+         length(apriori(trans, parameter = list(supp = s, target = "frequent itemsets"),
+                        control = list(verbose = FALSE))))) |>
+  ggplot(aes(factor(min_support), n_itemsets)) +
+  geom_col(fill = "steelblue") +
+  labs(title = "Number of frequent itemsets versus minimum support",
+       x = "Minimum support", y = "Number of frequent itemsets")
+# Very high support -> few or no itemsets (only the most popular single items).
+# Very low support -> a rapidly growing number of itemsets, many of them due to chance.
+# <<< SOLUTION
+```
+
+---
+
+## 6. Generating Association Rules
+
+From frequent itemsets we derive **association rules** of the form $X \Rightarrow Y$ (for example {Bread} ⇒ {Butter}), where $X$ and $Y$ are disjoint itemsets. Three metrics describe a rule:
+
+$$\mathrm{supp}(X \Rightarrow Y) = P(X \cup Y), \qquad
+\mathrm{conf}(X \Rightarrow Y) = \frac{P(X \cup Y)}{P(X)} = P(Y \mid X), \qquad
+\mathrm{lift}(X \Rightarrow Y) = \frac{\mathrm{conf}(X \Rightarrow Y)}{P(Y)} = \frac{P(X \cup Y)}{P(X)\,P(Y)}.$$
+
+- **Support** – how often the full itemset appears.
+- **Confidence** – how often $Y$ is bought when $X$ is in the basket.
+- **Lift** – how many times more often $X$ and $Y$ occur together than expected if they were independent. **Lift > 1** means a positive association, **= 1** independence, **< 1** a negative association.
+
+```{r rules}
+rules <- apriori(
+  trans,
+  parameter = list(supp = 0.05, conf = 0.5, minlen = 2, target = "rules"),   # TODO: adjust thresholds
+  control = list(verbose = FALSE)
+)
+length(rules)
+
+# Top 10 rules by lift
+inspect(head(sort(rules, by = "lift"), 10))
+```
+
+Let us check one rule **by hand** to be sure we understand the metrics (here {Bread} ⇒ {Butter}):
+
+```{r rule-by-hand}
+n_X   <- sum(basket[, "Bread"] == 1)
+n_Y   <- sum(basket[, "Butter"] == 1)
+n_XY  <- sum(basket[, "Bread"] == 1 & basket[, "Butter"] == 1)
+N     <- nrow(basket)
+
+c(support    = n_XY / N,
+  confidence = n_XY / n_X,
+  lift       = (n_XY / N) / ((n_X / N) * (n_Y / N)))
+```
+
+Rules with the same meaning can appear several times (for example {A, B} ⇒ {C} adds nothing if {A} ⇒ {C} is already as strong). We can remove such **redundant** rules and convert the result to a data frame for sorting and plotting:
+
+```{r rules-df}
+rules_clean <- rules[!is.redundant(rules)]
+cat("Rules:", length(rules), "-> after removing redundant rules:", length(rules_clean), "\n")
+
+rules_df <- as(rules_clean, "data.frame") |> as_tibble()
+rules_df |>
+  arrange(desc(lift)) |>
+  mutate(across(where(is.numeric), ~ round(.x, 3))) |>
+  head(10)
+```
+
+```{r rules-plot}
+ggplot(rules_df, aes(x = support, y = confidence, colour = lift)) +
+  geom_point(size = 3, alpha = 0.8) +
+  scale_colour_viridis_c() +
+  labs(title = "Association rules: support, confidence and lift",
+       x = "Support", y = "Confidence", colour = "Lift")
+```
+
+> ✏️ **Student Task 4:**
+> - Look at the top 5 rules by lift. For each, rewrite it in **plain English** (e.g. "If a customer buys X, they are likely to also buy Y").
+> - Pay attention to **support**, **confidence**, and **lift**: which rules seem most interesting for a shop manager?
+> - Find the rules that have **Garri** on the left-hand side.
+
+```{r task4}
+# >>> SOLUTION
+top5 <- head(sort(rules_clean, by = "lift"), 5)
+inspect(top5)
+# Example reading: "{Bread} => {Butter} with confidence 0.7 means 70% of baskets that contain
+# bread also contain butter; lift > 1 means the pair occurs more often than chance."
+
+# Rules with Garri on the left-hand side
+inspect(subset(rules_clean, lhs %in% "Garri"))
+# <<< SOLUTION
+```
+
+---
+
+## 7. Clustering Transactions (k-Means)
+
+**Clustering** groups similar baskets without being told what the groups are (*unsupervised learning*). **K-means** chooses $k$ centres $\mu_1,\dots,\mu_k$ and assigns every point $x_i$ to the nearest centre, minimising the **within-cluster sum of squares**
+
+$$\mathrm{WSS}(k) = \sum_{j=1}^{k}\sum_{x_i \in C_j}\lVert x_i - \mu_j\rVert^2 .$$
+
+We treat each basket as a vector of 0s and 1s over the 20 items (the `basket` matrix) and cluster the baskets.
+
+### 7.1 Choosing the Number of Clusters
+
+K-means needs $k$ in advance. Two common diagnostics:
+
+- The **elbow plot**: WSS always decreases as $k$ grows; look for the "elbow" where improvement slows.
+- The **average silhouette width** (between $-1$ and $1$): larger means better separated clusters.
+
+```{r choose-k}
+set.seed(42)
+ks <- 2:10
+diagnostics <- map_dfr(ks, function(k) {
+  km <- kmeans(basket, centers = k, nstart = 25)             # 25 random starts, keep the best
+  sil <- cluster::silhouette(km$cluster, dist(basket))
+  tibble(k = k, WSS = km$tot.withinss, avg_silhouette = mean(sil[, "sil_width"]))
+})
+
+diagnostics |>
+  pivot_longer(-k) |>
+  ggplot(aes(k, value)) +
+  geom_line() + geom_point(size = 2) +
+  facet_wrap(~ name, scales = "free_y") +
+  scale_x_continuous(breaks = ks) +
+  labs(title = "Choosing k: elbow (WSS) and silhouette", x = "Number of clusters k", y = NULL)
+```
+
+### 7.2 Fitting k-Means
+
+```{r kmeans}
+set.seed(42)                         # k-means starts from random centres, so set the seed
+k <- 5                               # TODO: try 2, 3, 4, 6 and compare with the plots above
+
+km <- kmeans(basket, centers = k, nstart = 25)
+
+basket_with_clusters <- as_tibble(basket) |>
+  mutate(Cluster = factor(km$cluster))
+
+# How many baskets per cluster?
+basket_with_clusters |> count(Cluster)
+```
+
+> ✏️ **Student Task 5:**
+> - Count how many transactions fall into each cluster. Are the clusters roughly balanced or very uneven?
+> - Try changing `k` from 5 to 2 or 3 and re-run the clustering. How does the distribution of cluster sizes change? Which $k$ do the elbow and silhouette plots support?
+> - *Remember:* the numbers 1, 2, 3 ... that k-means gives clusters are arbitrary labels; cluster "1" on one run may be cluster "4" on another.
+
+### 7.3 Interpreting Cluster Profiles
+
+For each cluster, the mean of an item column is the **proportion of baskets in that cluster containing the item**:
+
+```{r profiles}
+cluster_profiles <- basket_with_clusters |>
+  group_by(Cluster) |>
+  summarise(across(everything(), mean), .groups = "drop")
+
+cluster_profiles |> mutate(across(where(is.numeric), ~ round(.x, 2)))
+```
+
+```{r profile-heatmap, fig.height=5.5}
+cluster_profiles |>
+  pivot_longer(-Cluster, names_to = "Item", values_to = "share") |>
+  ggplot(aes(x = Cluster, y = Item, fill = share)) +
+  geom_tile(colour = "white") +
+  geom_text(aes(label = round(share, 2)), size = 3) +
+  scale_fill_gradient(low = "white", high = "firebrick", labels = scales::percent) +
+  labs(title = "Cluster profiles: share of baskets containing each item", fill = "Share")
+```
+
+> ✏️ **Student Task 6:**
+> - Look at the profiles. For each cluster, identify 1–3 items with the **highest average values** (closest to 1).
+> - In plain language, describe each cluster. For example: *"Cluster 2: baskets mainly containing rice, tomatoes and vegetable oil (a jollof shopping trip)."*
+
+```{r task6}
+# >>> SOLUTION
+top_items <- cluster_profiles |>
+  pivot_longer(-Cluster, names_to = "Item", values_to = "share") |>
+  group_by(Cluster) |>
+  slice_max(share, n = 3) |>
+  summarise(top_items = paste0(Item, " (", round(share, 2), ")", collapse = ", "))
+top_items
+# Each cluster corresponds to a "shopping mission", e.g. breakfast items (bread, butter, eggs, milk,
+# tea), a jollof meal (rice, tomatoes, vegetable oil, onions, pepper), a garri meal (garri, groundnut,
+# sugar), a beans meal (beans, palm oil, plantain) and snacks (biscuits, soft drink, noodles, water).
+# <<< SOLUTION
+```
+
+---
+
+## 8. (Optional) Visualising Clusters in 2D
+
+Basket data have 20 dimensions (one per item), so we cannot plot them directly. **Principal component analysis (PCA)** projects the data onto the two directions of greatest variance:
+
+```{r pca}
+pca <- prcomp(basket)                             # PCA on the 0/1 matrix
+
+var_explained <- summary(pca)$importance["Proportion of Variance", 1:2]
+round(var_explained, 3)
+
+pca_df <- as_tibble(pca$x[, 1:2]) |>
+  mutate(Cluster = basket_with_clusters$Cluster)
+
+ggplot(pca_df, aes(PC1, PC2, colour = Cluster)) +
+  geom_point(alpha = 0.6, size = 1.8) +
+  labs(title = "2D visualisation of transaction clusters (PCA projection)",
+       x = paste0("PC1 (", round(100 * var_explained[1], 1), "% of variance)"),
+       y = paste0("PC2 (", round(100 * var_explained[2], 1), "% of variance)"))
+```
+
+> 💡 Overlap in a 2D plot does **not** mean the clusters are poor; two dimensions may simply not show the separation that exists in 20.
+
+---
+
+## 9. Mini Data Mining Exercise
+
+> 🧪 **Student Activity:**
+> Prepare a short **mini-report** (bullet points or a short paragraph) based on your analysis:
+
+1. Describe your transactional dataset (source, number of transactions, examples of items).
+2. Summarise **2–3 interesting association rules** and what they mean for a store or organisation.
+3. Describe each cluster in 1–2 sentences (what makes it unique?).
+4. Suggest **one practical decision** that could be made based on your findings (e.g. shelf arrangement, promotions, cross-selling strategies).
+
+*Your mini-report starts here:*
+
+---
+
+## 10. Summary and Reflection (Week 6 PH)
+
+In this Week 6 practical, you have:
+
+- Represented transactional data as an `arules` **transactions** object and a basket–item matrix.
+- Applied **Apriori** to discover frequent itemsets and generated **association rules**.
+- Interpreted support, confidence, and lift, and verified them by hand.
+- Used **k-means clustering**, selected $k$ with the elbow and silhouette diagnostics, and interpreted cluster profiles.
+- Used PCA to visualise the clusters in two dimensions.
+
+> 🧠 **Final Reflection (write 1–2 paragraphs):**
+> - Which technique did you find more intuitive: association rules or clustering? Why?
+> - How could market basket analysis and clustering be applied in Nigerian contexts (e.g. supermarkets, online stores, mobile money, local markets)?
+> - What additional data would make your analysis more powerful or realistic?

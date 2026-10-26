@@ -1,0 +1,297 @@
+---
+title: "Exploratory Data Analysis (EDA): Student-Centred Practical Notebook"
+subtitle: "DTS 201 – Introduction to Data Science – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy)"
+author: "Dr. Sakinat Folorunso — Associate Professor of AI Systems and FAIR Data, Department of Computer Sciences, Olabisi Onabanjo University, Ago-Iwoye, Ogun State, Nigeria"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: readable
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.width = 7, fig.height = 4.5)
+set.seed(42)
+data_dir <- if (dir.exists("../data")) "../data" else "data"
+```
+
+## Learning Objectives
+
+By the end of this notebook, you should be able to:
+
+- Load and inspect a dataset using `readr` and `dplyr`
+- Identify and handle missing values
+- Detect outliers using statistical and visual methods
+- Explore relationships between variables
+- Create useful visualisations with `ggplot2` for understanding data patterns
+- Summarise your findings in clear, concise language
+
+> 💡 **How to use this notebook:** Work through each section in order. Run the code chunks (Ctrl/Cmd + Enter), modify them, and answer the reflection questions where indicated. Knit to HTML when you are done.
+
+---
+
+## 1. What is Exploratory Data Analysis (EDA)?
+
+EDA is the process of:
+
+- **Understanding** the structure, patterns and quirks in your dataset
+- **Cleaning** the data by handling missing values, duplicates and incorrect types
+- **Visualising** distributions, trends and relationships between variables
+- **Generating hypotheses** or questions for further modelling and analysis
+
+In simple terms, EDA helps you **get to know your data** before you build any model.
+
+> ✏️ **Student Task:** In your own words (3–5 sentences), describe why EDA is important when working with real-world data.
+
+<!-- >>> SOLUTION -->
+Real data are rarely clean: they contain missing values, duplicates, wrong types and extreme values. EDA reveals these problems before they silently distort a model. It also shows the shape of each variable (skewed or symmetric), which decides which statistics and models are appropriate. Finally, plots and correlations suggest questions worth testing formally. Skipping EDA risks building a precise-looking model on faulty data.
+<!-- <<< SOLUTION -->
+
+---
+
+## 2. Loading Required Packages
+
+```{r packages}
+library(tidyverse)     # readr, dplyr, ggplot2, tidyr ...
+theme_set(theme_minimal(base_size = 12))
+```
+
+> 💡 If a package is missing, run `source("scripts/install_packages.R")` once. If you work on Posit Cloud or Google Colab (R runtime), see the course README.
+
+---
+
+## 3. Loading the Dataset
+
+> 🔧 **Instruction:** Change `dataset_file` to your own file in the `data` folder. For Excel use `readxl::read_excel()`.
+
+```{r load}
+dataset_file <- "titanic_train.csv"     # TODO: change this to your real file name
+
+df <- read_csv(file.path(data_dir, dataset_file))
+head(df)
+```
+
+> ✏️ **Student Task:** Briefly describe (3–4 sentences) what this dataset is about. What does each row represent? What do some of the columns represent?
+
+<!-- >>> SOLUTION -->
+Each row is one passenger of the RMS Titanic (891 passengers). `Survived` (0/1) is the outcome; `Pclass` is ticket class; `Sex`, `Age`, `SibSp` and `Parch` describe the passenger and family aboard; `Fare` is the ticket price; `Cabin` and `Embarked` give accommodation and port.
+<!-- <<< SOLUTION -->
+
+---
+
+## 4. Initial Data Inspection
+
+```{r inspect}
+dim(df)          # rows and columns
+glimpse(df)      # names, types, first values
+summary(df)      # numeric summaries and missing counts
+```
+
+> ✏️ **Student Reflection:**
+> - How many rows and columns are present?
+> - List at least two numerical and two categorical (character) columns.
+> - Are there any columns that surprise you in terms of type or content?
+
+<!-- >>> SOLUTION -->
+891 rows and 12 columns. Numerical: `Age`, `Fare`. Categorical: `Sex`, `Embarked`. `Survived` and `Pclass` are stored as numbers but are really categories; `Cabin` and `Ticket` are free-form text with many unique values.
+<!-- <<< SOLUTION -->
+
+---
+
+## 5. Exploring Missing Values
+
+```{r missing-count}
+colSums(is.na(df))                                  # missing values per column
+round(100 * colMeans(is.na(df)), 1)                 # percentage missing
+```
+
+```{r missing-plot}
+# Heatmap of missing values: each cell is one value, dark = missing
+df |>
+  mutate(row = row_number()) |>
+  pivot_longer(-row, values_transform = as.character) |>
+  ggplot(aes(name, row, fill = is.na(value))) +
+  geom_tile() +
+  scale_fill_manual(values = c("grey90", "firebrick"), labels = c("present", "missing")) +
+  scale_y_reverse() +
+  labs(title = "Heatmap of missing values", x = "Column", y = "Row", fill = "") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+> ✏️ **Student Task:** Identify at least two columns with missing values. For each, say whether you would drop the rows, fill with the mean/median/mode, use a special value such as "Unknown", or leave as is, and why.
+
+<!-- >>> SOLUTION -->
+`Age` (about 20% missing): impute with the median, because Age is skewed and the median is robust. `Cabin` (about 77% missing): drop the column or replace by a "has cabin" indicator; imputing three quarters of a column would be invention. `Embarked` (2 rows): fill with the mode.
+<!-- <<< SOLUTION -->
+
+### 5.1 Example: Handling Missing Values
+
+```{r impute}
+numeric_col <- "Age"                                # TODO: change to a real column
+
+sum(is.na(df[[numeric_col]]))                       # missing before
+
+median_value <- median(df[[numeric_col]], na.rm = TRUE)
+df[[numeric_col]] <- replace_na(df[[numeric_col]], median_value)
+
+sum(is.na(df[[numeric_col]]))                       # should now be 0
+```
+
+---
+
+## 6. Removing Duplicate Rows
+
+```{r duplicates}
+sum(duplicated(df))        # how many exact duplicate rows?
+
+df <- distinct(df)         # keep the first occurrence of each row
+
+sum(duplicated(df))        # should be 0
+```
+
+> ✏️ **Student Reflection:** Why might duplicate rows be a problem in data analysis or machine learning? Give an example scenario where duplicates could distort your results.
+
+<!-- >>> SOLUTION -->
+Duplicates give some records extra weight, inflating counts and biasing means. In machine learning, a duplicate that lands in both the training and test sets leaks information, so test accuracy looks better than it really is. Example: the same patient entered twice in a clinical dataset.
+<!-- <<< SOLUTION -->
+
+---
+
+## 7. Univariate Analysis of Numerical Features
+
+```{r univariate}
+num_cols <- df |> select(where(is.numeric)) |> names()
+num_cols
+
+# One histogram per numerical column (faceted)
+df |>
+  select(all_of(num_cols)) |>
+  pivot_longer(everything(), names_to = "variable", values_to = "value") |>
+  ggplot(aes(value)) +
+  geom_histogram(bins = 25, fill = "steelblue", colour = "white") +
+  facet_wrap(~ variable, scales = "free") +
+  labs(title = "Distributions of numerical variables", x = NULL, y = "Frequency")
+```
+
+```{r boxplots}
+df |>
+  select(all_of(num_cols)) |>
+  pivot_longer(everything(), names_to = "variable", values_to = "value") |>
+  ggplot(aes(y = value)) +
+  geom_boxplot(fill = "lightblue") +
+  facet_wrap(~ variable, scales = "free") +
+  labs(title = "Boxplots of numerical variables", y = NULL)
+```
+
+> ✏️ **Student Task:** Choose two numerical features and describe their distributions. Are they symmetric, skewed or bimodal? Do they appear to contain outliers?
+
+<!-- >>> SOLUTION -->
+`Fare` is strongly right-skewed with many high outliers (a few first-class tickets above 500). `Age` is roughly symmetric around 28–30 with a small second mode of infants and a few elderly outliers.
+<!-- <<< SOLUTION -->
+
+---
+
+## 8. Outlier Detection Using the IQR Method
+
+A value is flagged as an outlier if it lies below $Q_1 - 1.5\,\mathrm{IQR}$ or above $Q_3 + 1.5\,\mathrm{IQR}$, where $\mathrm{IQR} = Q_3 - Q_1$.
+
+```{r iqr}
+count_outliers <- function(x) {
+  q <- quantile(x, c(0.25, 0.75), na.rm = TRUE)
+  iqr <- q[2] - q[1]
+  sum(x < q[1] - 1.5 * iqr | x > q[2] + 1.5 * iqr, na.rm = TRUE)
+}
+
+df |> summarise(across(all_of(num_cols), count_outliers)) |>
+  pivot_longer(everything(), names_to = "column", values_to = "n_outliers") |>
+  arrange(desc(n_outliers))
+```
+
+> ✏️ **Student Reflection:** Which columns contain the most outliers? Would you remove, cap or leave them? Explain your reasoning.
+
+<!-- >>> SOLUTION -->
+`Fare` has the most outliers. They are genuine (first-class fares), not errors, so removing them would delete real information. Better options are to keep them and use robust statistics, or to model `log(Fare + 1)`.
+<!-- <<< SOLUTION -->
+
+---
+
+## 9. Correlation and Relationships Between Numerical Features
+
+```{r correlation}
+corr_matrix <- cor(df[num_cols], use = "pairwise.complete.obs")
+round(corr_matrix, 2)
+
+as_tibble(corr_matrix, rownames = "x") |>
+  pivot_longer(-x, names_to = "y", values_to = "r") |>
+  ggplot(aes(x, y, fill = r)) +
+  geom_tile() +
+  geom_text(aes(label = sprintf("%.2f", r)), size = 3) +
+  scale_fill_gradient2(low = "steelblue", mid = "white", high = "firebrick", limits = c(-1, 1)) +
+  labs(title = "Correlation heatmap of numerical features", x = NULL, y = NULL) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r pairs, eval=FALSE}
+# Optional pair plot (needs install.packages("GGally")); slow on large data.
+GGally::ggpairs(df[c("Age", "Fare", "SibSp", "Parch")])
+```
+
+> ✏️ **Student Task:** Identify one pair of features with strong **positive** correlation and one pair with **negative** or weak correlation. Suggest a real-world interpretation of one strong correlation.
+
+<!-- >>> SOLUTION -->
+`SibSp` and `Parch` are positively correlated (about 0.41): passengers travelling with siblings or a spouse often also travel with parents or children, i.e. whole families. `Age` and `SibSp` are negatively correlated (about −0.31): children had many siblings aboard. `Age` and `Fare` are only weakly related. Remember that correlation is not causation.
+<!-- <<< SOLUTION -->
+
+---
+
+## 10. Analysis of Categorical Features
+
+```{r categorical}
+cat_cols <- df |> select(where(is.character)) |>
+  select(where(~ n_distinct(.x) <= 10)) |> names()   # skip text columns with many levels
+cat_cols
+
+df |>
+  select(all_of(cat_cols)) |>
+  pivot_longer(everything(), names_to = "variable", values_to = "category") |>
+  count(variable, category) |>
+  ggplot(aes(n, reorder(category, n))) +
+  geom_col(fill = "steelblue") +
+  facet_wrap(~ variable, scales = "free_y") +
+  labs(title = "Frequency of categories", x = "Count", y = NULL)
+```
+
+> ✏️ **Student Task:** Pick one categorical feature. Which category appears most frequently? Is the distribution balanced or imbalanced? What might that imply?
+
+<!-- >>> SOLUTION -->
+In `Sex`, males (about 65%) outnumber females; in `Embarked`, Southampton dominates (about 72%). Imbalanced categories mean that group comparisons rest on unequal sample sizes, and a classifier may favour the majority class.
+<!-- <<< SOLUTION -->
+
+---
+
+## 11. Summary of Your EDA Findings
+
+> 🧠 **Student Summary (Required):** Write 1–2 paragraphs (or bullet points) summarising what you learned about this dataset. You may include:
+
+- Key data quality issues (missing values, duplicates, outliers)
+- Interesting distributions or patterns
+- Important correlations between features
+- Any anomalies or unexpected findings
+- Questions or hypotheses for further analysis or modelling
+
+<!-- >>> SOLUTION -->
+The Titanic data have 891 passengers; `Age` (20% missing) was imputed with the median and `Cabin` (77% missing) was judged unusable. No duplicate rows were found. `Fare` is heavily right-skewed with genuine high-value outliers. Correlations among numerical variables are modest, the strongest being `SibSp`–`Parch` (family size). Males and third-class passengers dominate. Hypotheses for modelling: survival depends on `Sex`, `Pclass` and `Age`.
+<!-- <<< SOLUTION -->
+
+---
+
+## 12. Optional Extension Tasks (For Further Learning)
+
+If you finish early, try one or more of these:
+
+1. **Feature importance (if you have a target variable):** fit a decision tree with `rpart::rpart()` and read the variable importance (`model$variable.importance`).
+2. **Compare before and after cleaning:** keep a copy of the original data frame (`df_raw <- df`) and compare distributions before and after imputation or outlier handling.
+3. **Dimensionality reduction (PCA):** standardise the numerical features, run `prcomp(x, scale. = TRUE)`, and plot the first two principal components.
+
+> ✅ You can modify this notebook and submit it as part of your assignment or project report, depending on your course requirements.

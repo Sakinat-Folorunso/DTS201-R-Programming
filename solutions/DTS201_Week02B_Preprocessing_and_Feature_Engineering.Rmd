@@ -1,0 +1,159 @@
+---
+title: "DTS 201 – Introduction to Data Science"
+subtitle: "Week 2 Practical (PH, Part B): Data Preprocessing and Feature Engineering – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy)"
+author: "Dr. Sakinat Folorunso — Associate Professor of AI Systems and FAIR Data, Department of Computer Sciences, Olabisi Onabanjo University, Ago-Iwoye, Ogun State, Nigeria"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: readable
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.width = 7, fig.height = 4.5)
+set.seed(42)
+data_dir <- if (dir.exists("../data")) "../data" else "data"
+```
+
+**Course Code:** DTS 201  **Practical Week:** 2 – Data Science Process I (preprocessing)
+
+---
+
+### 🎯 Practical Learning Objectives
+
+By the end of this practical, you should be able to:
+
+- **Handle** missing values with a defensible strategy.
+- **Create** new features from existing columns (feature engineering).
+- **Encode** categories and **scale** numbers for modelling.
+- **Screen** features with a simple correlation check.
+- **Explain** why preprocessing parameters must come from the training data only.
+
+> 📌 Preprocessing is the second step of the data science process: collection → **pre-processing** → training → testing.
+
+---
+
+## 1. Load the Data
+
+```{r load}
+library(tidyverse)
+theme_set(theme_minimal(base_size = 12))
+
+raw <- read_csv(file.path(data_dir, "titanic_train.csv"))
+glimpse(raw)
+colSums(is.na(raw))
+```
+
+Age is missing for about one passenger in five, and Cabin for most. What you do with each depends on how much is missing and how you will use the variable.
+
+---
+
+## 2. Missing Values
+
+```{r impute}
+df <- raw |>
+  mutate(Age_missing = as.integer(is.na(Age)),                 # keep a flag: missingness may carry information
+         Age = replace_na(Age, median(Age, na.rm = TRUE)),     # median is robust to skew
+         Embarked = replace_na(Embarked, names(which.max(table(Embarked)))))  # mode for a category
+colSums(is.na(df))[c("Age", "Embarked", "Cabin")]
+```
+
+> ✏️ **Student Task 1:** Why is the median usually safer than the mean for imputing Age? Why do we keep an `Age_missing` flag?
+
+<!-- >>> SOLUTION -->
+The mean is pulled by extreme values and fills gaps with a value that may not occur; the median is robust. Imputed values hide the fact that data were missing, so the flag lets a model (or you) check whether missingness itself is informative, for example whether passengers without a recorded age were more often in third class.
+<!-- <<< SOLUTION -->
+
+---
+
+## 3. Feature Engineering
+
+New features often help more than a fancier model.
+
+```{r features}
+df <- df |>
+  mutate(FamilySize = SibSp + Parch + 1,
+         IsAlone    = as.integer(FamilySize == 1),
+         Title      = str_extract(Name, "(?<=, )[A-Za-z]+"),
+         HasCabin   = as.integer(!is.na(Cabin)),
+         AgeGroup   = cut(Age, c(0, 12, 18, 40, 60, Inf),
+                          labels = c("Child", "Teen", "Adult", "Middle", "Senior")))
+count(df, Title, sort = TRUE) |> head(6)
+df |> group_by(AgeGroup) |> summarise(n = n(), survival = mean(Survived))
+```
+
+> ✏️ **Student Task 2:** Create `Fare_per_person = Fare / FamilySize` and compare its correlation with `Survived` to the correlation of `Fare` with `Survived`.
+
+```{r task2}
+# >>> SOLUTION
+df <- df |> mutate(Fare_per_person = Fare / FamilySize)
+c(Fare = cor(df$Fare, df$Survived), Fare_per_person = cor(df$Fare_per_person, df$Survived))
+# <<< SOLUTION
+```
+
+---
+
+## 4. Encoding and Scaling
+
+Models need numbers. A categorical variable becomes **dummy (one-hot) columns**; numeric variables on different scales are **standardised**:
+
+$$z = \frac{x - \bar{x}}{s}$$
+
+```{r encode}
+head(model.matrix(~ Sex + factor(Pclass), data = df), 4)
+
+df <- df |> mutate(Fare_z = as.numeric(scale(Fare)),
+                   Fare_minmax = (Fare - min(Fare)) / (max(Fare) - min(Fare)))
+summary(df[, c("Fare_z", "Fare_minmax")])
+```
+
+### 4.1 Avoiding data leakage
+
+If you compute the mean and standard deviation on **all** rows and then split into train and test, information from the test set has leaked into training. Compute the parameters on the training set only and **reuse** them for the test set.
+
+> ✏️ **Student Task 3:** Split the data 80/20 (seed 42). Standardise `Fare` using the **training** mean and SD only, and apply the same values to the test set. Report the test-set mean of the standardised Fare.
+
+```{r task3}
+# >>> SOLUTION
+set.seed(42)
+idx   <- sample(nrow(df), floor(0.8 * nrow(df)))
+train <- df[idx, ]; test <- df[-idx, ]
+mu <- mean(train$Fare); s <- sd(train$Fare)
+train$Fare_z <- (train$Fare - mu) / s
+test$Fare_z  <- (test$Fare  - mu) / s        # same mu and s: never recomputed on test
+c(train_mean = mean(train$Fare_z), test_mean = mean(test$Fare_z))
+# <<< SOLUTION
+```
+
+<!-- >>> SOLUTION -->
+The training mean is exactly 0, while the test mean is close to but not exactly 0. That is correct: the test set is treated as unseen data, so it must be transformed with the training values.
+<!-- <<< SOLUTION -->
+
+---
+
+## 5. Simple Feature Selection
+
+```{r select}
+cors <- cor(df[, c("Survived", "Age", "Fare", "FamilySize", "IsAlone", "HasCabin", "SibSp", "Parch")])[, "Survived"]
+round(sort(cors[-1], decreasing = TRUE), 2)
+```
+
+A feature is a candidate if it relates to the outcome and is available at prediction time. Columns such as `PassengerId`, `Ticket` and `Name` (raw) are identifiers and should be dropped.
+
+> ✏️ **Student Task 4:** Which three engineered or original features would you keep? Which would you drop and why?
+
+<!-- >>> SOLUTION -->
+Keep `HasCabin` (clearly related to class and survival), `Fare` or `Fare_per_person`, and `Sex` and `Pclass` (strong categorical predictors, not shown in this numeric table). Drop `PassengerId`, `Ticket` and raw `Name` (identifiers). `SibSp` and `Parch` are largely captured by `FamilySize`, so keeping all three adds redundancy.
+<!-- <<< SOLUTION -->
+
+---
+
+## 6. Summary and Reflection
+
+- Handle missing values deliberately and keep a flag when missingness may matter.
+- Engineer features from domain knowledge.
+- Encode and scale using training-set parameters only.
+- Drop identifiers and redundant columns.
+
+> 🧠 **Reflection:** Give one example from a Nigerian dataset (for example bank, hospital or school records) where a derived feature would be more informative than the raw columns.

@@ -1,0 +1,504 @@
+---
+title: "DTS 201 – Introduction to Data Science"
+subtitle: "Week 10 Practical (PH): R Programming for Data Science – Basics – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy)"
+author: "Dr. Sakinat Folorunso — Associate Professor of AI Systems and FAIR Data, Department of Computer Sciences, Olabisi Onabanjo University, Ago-Iwoye, Ogun State, Nigeria"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: readable
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.width = 7, fig.height = 4.2)
+set.seed(42)
+data_dir <- if (dir.exists("../data")) "../data" else "data"
+```
+
+**Course Code:** DTS 201  **Practical Week:** 10 – Programming for Data Science
+
+---
+
+### 🎯 Practical Learning Objectives (Week 10)
+
+By the end of this practical session, you should be able to:
+
+- **Write and run** basic **R code** in the Console, in a script, and in an R Markdown notebook.
+- **Use** variables, data types, vectors, lists, conditions (`if`), and loops (`for`).
+- **Define and call** simple **functions**.
+- **Perform** basic **data operations** on data frames with `dplyr` (selecting, filtering, creating columns, grouping).
+- **Write** a complete **R script** that imports, cleans and visualises a dataset.
+- **Understand** how these programming skills support later topics in **data science and AI**.
+
+> 💡 You have been *using* R since Week 0. This week we study the **language itself** more systematically, following the course outline: *"Basics of R programming – variables, functions, loops, and simple data operations"* and *"Writing R scripts for data import, cleaning, and visualization."*
+
+---
+
+## 1. Running R Code: Console, Script, Notebook
+
+There are three places to run R in RStudio:
+
+| Where | Best for | How to run |
+|---|---|---|
+| **Console** | Quick one-line experiments | Type and press `Enter` |
+| **Script** (`.R` file) | Programs you want to re-run in full and share | `Ctrl/Cmd + Enter` (one line) or **Source** (whole file) |
+| **R Markdown** (`.Rmd`) | Reports mixing text, code and results | Run a chunk, or **Knit** |
+
+> ✏️ **Student Task 1:**
+> - In the **Console** type `print("Hello DTS 201!")` and press Enter.
+> - Create a **new R script** (*File → New File → R Script*), type the same line, and run it with `Ctrl/Cmd + Enter`.
+> - In this notebook, add a new chunk below this paragraph (`Ctrl/Cmd + Alt + I`) and run it.
+
+```{r task1}
+# TODO: write your code here
+```
+
+---
+
+## 2. Variables and Basic Data Types in R
+
+Core data types:
+
+- **numeric** (`double`) – decimal numbers, e.g. `3.14`, `72.5`, `-2`
+- **integer** – whole numbers, written with an `L`, e.g. `20L`
+- **character** – text, e.g. `"OOU"`, `"Data Science"`
+- **logical** – `TRUE` or `FALSE`
+- **factor** – a categorical variable with a fixed set of levels (very common in data science)
+
+We store values in **variables** with the assignment arrow `<-`.
+
+```{r types}
+age    <- 20L              # integer: whole number (the L means integer)
+score  <- 72.5             # numeric (double): decimal number
+name   <- "Amina"          # character: text
+passed <- TRUE             # logical: TRUE or FALSE
+level  <- factor("200", levels = c("100", "200", "300", "400"))   # factor: a category
+
+cat("Age   :", age,    "| class:", class(age),    "\n")
+cat("Score :", score,  "| class:", class(score),  "\n")
+cat("Name  :", name,   "| class:", class(name),   "\n")
+cat("Passed:", passed, "| class:", class(passed), "\n")
+cat("Level :", as.character(level), "| class:", class(level), "\n")
+```
+
+Variable names may contain letters, digits, `.` and `_`, must not start with a digit, and are **case-sensitive** (`Score` and `score` are different).
+
+> ✏️ **Student Task 2:**
+> Create your own variables `course_code` (e.g. `"DTS 201"`), `units` (e.g. `3L`), and `registered` (`TRUE`/`FALSE`). Print each with its class.
+
+```{r task2}
+# TODO: write your code here
+```
+
+---
+
+## 3. Basic Arithmetic and Comparisons
+
+R is a powerful calculator. Arithmetic operators: `+ - * /`, `%/%` (integer division), `%%` (remainder), `^` (power). Comparison operators return `TRUE`/`FALSE`: `==`, `!=`, `>`, `<`, `>=`, `<=`. Combine conditions with `&` (and), `|` (or) and `!` (not).
+
+```{r arithmetic}
+a <- 10
+b <- 3
+
+a + b       # addition
+a - b       # subtraction
+a * b       # multiplication
+a / b       # division
+a %/% b     # integer division (no remainder)
+a %% b      # remainder
+a ^ b       # power
+```
+
+```{r comparisons}
+x <- 75     # a sample exam score
+y <- 50     # pass mark
+
+x > y
+x == y
+x >= y
+x < y
+(x >= 50) & (x < 70)      # between 50 and 69?
+```
+
+> ⚠️ **Floating-point surprise:** computers store decimals approximately. Compare decimals with `all.equal()` or `isTRUE(all.equal(...))`, never with `==`:
+
+```{r float}
+0.1 + 0.2 == 0.3                     # FALSE!
+isTRUE(all.equal(0.1 + 0.2, 0.3))    # TRUE
+```
+
+> ✏️ **Student Task 3:**
+> Write an expression to check whether a student with `score = 45` has passed (pass mark = 50). Store the result in `has_passed` and print it.
+
+```{r task3}
+# TODO: write your code here
+```
+
+---
+
+## 4. Working with Vectors
+
+The most important data structure in R is the **vector**: an ordered collection of values **of the same type**. (Python's list is closest, but a vector holds one type.) Vectors are created with `c()` ("combine"). **R counts positions from 1, not 0.**
+
+```{r vectors}
+scores <- c(72, 65, 88, 90, 54)        # a numeric vector of five values
+
+scores                                  # print it
+scores[1]                               # FIRST element
+scores[3]                               # third element
+scores[c(1, 5)]                         # first and last
+scores[-1]                              # everything EXCEPT the first
+scores[scores >= 70]                    # logical indexing: only scores of 70 or more
+
+scores <- c(scores, 79)                 # append a new score
+scores
+
+length(scores)                          # how many?
+max(scores); min(scores)
+mean(scores); median(scores); sd(scores)
+sum(scores) / length(scores)            # the average computed by hand
+```
+
+**Vectorisation.** Operations apply to *every element at once*, so you rarely need a loop:
+
+```{r vectorised}
+scores + 5                  # add 5 bonus marks to everyone
+scores / 100 * 70           # convert to a 70-mark scale
+scores >= 50                # TRUE/FALSE for each student
+sum(scores >= 50)           # how many passed? (TRUE counts as 1)
+mean(scores >= 50)          # proportion passed
+```
+
+Useful ways to create vectors, and how R handles **missing values** (`NA`):
+
+```{r vectors2}
+1:10                              # sequence 1 to 10
+seq(0, 100, by = 25)              # 0 25 50 75 100
+rep(c("A", "B"), times = 3)       # A B A B A B
+
+with_na <- c(72, NA, 88)
+mean(with_na)                     # NA: one missing value makes the answer unknown
+mean(with_na, na.rm = TRUE)       # ignore missing values
+```
+
+A vector can be **named**, which is handy for small lookups:
+
+```{r named}
+pass_marks <- c(CSC = 40, DTS = 45, MTH = 40)
+pass_marks["DTS"]
+```
+
+> ✏️ **Student Task 4:**
+> Create a vector `ages` with at least 5 different ages. Print the youngest and oldest age, compute the average age, and print how many ages are above the average.
+
+```{r task4}
+# TODO: write your code here
+```
+
+---
+
+## 5. Lists (Key–Value Pairs)
+
+A **list** can hold items of **different types** and give each a name, like a Python dictionary. Access items with `$` or `[["name"]]`.
+
+```{r lists}
+student <- list(
+  name       = "Amina",              # character
+  age        = 20,                   # numeric
+  department = "Computer Science",   # character
+  passed     = TRUE                  # logical
+)
+
+student$name
+student[["age"]]
+student$department
+
+student$level <- 200                 # add a new entry
+str(student)                         # structure of the list
+```
+
+> ✏️ **Student Task 5:**
+> Create a list `course` with `code`, `title`, `units` and `semester`. Print a sentence such as "DTS 201 is a 3-unit course." using `paste()` or `cat()`.
+
+```{r task5}
+# TODO: write your code here
+```
+
+---
+
+## 6. Decision-Making with `if`, `else if`, and `else`
+
+`if` statements run a block of code only when a condition is `TRUE`.
+
+```{r if-else}
+score <- 72      # change this value to test different branches
+
+if (score >= 70) {
+  grade <- "A"            # 70 or higher
+} else if (score >= 60) {
+  grade <- "B"            # 60 to 69
+} else if (score >= 50) {
+  grade <- "C"            # 50 to 59
+} else {
+  grade <- "F"            # below 50
+}
+
+cat("Score:", score, "\nGrade:", grade, "\n")
+```
+
+`if` handles **one** condition. To classify a **whole vector** at once, use the vectorised `ifelse()` or `dplyr::case_when()`:
+
+```{r vector-if}
+library(tidyverse)
+scores <- c(72, 65, 88, 90, 54, 45)
+
+ifelse(scores >= 50, "PASS", "FAIL")
+
+case_when(scores >= 70 ~ "A",
+          scores >= 60 ~ "B",
+          scores >= 50 ~ "C",
+          TRUE         ~ "F")
+```
+
+> ✏️ **Student Task 6:**
+> Change `score` in the first chunk to different values and note how the grade changes. Then extend the scale in `case_when()` to include `"D"` for scores from 45 to 49.
+
+```{r task6}
+# TODO: write your code here
+```
+
+---
+
+## 7. Loops: Repeating Actions with `for`
+
+A `for` loop repeats a block of code for each element of a sequence.
+
+```{r for-loop}
+scores    <- c(72, 65, 88, 90, 54)
+pass_mark <- 50
+
+for (s in scores) {
+  status <- if (s >= pass_mark) "PASS" else "FAIL"
+  cat("Score:", s, "->", status, "\n")
+}
+```
+
+Looping over **positions** with `seq_along()` is useful when you need the index:
+
+```{r for-index}
+for (i in seq_along(scores)) {
+  cat("Student", i, "scored", scores[i], "\n")
+}
+```
+
+A `while` loop repeats while a condition stays true:
+
+```{r while-loop}
+balance <- 100
+years   <- 0
+while (balance < 200) {
+  balance <- balance * 1.10        # 10% growth per year
+  years   <- years + 1
+}
+cat("It takes", years, "years for 100 to double at 10% growth.\n")
+```
+
+> 💡 **R style:** many loops can be replaced by a vectorised operation or by `sapply()`/`map()`. They are shorter and often faster:
+
+```{r vectorise-instead}
+status_vec <- ifelse(scores >= pass_mark, "PASS", "FAIL")      # same result as the loop
+status_vec
+sapply(scores, function(s) s^2)                                 # apply a function to each element
+```
+
+> ✏️ **Student Task 7:**
+> Create a vector of 5 student names. Use a `for` loop to print a welcome message for each (e.g. "Welcome, Amina!").
+
+```{r task7}
+# TODO: write your code here
+```
+
+---
+
+## 8. Writing Your Own Functions
+
+A **function** is a reusable block of code that performs a specific task. We create one with `function()`; the value of the **last expression** is returned (or use `return()`).
+
+```{r functions}
+# Compute the average of a numeric vector
+compute_average <- function(values) {
+  total   <- sum(values)         # add up all the values
+  count   <- length(values)      # count how many values there are
+  average <- total / count       # divide the sum by the count
+  average                        # the last expression is returned
+}
+
+scores <- c(72, 65, 88, 90, 54)
+compute_average(scores)
+mean(scores)                      # the built-in function gives the same answer
+```
+
+Functions can have **default arguments** and should be **tested** on typical and unusual inputs:
+
+```{r functions2}
+# Convert a mark out of 'max_mark' to a percentage
+to_percent <- function(mark, max_mark = 100) {
+  stopifnot(is.numeric(mark), max_mark > 0)       # validate the inputs
+  100 * mark / max_mark
+}
+
+to_percent(36, max_mark = 40)
+to_percent(72)
+```
+
+> ✏️ **Student Task 8:**
+> Write a function `classify_score(score)` that returns `"PASS"` if `score >= 50` and `"FAIL"` otherwise. Test it on several values, including a vector.
+
+```{r task8}
+# TODO: write your code here
+```
+
+---
+
+## 9. Basic Data Operations with Data Frames and `dplyr`
+
+A **data frame** (or *tibble*) is a table: each column is a vector, and all columns have the same length. `dplyr` provides a small set of verbs for working with them:
+
+| Verb | What it does |
+|---|---|
+| `select()` | choose columns |
+| `filter()` | choose rows |
+| `mutate()` | create or change columns |
+| `arrange()` | sort rows |
+| `group_by()` + `summarise()` | compute statistics per group |
+| `count()` | frequency table |
+
+The **pipe** `|>` passes the result on the left as the first argument of the function on the right, so code reads like a recipe: "take the data, *then* filter, *then* summarise".
+
+```{r dataframe}
+students_df <- tibble(
+  Name       = c("Amina", "Bola", "Chidi", "Damilola"),
+  Score      = c(72, 65, 88, 54),
+  Department = c("CS", "CS", "IT", "CS")
+)
+
+students_df                     # the whole table
+dim(students_df)                # rows, columns
+glimpse(students_df)            # structure
+```
+
+```{r select-filter}
+students_df$Score               # one column as a vector
+mean(students_df$Score)
+
+students_df |> filter(Score >= 70)                  # rows with Score >= 70
+students_df |> select(Name, Score)                  # two columns
+students_df |> arrange(desc(Score))                 # sort from highest score
+```
+
+```{r mutate-summarise}
+students_df |>
+  mutate(Status = ifelse(Score >= 50, "PASS", "FAIL")) |>      # new column
+  count(Status)                                                # frequency table
+
+students_df |>
+  group_by(Department) |>
+  summarise(n = n(), mean_score = mean(Score), .groups = "drop")
+```
+
+> ✏️ **Student Task 9:**
+> Add a new column `Status` to `students_df` that contains `"PASS"` if Score ≥ 50 and `"FAIL"` otherwise. Count how many students passed and how many failed.
+
+```{r task9}
+# TODO: write your code here
+```
+
+---
+
+## 10. Writing an R Script: Import → Clean → Visualise
+
+So far we worked in a notebook. Real projects usually keep their workflow in **scripts**. Open the script **`scripts/week10_import_clean_visualise.R`** in RStudio (*File → Open File…*), read it from top to bottom, and click **Source**. The script has five steps:
+
+1. **Setup** – load packages, set the seed, find the data folder.
+2. **Import** – read `titanic_train.csv`.
+3. **Clean** – fill missing ages, convert columns to factors, validate with `stopifnot()`.
+4. **Summarise** – survival rate by class and sex.
+5. **Visualise and save** – draw a bar chart and save it to the `outputs` folder.
+
+The next chunk runs that same script from inside this notebook:
+
+```{r run-script}
+script_path <- if (file.exists("../scripts/week10_import_clean_visualise.R")) {
+  "../scripts/week10_import_clean_visualise.R"
+} else "scripts/week10_import_clean_visualise.R"
+
+source(script_path, local = TRUE)
+```
+
+> ✏️ **Student Task 10:**
+> Copy the script to a new file `my_script.R` in the `scripts` folder and modify it so that it: (a) also computes the **average fare by class**, and (b) saves a **histogram of Age** to the `outputs` folder.
+
+```{r task10}
+# TODO: write your code here
+```
+
+---
+
+## 11. Mini Programming Exercise
+
+> 🧪 **Student Activity:**
+> Using what you have learned in this practical:
+
+1. Create a small dataset representing at least **5 students** with **Name**, **Score** and **Department**.
+2. Convert it to a **tibble/data frame**.
+3. Write a **function** that classifies each student as `"PASS"` or `"FAIL"` and apply it to create a new `Status` column.
+4. Use `summarise()` and `group_by()` to find:
+   - the average score overall;
+   - the average score per department.
+5. Write a short paragraph summarising your findings (e.g. which department performed best).
+
+```{r mini}
+# TODO: write your code here
+```
+
+*Your findings paragraph starts here:*
+
+---
+
+## 12. Quick Reference for Students Who Know Python
+
+| Concept | Python | R |
+|---|---|---|
+| Assign | `x = 5` | `x <- 5` |
+| Print | `print(x)` | `print(x)` or `x` |
+| List/vector | `[1, 2, 3]` | `c(1, 2, 3)` |
+| First element | `x[0]` | `x[1]` |
+| Dictionary | `{"a": 1}` | `list(a = 1)` |
+| `if` | `if x > 0:` ... `elif` ... `else:` | `if (x > 0) { } else if (...) { } else { }` |
+| `for` | `for s in scores:` | `for (s in scores) { }` |
+| Function | `def f(x): return x**2` | `f <- function(x) x^2` |
+| Power / integer division | `**`, `//` | `^`, `%/%` |
+| Logical operators | `and`, `or`, `not` | `&` (and), the vertical-bar symbol (or), `!` (not) |
+| DataFrame | `pd.DataFrame(...)` | `tibble(...)` |
+| Filter rows | `df[df.Score >= 70]` | `filter(df, Score >= 70)` |
+| New column | `df["Status"] = ...` | `mutate(df, Status = ...)` |
+| Group and summarise | `df.groupby("Dept")["Score"].mean()` | `group_by(df, Dept)` followed by `summarise(mean(Score))` |
+
+---
+
+## 13. Summary and Reflection (Week 10 PH)
+
+In this Week 10 practical, you have:
+
+- Written and run basic **R code** in the Console, a script, and a notebook.
+- Used **variables**, **basic data types**, **vectors**, **lists**, **if-statements**, **loops**, and **functions**.
+- Created a **data frame** (tibble) and performed selection, filtering, grouping and summarising with `dplyr`.
+- Run and modified a complete **import → clean → visualise** script.
+- Connected core programming concepts to **data science workflows**.
+
+> 🧠 **Final Reflection (1–2 paragraphs):**
+> - Which R concept (variables, vectors, lists, loops, functions, data frames) felt easiest to you? Which was most challenging?
+> - How do you see these programming skills helping you in later courses like machine learning, AI, or software development?
+> - What would you like to be able to program by the end of your degree?

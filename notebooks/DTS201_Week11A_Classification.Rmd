@@ -1,0 +1,140 @@
+---
+title: "DTS 201 – Introduction to Data Science"
+subtitle: "Week 11 Practical (PH, Part A): Classification – SOLUTIONS (lecturer copy)"
+author: "Dr. Sakinat Folorunso — Associate Professor of AI Systems and FAIR Data, Department of Computer Sciences, Olabisi Onabanjo University, Ago-Iwoye, Ogun State, Nigeria"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: readable
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.width = 7, fig.height = 4.5)
+set.seed(42)
+data_dir <- if (dir.exists("../data")) "../data" else "data"
+```
+
+**Course Code:** DTS 201  **Practical Week:** 11 – Laboratory Applications (predictive modelling)
+
+---
+
+### 🎯 Practical Learning Objectives
+
+- **Fit** a logistic regression and a decision tree to predict a yes/no outcome.
+- **Build** and **read** a confusion matrix.
+- **Compute** accuracy, precision, recall and F1.
+- **Explain** how the decision threshold trades precision against recall.
+
+---
+
+## 1. Prepare the Data
+
+Outcome: did the passenger survive (1) or not (0)?
+
+```{r prep}
+library(tidyverse)
+library(rpart)                     # decision trees (ships with R)
+theme_set(theme_minimal(base_size = 12))
+
+df <- read_csv(file.path(data_dir, "titanic_train.csv")) |>
+  mutate(Age = replace_na(Age, median(Age, na.rm = TRUE)),
+         Sex = factor(Sex), Pclass = factor(Pclass)) |>
+  select(Survived, Pclass, Sex, Age, SibSp, Parch, Fare)
+
+set.seed(42)
+idx   <- sample(nrow(df), floor(0.8 * nrow(df)))
+train <- df[idx, ]; test <- df[-idx, ]
+c(train = nrow(train), test = nrow(test))
+```
+
+### A baseline you must beat
+
+```{r baseline}
+majority <- as.integer(mean(train$Survived) >= 0.5)       # always predict the most common class
+mean(test$Survived == majority)                             # baseline accuracy
+```
+
+A model is only useful if it beats the baseline.
+
+---
+
+## 2. Logistic Regression
+
+It models the probability of the positive class:
+
+$$P(y = 1 \mid x) = \frac{1}{1 + e^{-(\beta_0 + \beta_1 x_1 + \dots + \beta_p x_p)}}$$
+
+```{r logit}
+logit <- glm(Survived ~ ., data = train, family = binomial)
+round(summary(logit)$coefficients, 3)
+
+prob <- predict(logit, test, type = "response")            # probabilities
+pred <- as.integer(prob > 0.5)                             # threshold 0.5
+```
+
+---
+
+## 3. Confusion Matrix and Metrics
+
+|  | Predicted 0 | Predicted 1 |
+|---|---|---|
+| **Actual 0** | TN | FP |
+| **Actual 1** | FN | TP |
+
+$$\text{Accuracy}=\frac{TP+TN}{n},\quad \text{Precision}=\frac{TP}{TP+FP},\quad \text{Recall}=\frac{TP}{TP+FN},\quad F_1=\frac{2TP}{2TP+FP+FN}$$
+
+```{r metrics}
+class_metrics <- function(actual, predicted) {
+  cm <- table(factor(actual, 0:1), factor(predicted, 0:1))
+  TP <- cm["1", "1"]; TN <- cm["0", "0"]; FP <- cm["0", "1"]; FN <- cm["1", "0"]
+  list(cm = cm,
+       metrics = c(accuracy = (TP + TN) / sum(cm), precision = TP / (TP + FP),
+                   recall = TP / (TP + FN), F1 = 2 * TP / (2 * TP + FP + FN)))
+}
+res <- class_metrics(test$Survived, pred)
+res$cm
+round(res$metrics, 3)
+```
+
+> ✏️ **Student Task 1:** Change the threshold to **0.3** and to **0.7**. What happens to precision and recall? Which error is worse for a medical screening tool, FP or FN?
+
+```{r task1}
+# TODO: write your code here
+```
+
+*Your answer here:*
+
+---
+
+## 4. Decision Tree
+
+```{r tree}
+tree <- rpart(factor(Survived) ~ ., data = train, method = "class")
+plot(tree, margin = 0.1); text(tree, use.n = TRUE, cex = 0.7)
+
+tree_pred <- predict(tree, test, type = "class")
+round(class_metrics(test$Survived, as.integer(as.character(tree_pred)))$metrics, 3)
+```
+
+A tree is a set of if-then rules, which makes it easy to explain; a logistic regression gives probabilities and coefficients.
+
+> ✏️ **Student Task 2:** Compare the accuracy of the tree and the logistic regression on the test set. With a test set of about 180 rows, is a difference of one or two percentage points convincing? (Hint: one test row is worth about 0.6 percentage points.)
+
+```{r task2}
+# TODO: write your code here
+```
+
+*Your answer here:*
+
+---
+
+## 5. Summary and Reflection
+
+- Always compare with a baseline.
+- Read the confusion matrix before quoting accuracy.
+- The decision threshold is a choice that depends on the cost of each error.
+- One small test set cannot separate two similar models.
+
+> 🧠 **Reflection:** A model for loan default has 95% accuracy, but only 5% of customers default. Is it good? What would you check?

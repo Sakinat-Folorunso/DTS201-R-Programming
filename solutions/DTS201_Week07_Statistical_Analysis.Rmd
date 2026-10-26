@@ -1,0 +1,412 @@
+---
+title: "DTS 201 – Introduction to Data Science"
+subtitle: "Week 7 Practical (PH): Statistical Analysis – t-Tests, Chi-Square & Correlation – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy)"
+author: "Dr. Sakinat Folorunso — Associate Professor of AI Systems and FAIR Data, Department of Computer Sciences, Olabisi Onabanjo University, Ago-Iwoye, Ogun State, Nigeria"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: readable
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.width = 7, fig.height = 4.5)
+set.seed(42)
+data_dir <- if (dir.exists("../data")) "../data" else "data"
+```
+
+**Course Code:** DTS 201  **Practical Week:** 7 – Statistical Analysis
+
+---
+
+### 🎯 Practical Learning Objectives (Week 7)
+
+By the end of this practical session, you should be able to:
+
+- **Explain** the purpose of **hypothesis testing** in data analysis.
+- **Perform and interpret** a **one-sample t-test** and an **independent-samples t-test**.
+- **Construct** a **contingency table** and run a **chi-square test of independence**.
+- **Compute and interpret** **correlation coefficients** between numerical variables.
+- **Distinguish** between **statistical significance** and **practical significance** using effect sizes and confidence intervals.
+
+> 💡 This notebook uses base R's `t.test()`, `chisq.test()` and `cor.test()`, mirroring the course outline: *"Performing t-tests, chi-square tests, and correlation analysis in R."*
+
+---
+
+## 1. Getting Started: What Is Hypothesis Testing?
+
+In many real-world problems we ask questions like:
+
+- "Did the new teaching method **improve** exam scores?"
+- "Is there an association between **gender** and **programme choice**?"
+- "Are **hours studied** and **exam score** related?"
+
+**Hypothesis tests** help us decide whether an observed difference or relationship is likely due to **chance** or reflects a **real effect** in the population. Every test follows the same recipe:
+
+1. State the **null hypothesis** $H_0$ (no effect / no difference) and the **alternative** $H_1$.
+2. Choose a significance level $\alpha$ (we use $\alpha = 0.05$).
+3. Compute a **test statistic** from the data.
+4. Obtain the **p-value**: the probability, *if $H_0$ were true*, of a result at least as extreme as the one observed.
+5. Decide: if $p < \alpha$, reject $H_0$. **Always also report an effect size and a confidence interval.**
+
+> ⚠️ A p-value is **not** the probability that $H_0$ is true, and a small p-value does not mean the effect is important. We return to this in Section 8.
+
+### Our dataset
+
+We use `advertising.csv`: 1,000 internet users of a website, with the time they spend on the site, age, area income, daily internet usage, gender, and whether they **clicked on an advertisement**.
+
+---
+
+## 2. Loading Required Packages
+
+```{r packages}
+library(tidyverse)
+library(broom)           # tidy() turns test results into tidy tables (installed with the tidyverse)
+theme_set(theme_minimal(base_size = 12))
+```
+
+---
+
+## 3. Loading the Dataset
+
+```{r load}
+data_path <- file.path(data_dir, "advertising.csv")      # TODO: change to another dataset
+
+ads <- read_csv(data_path) |>
+  rename_with(~ str_replace_all(.x, " ", "_")) |>        # "Daily Time Spent on Site" -> "Daily_Time_Spent_on_Site"
+  rename(Clicked = Clicked_on_Ad) |>
+  mutate(Gender  = factor(Male, levels = c(0, 1), labels = c("Female", "Male")),
+         Clicked = factor(Clicked, levels = c(0, 1), labels = c("No", "Yes")))
+
+head(select(ads, Daily_Time_Spent_on_Site, Age, Area_Income, Daily_Internet_Usage, Gender, Clicked))
+```
+
+> ✏️ **Student Task 1:**
+> - What does one row represent in this dataset?
+> - Identify at least **two numerical variables** (e.g. Age, Area_Income).
+> - Identify at least **two categorical variables** (e.g. Gender, Clicked).
+
+### 3.1 Basic Inspection and Data Types
+
+```{r inspect}
+dim(ads)
+glimpse(select(ads, -Ad_Topic_Line, -City, -Country, -Timestamp, -Male))
+summary(select(ads, Daily_Time_Spent_on_Site, Age, Area_Income, Daily_Internet_Usage))
+colSums(is.na(ads))
+```
+
+---
+
+## 4. One-Sample t-Test
+
+A **one-sample t-test** compares the mean of a sample with a known or hypothesised value $\mu_0$.
+
+> *Example question:* "Is the **average time spent on the site** different from the target of **60 minutes**?"
+
+$H_0: \mu = \mu_0$ versus $H_1: \mu \ne \mu_0$. The test statistic is
+
+$$t = \frac{\bar{x} - \mu_0}{s/\sqrt{n}}, \qquad \text{df} = n - 1,$$
+
+and the standardised effect size is Cohen's $d = (\bar{x} - \mu_0)/s$.
+
+```{r ttest-one}
+score_col <- "Daily_Time_Spent_on_Site"      # TODO: change to a real numeric column
+mu_0      <- 60                              # TODO: hypothesised mean (target, pass mark, ...)
+
+x   <- ads[[score_col]]
+tt  <- t.test(x, mu = mu_0)                  # two-sided by default
+d   <- (mean(x) - mu_0) / sd(x)              # Cohen's d
+
+cat(sprintf("One-sample t-test of %s against mu0 = %g\n", score_col, mu_0))
+cat(sprintf("  n = %d, mean = %.2f, SD = %.2f\n", length(x), mean(x), sd(x)))
+cat(sprintf("  t(%d) = %.2f, p = %s\n", tt$parameter, tt$statistic, format.pval(tt$p.value, digits = 3)))
+cat(sprintf("  95%% CI for the mean: [%.2f, %.2f]\n", tt$conf.int[1], tt$conf.int[2]))
+cat(sprintf("  Cohen's d = %.2f\n", d))
+```
+
+**Checking the assumption.** The t-test assumes the sample mean is approximately normal. With $n = 1000$ the central limit theorem makes this safe, but always look at the data:
+
+```{r qq}
+ggplot(tibble(x), aes(sample = x)) +
+  stat_qq() + stat_qq_line(colour = "firebrick") +
+  labs(title = paste("Normal Q-Q plot of", score_col), x = "Theoretical quantiles", y = "Sample quantiles")
+```
+
+> ✏️ **Student Reflection 2:**
+> - State the **null hypothesis (H₀)** and **alternative hypothesis (H₁)** in words for your chosen variable.
+> - If the p-value is less than 0.05, what decision do you make about H₀?
+> - Briefly explain what your result means in context (e.g. "average time on site is significantly higher than 60 minutes").
+
+> ✏️ **Student Task 2:** Test whether the **average age** differs from **35 years**. Report t, df, p-value, the 95% CI and Cohen's d, and say whether the difference is *practically* meaningful.
+
+```{r task2}
+# >>> SOLUTION
+age_test <- t.test(ads$Age, mu = 35)
+age_d    <- (mean(ads$Age) - 35) / sd(ads$Age)
+age_test
+cat(sprintf("Cohen's d = %.3f\n", age_d))
+# The mean age is 36.0 years: statistically significant (p = 0.0003) but the difference is
+# only about 1 year (d = 0.11, a negligible effect). Significant is not the same as important.
+# <<< SOLUTION
+```
+
+---
+
+## 5. Independent-Samples t-Test (Two Groups)
+
+An **independent-samples t-test** compares the means of a numerical variable between **two independent groups**.
+
+> *Example question:* "Do users who **clicked** the ad spend a different amount of time on the site than users who **did not click**?"
+
+The **Welch** test (R's default) does not assume equal variances:
+
+$$t = \frac{\bar{x}_1 - \bar{x}_2}{\sqrt{\dfrac{s_1^2}{n_1} + \dfrac{s_2^2}{n_2}}},$$
+
+with Welch–Satterthwaite degrees of freedom. The **pooled** (Student) test assumes $\sigma_1^2 = \sigma_2^2$ and uses $s_p^2 = \frac{(n_1-1)s_1^2 + (n_2-1)s_2^2}{n_1+n_2-2}$. The effect size is Cohen's $d = (\bar{x}_1-\bar{x}_2)/s_p$.
+
+```{r ttest-two-setup}
+group_col   <- "Clicked"                      # TODO: binary categorical column
+numeric_col <- "Daily_Time_Spent_on_Site"     # TODO: numeric outcome
+
+ads |>
+  group_by(.data[[group_col]]) |>
+  summarise(n = n(), mean = mean(.data[[numeric_col]]), sd = sd(.data[[numeric_col]]), .groups = "drop")
+```
+
+```{r ttest-two-plot}
+ggplot(ads, aes(x = .data[[group_col]], y = .data[[numeric_col]], fill = .data[[group_col]])) +
+  geom_boxplot(show.legend = FALSE, outlier.alpha = 0.4) +
+  stat_summary(fun = mean, geom = "point", shape = 23, size = 3, fill = "white") +
+  labs(title = paste(numeric_col, "by", group_col), subtitle = "Diamond = group mean",
+       x = group_col, y = numeric_col)
+```
+
+```{r ttest-two}
+formula_two <- as.formula(paste(numeric_col, "~", group_col))
+
+welch  <- t.test(formula_two, data = ads)                       # Welch (default)
+pooled <- t.test(formula_two, data = ads, var.equal = TRUE)     # Student (pooled variance)
+
+# Cohen's d with the pooled SD
+g  <- split(ads[[numeric_col]], ads[[group_col]])
+sp <- sqrt(((length(g[[1]]) - 1) * var(g[[1]]) + (length(g[[2]]) - 1) * var(g[[2]])) /
+           (length(g[[1]]) + length(g[[2]]) - 2))
+d  <- (mean(g[[1]]) - mean(g[[2]])) / sp
+
+cat(sprintf("Welch : t(%.1f) = %.2f, p = %s, difference = %.2f, 95%% CI [%.2f, %.2f]\n",
+            welch$parameter, welch$statistic, format.pval(welch$p.value, digits = 3),
+            diff(rev(welch$estimate)), welch$conf.int[1], welch$conf.int[2]))
+cat(sprintf("Pooled: t(%.0f) = %.2f, p = %s\n", pooled$parameter, pooled$statistic,
+            format.pval(pooled$p.value, digits = 3)))
+cat(sprintf("Cohen's d = %.2f\n", d))
+```
+
+> ✏️ **Student Reflection 3:**
+> - Write down H₀ and H₁ for your comparison (e.g. "there is no difference in mean time on site between clickers and non-clickers").
+> - If p < 0.05, what does that suggest about the difference between the group means?
+> - Does the **direction** of the mean difference (which group has the higher mean) match your expectations?
+
+> ✏️ **Student Task 3:** Do **male and female** users differ in **daily internet usage**? Run the Welch test, report the difference with its 95% CI and Cohen's d, and interpret. Is the result significant?
+
+```{r task3}
+# >>> SOLUTION
+gender_test <- t.test(Daily_Internet_Usage ~ Gender, data = ads)
+gender_test
+
+gg <- split(ads$Daily_Internet_Usage, ads$Gender)
+sp <- sqrt(((length(gg[[1]]) - 1) * var(gg[[1]]) + (length(gg[[2]]) - 1) * var(gg[[2]])) /
+           (length(gg[[1]]) + length(gg[[2]]) - 2))
+cat(sprintf("Cohen's d = %.3f\n", (mean(gg[[2]]) - mean(gg[[1]])) / sp))
+# p = 0.38: no evidence of a difference. The 95% CI for the difference includes 0 and
+# d is about 0.06 (negligible). Failing to reject H0 does not prove the groups are equal; it
+# says the data are compatible with no (or a very small) difference.
+# <<< SOLUTION
+```
+
+---
+
+## 6. Chi-Square Test of Independence
+
+A **chi-square test of independence** checks whether there is an association between **two categorical variables**.
+
+> *Example questions:* "Is there an association between **Gender** and **clicking the ad**?" "Is **age group** related to clicking?"
+
+We first build a **contingency table** and then compare observed counts $O_{ij}$ with the counts $E_{ij}$ expected if the variables were independent:
+
+$$E_{ij} = \frac{(\text{row total}_i)(\text{column total}_j)}{n}, \qquad
+\chi^2 = \sum_{i,j}\frac{(O_{ij}-E_{ij})^2}{E_{ij}}, \qquad \text{df} = (r-1)(c-1).$$
+
+The strength of the association is measured by **Cramér's V**: $V = \sqrt{\chi^2 / \big(n \cdot \min(r-1,\,c-1)\big)}$, which ranges from 0 (none) to 1 (perfect).
+
+```{r chisq-table}
+cat1 <- "Gender"      # TODO: first categorical variable
+cat2 <- "Clicked"     # TODO: second categorical variable
+
+contingency_table <- table(ads[[cat1]], ads[[cat2]], dnn = c(cat1, cat2))
+contingency_table
+round(prop.table(contingency_table, margin = 1), 3)      # row percentages
+```
+
+```{r chisq-test}
+chi <- chisq.test(contingency_table)       # for a 2x2 table R applies Yates' continuity correction
+chi
+
+cat("\nExpected frequencies under independence:\n")
+round(chi$expected, 1)
+
+cramers_v <- function(tab, chi) sqrt(unname(chi$statistic) / (sum(tab) * (min(dim(tab)) - 1)))
+cat(sprintf("\nCramer's V = %.3f\n", cramers_v(contingency_table, chi)))
+```
+
+> ✅ **Rule of thumb:** the chi-square approximation is reliable when **all expected counts are at least 5**. If not, use `fisher.test()`.
+
+> ✏️ **Student Reflection 4:**
+> - State H₀ and H₁ in words (e.g. "Gender and clicking are independent" vs "they are associated").
+> - If p < 0.05, what does that imply about the relationship between the two variables?
+> - Are there any cells with very small expected counts? How might that affect the reliability of the test?
+
+> ✏️ **Student Task 4:** Create an `Age_Group` variable with the bands `<30`, `30–39`, `40–49`, `50+`. Test whether **age group is associated with clicking** and report $\chi^2$, df, p, and Cramér's V. Draw a 100% stacked bar chart and describe the pattern.
+
+```{r task4}
+# >>> SOLUTION
+ads <- ads |>
+  mutate(Age_Group = cut(Age, breaks = c(0, 29, 39, 49, Inf),
+                         labels = c("<30", "30-39", "40-49", "50+")))
+
+tab_age <- table(ads$Age_Group, ads$Clicked, dnn = c("Age_Group", "Clicked"))
+tab_age
+chi_age <- chisq.test(tab_age)
+chi_age
+min(chi_age$expected)                               # smallest expected count (check >= 5)
+cat(sprintf("Cramer's V = %.3f\n", cramers_v(tab_age, chi_age)))
+
+ggplot(ads, aes(Age_Group, fill = Clicked)) +
+  geom_bar(position = "fill") +
+  scale_y_continuous(labels = scales::percent) +
+  scale_fill_manual(values = c(No = "grey65", Yes = "darkorange")) +
+  labs(title = "Share of users who clicked the ad, by age group", x = "Age group", y = "Share of users")
+# chi-square(3) = 222.6, p < 0.001, V = 0.47 (a strong association): the proportion who click
+# rises from about 25% under 30 to about 96% at 50+.
+# <<< SOLUTION
+```
+
+---
+
+## 7. Correlation Analysis
+
+**Correlation** measures the strength and direction of the **linear** relationship between two numerical variables. Pearson's $r$ ranges from $-1$ to $+1$:
+
+- $r > 0$: positive relationship (as one increases, the other tends to increase).
+- $r < 0$: negative relationship.
+- $r \approx 0$: weak or no *linear* relationship.
+
+Rough guide for $|r|$: below 0.1 negligible, 0.1–0.3 weak, 0.3–0.5 moderate, above 0.5 strong. `cor.test()` tests $H_0:\rho = 0$ and gives a 95% confidence interval for $\rho$ (via Fisher's $z$ transform).
+
+```{r correlation}
+num1 <- "Daily_Time_Spent_on_Site"      # TODO: first numeric variable
+num2 <- "Daily_Internet_Usage"          # TODO: second numeric variable
+
+pair_data <- ads |> select(all_of(c(num1, num2))) |> drop_na()      # keep rows with both values
+
+pearson  <- cor.test(pair_data[[num1]], pair_data[[num2]])
+spearman <- cor.test(pair_data[[num1]], pair_data[[num2]], method = "spearman", exact = FALSE)
+
+cat(sprintf("Pearson : r = %.3f, 95%% CI [%.3f, %.3f], p = %s, n = %d\n",
+            pearson$estimate, pearson$conf.int[1], pearson$conf.int[2],
+            format.pval(pearson$p.value, digits = 3), nrow(pair_data)))
+cat(sprintf("Spearman: rho = %.3f, p = %s\n", spearman$estimate, format.pval(spearman$p.value, digits = 3)))
+```
+
+```{r corr-plot}
+ggplot(pair_data, aes(x = .data[[num1]], y = .data[[num2]])) +
+  geom_point(alpha = 0.4) +
+  geom_smooth(method = "lm", colour = "firebrick") +
+  labs(title = paste("Scatter plot and trend line:", num1, "vs", num2), x = num1, y = num2)
+```
+
+> ✏️ **Student Reflection 5:**
+> - Based on the value of **r**, would you describe the relationship as weak, moderate, or strong? Positive or negative?
+> - Does the scatter plot visually support the calculated correlation value?
+> - Why does correlation **not** imply causation? Give an example.
+
+> ✏️ **Student Task 5:** Compute the **correlation matrix** of the four numeric variables (`Daily_Time_Spent_on_Site`, `Age`, `Area_Income`, `Daily_Internet_Usage`) and show it as a heat map. Which pair is most strongly related?
+
+```{r task5}
+# >>> SOLUTION
+cm <- ads |>
+  select(Daily_Time_Spent_on_Site, Age, Area_Income, Daily_Internet_Usage) |>
+  cor()
+round(cm, 2)
+
+as_tibble(cm, rownames = "var1") |>
+  pivot_longer(-var1, names_to = "var2", values_to = "r") |>
+  ggplot(aes(var1, var2, fill = r)) +
+  geom_tile() +
+  geom_text(aes(label = round(r, 2))) +
+  scale_fill_gradient2(low = "steelblue", mid = "white", high = "firebrick", limits = c(-1, 1)) +
+  labs(title = "Correlation matrix", x = NULL, y = NULL) +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+# Strongest pair: Daily_Time_Spent_on_Site and Daily_Internet_Usage (r = 0.52); Age is
+# negatively related to time on site (r = -0.33).
+# <<< SOLUTION
+```
+
+---
+
+## 8. Statistical vs Practical Significance
+
+With a large sample, even a trivial difference can give a tiny p-value. Compare the two one-sample tests you ran:
+
+```{r sig-vs-practical}
+bind_rows(
+  tidy(t.test(ads$Daily_Time_Spent_on_Site, mu = 60)) |> mutate(test = "Time on site vs 60 min",
+        d = (mean(ads$Daily_Time_Spent_on_Site) - 60) / sd(ads$Daily_Time_Spent_on_Site)),
+  tidy(t.test(ads$Age, mu = 35)) |> mutate(test = "Age vs 35 years",
+        d = (mean(ads$Age) - 35) / sd(ads$Age))
+) |>
+  select(test, mean = estimate, t = statistic, df = parameter, p.value, conf.low, conf.high, d) |>
+  mutate(across(where(is.numeric), ~ signif(.x, 3)))
+```
+
+Both are "significant", but Cohen's $d$ shows that the first effect is small-to-moderate (0.3) and the second negligible (0.1). **Always report the effect size and the confidence interval, not just the p-value.**
+
+> ⚠️ **Multiple testing.** If you run 20 tests at $\alpha = 0.05$, you expect about one false positive even when nothing is going on. Decide on your tests *before* looking at the data, or adjust the p-values (for example with `p.adjust()`).
+
+---
+
+## 9. Mini Statistical Analysis Exercise
+
+> 🧪 **Student Activity:**
+> Using your dataset, perform the following:
+
+1. **One-sample t-test** – choose a numerical variable and test whether its mean differs from a meaningful value (e.g. a target).
+2. **Independent-samples t-test** – compare means between two groups (e.g. male vs female).
+3. **Chi-square test** – test for association between two categorical variables.
+4. **Correlation** – compute the correlation between two numerical variables and visualise with a scatter plot.
+
+Prepare a short summary (bullet points or a paragraph) that answers:
+
+- Which tests showed statistically **significant** results (p < 0.05)?
+- Do the **effect sizes** (mean differences, correlation strength, Cramér's V) seem practically meaningful?
+- What new insights did you gain about the data from these analyses?
+
+*Your summary starts here:*
+
+---
+
+## 10. Summary and Reflection (Week 7 PH)
+
+In this Week 7 practical, you have:
+
+- Performed a **one-sample t-test** to compare a sample mean with a hypothesised value.
+- Used an **independent-samples t-test** (Welch and pooled) to compare two group means.
+- Conducted a **chi-square test of independence** and measured association with Cramér's V.
+- Calculated and interpreted **Pearson and Spearman correlations** with confidence intervals.
+- Practised writing conclusions using the language of **hypotheses**, **p-values**, **effect sizes** and **significance**.
+
+> 🧠 **Final Reflection (1–2 paragraphs):**
+> - Which type of test (t-test, chi-square, correlation) did you find easiest to understand, and which was hardest? Why?
+> - How would you explain "p-value" and "statistical significance" to a non-technical friend?
+> - How might these tools be useful in your future projects in AI, machine learning, or data science?

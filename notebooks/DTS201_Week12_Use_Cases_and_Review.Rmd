@@ -1,0 +1,154 @@
+---
+title: "DTS 201 – Introduction to Data Science"
+subtitle: "Week 12 Practical (PH): Data Science Use Cases (Image, Text, Audio, Video) and Course Review – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy)"
+author: "Dr. Sakinat Folorunso — Associate Professor of AI Systems and FAIR Data, Department of Computer Sciences, Olabisi Onabanjo University, Ago-Iwoye, Ogun State, Nigeria"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: readable
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.width = 7, fig.height = 4.5)
+set.seed(42)
+```
+
+**Course Code:** DTS 201  **Practical Week:** 12 – Tutorial and Course Review
+
+---
+
+### 🎯 Practical Learning Objectives (Week 12)
+
+- **Explain** how text, audio, images and video are converted to numbers.
+- **Run** small demonstrations of each data type using only base R.
+- **Check** your answers to revision problems by computing them in R.
+- **Review** every course topic against a checklist.
+
+> 📌 NUC course contents covered this week: *"Use cases in various domains such as Image, Natural Language, Audio and Video."*
+
+---
+
+## 1. Text: From Sentences to Numbers
+
+Computers cannot read words; they count them. The first step is **tokenisation**: splitting text into words.
+
+```{r text}
+review <- c("The delivery was fast and the packaging was good",
+            "Packaging was poor and delivery was slow",
+            "Good price and fast delivery")
+
+tokens <- strsplit(tolower(review), "[^a-z]+")
+words  <- unlist(tokens)
+sort(table(words), decreasing = TRUE)        # word frequencies (a bag of words)
+```
+
+A tiny sentiment score using word lists:
+
+```{r sentiment}
+positive <- c("good", "fast")
+negative <- c("poor", "slow")
+score <- sapply(tokens, function(w) sum(w %in% positive) - sum(w %in% negative))
+data.frame(review = review, sentiment = score)
+```
+
+> ✏️ **Student Task 1:** Add three reviews of your own (one in Pidgin or Yorùbá if you wish). What happens with the phrase "not good"? Why do real systems need more than word lists?
+
+*Your answer here:*
+
+---
+
+## 2. Audio: A Waveform Is a Sequence of Numbers
+
+Sound is pressure over time. We **sample** it: measure the amplitude many times per second (the sampling rate).
+
+```{r audio}
+fs   <- 8000                                  # samples per second
+t    <- seq(0, 0.01, by = 1 / fs)             # 10 milliseconds
+wave <- sin(2 * pi * 440 * t)                 # a 440 Hz tone (musical note A4)
+
+plot(t, wave, type = "l", xlab = "Time (s)", ylab = "Amplitude", main = "440 Hz tone")
+length(wave)                                   # number of samples in 10 ms
+```
+
+> ✏️ **Student Task 2:** Change the frequency to 880 Hz. How many full cycles fit in 0.01 s?
+
+*Your answer here:*
+
+---
+
+## 3. Images: A Picture Is a Matrix
+
+A grayscale image is a grid of numbers from 0 (black) to 255 (white). A colour image has three such grids (red, green, blue).
+
+```{r image}
+img <- matrix(0, 8, 8)
+img[3:6, 3:6] <- 255                           # a bright square
+img <- img + matrix(rnorm(64, 0, 20), 8, 8)    # add noise
+image(t(img[8:1, ]), col = gray.colors(256), axes = FALSE, main = "A noisy 8 x 8 image")
+
+mean(img > 128)                                 # share of bright pixels
+```
+
+> ✏️ **Student Task 3:** Make the square smaller and increase the noise (`sd = 80`). Can you still see it? What does this say about image quality and model accuracy?
+
+*Your answer here:*
+
+---
+
+## 4. Video: A Sequence of Images
+
+```{r video}
+frames <- lapply(1:5, function(i) { m <- matrix(0, 8, 8); m[3:6, i:(i + 1)] <- 255; m })
+sapply(frames, mean)                            # average brightness per frame
+
+# Motion: the difference between consecutive frames is non-zero where something moved
+moved <- sapply(2:5, function(i) sum(frames[[i]] != frames[[i - 1]]))
+moved
+```
+
+> ✏️ **Student Task 4:** What would the `moved` vector look like for a video of an empty road? How could this idea be used to count vehicles?
+
+*Your answer here:*
+
+---
+
+## 5. Course Review: Check Your Answers in R
+
+Work each problem by hand first, then compare with R.
+
+```{r review}
+# 1. A coin lands heads 118 times in 200 tosses: is it fair?
+binom.test(118, 200)
+
+# 2. Regression of score on hours
+hours <- c(2, 4, 6, 8); score <- c(50, 60, 75, 85)
+fit <- lm(score ~ hours)
+coef(fit)
+predict(fit, data.frame(hours = 5))
+
+# 3. Basket measures: 500 baskets, 100 rice, 80 oil, 60 both
+n <- 500; rice <- 100; oil <- 80; both <- 60
+c(support = both / n, confidence = both / rice, lift = (both / rice) / (oil / n))
+```
+
+> ✏️ **Student Task 5:** Write one practice question for each of Weeks 1 to 12 and its R answer.
+
+### Revision checklist
+
+- [ ] I can classify datasets as structured, semi-structured or unstructured.
+- [ ] I can list and explain the steps of the data science process.
+- [ ] I can compute and interpret mean, standard deviation and correlation.
+- [ ] I can simulate a coin or die and explain the law of large numbers.
+- [ ] I can fit and interpret a simple regression and compute MSE.
+- [ ] I can compute support, confidence and lift and interpret clusters.
+- [ ] I can state H0 and H1, read a p-value and report an effect size.
+- [ ] I can explain BI, KPIs, ETL, the 5 Vs and the DIKW pyramid.
+- [ ] I can read, change and run a short R script.
+
+---
+
+## 6. Reflection
+
+Choose one Nigerian problem that could be solved with image, text, audio or video data. What data would you collect, what could go wrong, and who must give consent?

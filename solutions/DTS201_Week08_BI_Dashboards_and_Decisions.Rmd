@@ -1,0 +1,387 @@
+---
+title: "DTS 201 – Introduction to Data Science"
+subtitle: "Week 8 Practical (PH): Business Intelligence Dashboards & Data-Driven Decision-Making – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy)"
+author: "Dr. Sakinat Folorunso — Associate Professor of AI Systems and FAIR Data, Department of Computer Sciences, Olabisi Onabanjo University, Ago-Iwoye, Ogun State, Nigeria"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: readable
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.width = 7.5, fig.height = 4.5)
+set.seed(42)
+data_dir <- if (dir.exists("../data")) "../data" else "data"
+```
+
+**Course Code:** DTS 201  **Practical Week:** 8 – Business Intelligence & Knowledge Management
+
+---
+
+### 🎯 Practical Learning Objectives (Week 8)
+
+By the end of this practical session, you should be able to:
+
+- **Explain** what **Business Intelligence (BI)** means in the context of data science.
+- **Identify** suitable **Key Performance Indicators (KPIs)** for a simple business case study.
+- **Load and prepare** a dataset for BI-style analysis (dates, categories, measures).
+- **Build** simple **dashboard-style visualisations** (KPI tables, bar charts, line charts and filters) in R.
+- **Interpret** BI visuals to support **data-driven decision-making**.
+- **Export** summary tables for use in **Excel or Power BI**.
+
+> 💡 In class, BI dashboards are demonstrated using Excel or Power BI. Here we build a **lightweight BI-style dashboard in R** (`dplyr` + `ggplot2`) so that everything is reproducible in one environment, and at the end we export the tables so you can rebuild the same dashboard in Excel or Power BI.
+
+---
+
+## 1. What Is Business Intelligence (BI)?
+
+**Business Intelligence (BI)** refers to tools, techniques, and processes that help organisations:
+
+- **Collect** data from different sources.
+- **Transform** raw data into meaningful information.
+- **Visualise** trends, patterns, and KPIs.
+- **Support decisions** such as pricing, resource allocation, marketing, or risk management.
+
+Examples of BI questions:
+
+- "Which product categories generate the highest revenue?"
+- "Which region is underperforming compared with the others?"
+- "What is the trend of monthly sales over the last two years?"
+
+> 📌 **About the data.** `retail_sales_ng.csv` is a **synthetic (simulated)** record of retail sales transactions in six Nigerian cities (Lagos, Abuja, Ibadan, Kano, Port Harcourt, Enugu) over 2024–2025, with amounts in Naira (₦). It was generated with `set.seed(42)` by `scripts/make_datasets.R`. It is **not** a real company's data, so do not quote its results as facts about real businesses.
+
+---
+
+## 2. Loading Required Packages
+
+```{r packages}
+library(tidyverse)     # dplyr, ggplot2, readr, lubridate ...
+library(scales)        # nice number formats such as ₦1,234,567
+theme_set(theme_minimal(base_size = 12))
+naira <- label_comma(prefix = "₦")
+```
+
+---
+
+## 3. Loading the BI Dataset
+
+A good BI dataset has columns like:
+
+- `Date` – when the transaction occurred.
+- `Region` (or `Branch`) – where it occurred.
+- `Product_Category` – type of product or service.
+- `Sales_Amount` (or `Revenue`) – numerical measure.
+- Optional: `Quantity`, `Cost`, `Profit`, `Customer_Segment`.
+
+```{r load}
+data_path <- file.path(data_dir, "retail_sales_ng.csv")      # TODO: change to your own dataset
+df <- read_csv(data_path)
+head(df)
+```
+
+> ✏️ **Student Task 1:**
+> - What does one row of this dataset represent (a transaction, a daily summary, a branch-level report)?
+> - List at least **four columns** and briefly describe what each represents.
+> - Which column(s) could serve as **KPIs** in a BI dashboard?
+
+### 3.1 Parsing Dates and Basic Cleaning
+
+```{r dates}
+df <- df |>
+  mutate(Date  = as.Date(Date),                    # make sure Date is a real date, not text
+         Year  = year(Date),                       # 2024, 2025
+         Month = floor_date(Date, unit = "month")) # first day of the month, e.g. 2024-03-01
+
+glimpse(df)
+colSums(is.na(df))
+range(df$Date)
+```
+
+---
+
+## 4. Identifying KPIs (Key Performance Indicators)
+
+In BI dashboards we focus on a small number of **KPIs** that summarise performance. In a sales context:
+
+| KPI | Formula |
+|---|---|
+| **Total revenue** | $\sum_i \text{Sales}_i$ |
+| **Total quantity sold** | $\sum_i \text{Quantity}_i$ |
+| **Number of transactions** | $n$ |
+| **Average order value (AOV)** | $\dfrac{\text{Total revenue}}{n}$ |
+| **Profit margin** | $\dfrac{\sum_i \text{Profit}_i}{\sum_i \text{Sales}_i} \times 100\%$ |
+
+```{r kpis}
+sales_col <- "Sales_Amount"      # TODO: change to your sales/revenue column
+qty_col   <- "Quantity"          # TODO: change to your quantity column
+
+total_revenue    <- sum(df[[sales_col]])
+total_quantity   <- sum(df[[qty_col]])
+num_transactions <- nrow(df)
+avg_order_value  <- total_revenue / num_transactions
+total_profit     <- sum(df$Profit)
+profit_margin    <- total_profit / total_revenue
+
+kpi_table <- tibble(
+  KPI   = c("Total revenue", "Total quantity sold", "Number of transactions",
+            "Average order value", "Total profit", "Profit margin"),
+  Value = c(naira(total_revenue), comma(total_quantity), comma(num_transactions),
+            naira(avg_order_value), naira(total_profit), percent(profit_margin, accuracy = 0.1))
+)
+knitr::kable(kpi_table, align = c("l", "r"))
+```
+
+> ✏️ **Student Task 2:**
+> - Suggest **one additional KPI** that would be meaningful for this dataset (e.g. average quantity per transaction, revenue per region).
+> - Write the formula you would use, and then compute it.
+
+```{r task2}
+# >>> SOLUTION
+# KPI: average units per transaction = total quantity / number of transactions
+units_per_transaction <- total_quantity / num_transactions
+round(units_per_transaction, 2)
+
+# KPI: revenue per unit = total revenue / total quantity (an average selling price)
+naira(total_revenue / total_quantity)
+# <<< SOLUTION
+```
+
+---
+
+## 5. Aggregating KPIs by Category (Region, Product, ...)
+
+Dashboards show KPIs **broken down by categories**. We compute revenue, quantity, profit and margin by a chosen category with `group_by()` + `summarise()`.
+
+```{r group-summary}
+group_col <- "Region"      # TODO: try "Product_Category" or "Customer_Segment"
+
+group_summary <- df |>
+  group_by(.data[[group_col]]) |>
+  summarise(
+    Transactions    = n(),
+    Total_Revenue   = sum(Sales_Amount),
+    Average_Revenue = mean(Sales_Amount),
+    Total_Quantity  = sum(Quantity),
+    Total_Profit    = sum(Profit),
+    Margin          = sum(Profit) / sum(Sales_Amount),
+    .groups = "drop"
+  ) |>
+  mutate(Share_of_Revenue = Total_Revenue / sum(Total_Revenue)) |>
+  arrange(desc(Total_Revenue))
+
+group_summary |>
+  mutate(Total_Revenue = naira(Total_Revenue), Average_Revenue = naira(Average_Revenue),
+         Total_Profit = naira(Total_Profit), Margin = percent(Margin, 0.1),
+         Share_of_Revenue = percent(Share_of_Revenue, 0.1))
+```
+
+> ✏️ **Student Task 3:**
+> - Which **three categories** (regions or products) generate the highest total revenue?
+> - Which category has the **lowest** total revenue?
+> - Do any categories have a high average revenue but a relatively low total revenue (or vice versa)? What might that imply?
+
+```{r task3}
+# >>> SOLUTION
+by_category <- df |>
+  group_by(Product_Category) |>
+  summarise(Total_Revenue = sum(Sales_Amount), Average_Revenue = mean(Sales_Amount),
+            Transactions = n(), Margin = sum(Profit) / sum(Sales_Amount), .groups = "drop") |>
+  arrange(desc(Total_Revenue))
+by_category
+# Electronics has the highest average sale per transaction (few, expensive items) but
+# Groceries has the most transactions. Fashion and Beauty have the highest profit margins,
+# so revenue rank and profit rank can differ.
+# <<< SOLUTION
+```
+
+---
+
+## 6. Visualising KPIs with Bar Charts
+
+Bar charts compare KPIs **across categories**. Sorting the bars makes the ranking easy to read.
+
+```{r bar-revenue}
+ggplot(group_summary, aes(x = reorder(.data[[group_col]], Total_Revenue), y = Total_Revenue)) +
+  geom_col(fill = "steelblue") +
+  geom_text(aes(label = naira(Total_Revenue)), hjust = -0.05, size = 3.3) +
+  coord_flip() +
+  scale_y_continuous(labels = label_number(scale = 1e-6, suffix = "M"), expand = expansion(mult = c(0, 0.18))) +
+  labs(title = paste("Total revenue by", group_col), x = NULL, y = "Total revenue (₦ millions)")
+```
+
+```{r bar-margin}
+ggplot(group_summary, aes(x = reorder(.data[[group_col]], Margin), y = Margin)) +
+  geom_col(fill = "seagreen") +
+  coord_flip() +
+  scale_y_continuous(labels = percent) +
+  labs(title = paste("Profit margin by", group_col), x = NULL, y = "Profit margin")
+```
+
+> ✏️ **Student Task 4:**
+> - Change `group_col` to another categorical column (e.g. `Product_Category`) and re-run the charts.
+> - Comment on which categories perform best and which perform poorly. Is the ranking by revenue the same as the ranking by margin?
+
+---
+
+## 7. Visualising Trends Over Time (Line Chart)
+
+Because the data contain dates, we can track KPIs **over time**.
+
+```{r trend}
+monthly_summary <- df |>
+  group_by(Month) |>
+  summarise(Total_Revenue = sum(Sales_Amount), Transactions = n(), .groups = "drop")
+
+ggplot(monthly_summary, aes(x = Month, y = Total_Revenue)) +
+  geom_line(colour = "steelblue", linewidth = 1) +
+  geom_point(size = 2, colour = "steelblue") +
+  scale_x_date(date_breaks = "3 months", date_labels = "%b %Y") +
+  scale_y_continuous(labels = label_number(scale = 1e-6, suffix = "M")) +
+  labs(title = "Monthly total revenue", x = NULL, y = "Revenue (₦ millions)") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+To see **seasonality**, overlay the two years on the same calendar axis:
+
+```{r trend-yoy}
+df |>
+  mutate(Cal_Month = month(Date, label = TRUE), Year = factor(Year)) |>
+  group_by(Year, Cal_Month) |>
+  summarise(Total_Revenue = sum(Sales_Amount), .groups = "drop") |>
+  ggplot(aes(Cal_Month, Total_Revenue, colour = Year, group = Year)) +
+  geom_line(linewidth = 1) + geom_point() +
+  scale_y_continuous(labels = label_number(scale = 1e-6, suffix = "M")) +
+  labs(title = "Monthly revenue: 2024 versus 2025", x = NULL, y = "Revenue (₦ millions)")
+```
+
+> ✏️ **Student Task 5:**
+> - Identify any **peaks** or **drops** in the monthly revenue trend.
+> - Suggest at least one possible real-world explanation for a high month and a low month (promotions, festive season, exam periods, economic conditions).
+> - Compute the **month-on-month growth rate** $g_t = (R_t - R_{t-1})/R_{t-1}$ and list the three largest increases.
+
+```{r task5}
+# >>> SOLUTION
+growth <- monthly_summary |>
+  arrange(Month) |>
+  mutate(Growth = (Total_Revenue - lag(Total_Revenue)) / lag(Total_Revenue))
+
+growth |> slice_max(Growth, n = 3) |> mutate(Growth = percent(Growth, 0.1))
+growth |> slice_max(Total_Revenue, n = 1)          # peak month
+growth |> slice_min(Total_Revenue, n = 1)          # lowest month
+# The data show a strong rise in the last quarter, peaking in December (festive-season
+# shopping), and a dip in January-February. (The seasonal pattern was built into the simulation.)
+# <<< SOLUTION
+```
+
+---
+
+## 8. Adding Simple Filters (Simulating Dashboard Slices)
+
+BI dashboards let users **filter** by region, product or time period. In R, `filter()` does the same job. To avoid repeating code, we wrap a mini-dashboard (KPIs + monthly trend) in a **function**:
+
+```{r mini-dashboard}
+mini_dashboard <- function(data, title) {
+  kpis <- data |>
+    summarise(Revenue = sum(Sales_Amount), Transactions = n(),
+              AOV = mean(Sales_Amount), Margin = sum(Profit) / sum(Sales_Amount))
+  cat(sprintf("%s\n  Revenue %s | Transactions %s | AOV %s | Margin %s\n", title,
+              naira(kpis$Revenue), comma(kpis$Transactions), naira(kpis$AOV),
+              percent(kpis$Margin, 0.1)))
+
+  data |>
+    group_by(Month) |>
+    summarise(Revenue = sum(Sales_Amount), .groups = "drop") |>
+    ggplot(aes(Month, Revenue)) +
+    geom_line(colour = "steelblue", linewidth = 1) + geom_point(colour = "steelblue") +
+    scale_y_continuous(labels = label_number(scale = 1e-6, suffix = "M")) +
+    labs(title = title, x = NULL, y = "Revenue (₦ millions)")
+}
+
+filter_value <- "Lagos"                                   # TODO: try "Kano", "Enugu", ...
+mini_dashboard(filter(df, .data[[group_col]] == filter_value),
+               paste("Monthly revenue:", group_col, "=", filter_value))
+```
+
+To compare *all* categories at once, use **small multiples** (`facet_wrap`):
+
+```{r facets, fig.height=5.5}
+df |>
+  group_by(Region, Month) |>
+  summarise(Revenue = sum(Sales_Amount), .groups = "drop") |>
+  ggplot(aes(Month, Revenue)) +
+  geom_line(colour = "steelblue") +
+  facet_wrap(~ Region, ncol = 3) +
+  scale_y_continuous(labels = label_number(scale = 1e-6, suffix = "M")) +
+  scale_x_date(date_breaks = "6 months", date_labels = "%b %y") +
+  labs(title = "Monthly revenue by region", x = NULL, y = "Revenue (₦ millions)") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+> ✏️ **Student Task 6:**
+> - Use `mini_dashboard()` for at least **two different regions** and also for one **product category**.
+> - Compare their total revenue and monthly trends. Which appears to be performing best? Which needs attention?
+
+```{r task6}
+# >>> SOLUTION
+mini_dashboard(filter(df, Region == "Lagos"), "Lagos")
+mini_dashboard(filter(df, Region == "Enugu"), "Enugu")
+mini_dashboard(filter(df, Product_Category == "Electronics"), "Electronics (all regions)")
+# Lagos generates the largest revenue; Enugu the smallest. Compare AOV and margin too,
+# not only revenue: a smaller region can still be healthy per transaction.
+# <<< SOLUTION
+```
+
+---
+
+## 9. Case Study: Interpreting the Dashboard for Decision-Making
+
+> 🧪 **Student Activity:**
+> Imagine you are a **Business Analyst** for the retail chain in this dataset. Based on your dashboard-style analysis (KPIs, bar charts, time trends, filters):
+
+1. Identify **one strong area** (e.g. a region or product that performs well).
+2. Identify **one weak area** that may need improvement.
+3. Suggest **two concrete actions** management could take (targeted marketing, stock reallocation, staff training, promotions, pricing).
+4. List any **additional data** you would like in order to make better recommendations (customer demographics, competitor prices, inventory levels, ...).
+
+*Your case-study report starts here:*
+
+---
+
+## 10. Taking Your Results to Excel and Power BI
+
+The course outline asks you to create BI dashboards in **Excel or Power BI**. Both tools can open CSV files, so R is a convenient place to prepare the summary tables.
+
+```{r export}
+out_dir <- file.path(dirname(normalizePath(data_dir)), "outputs")     # the project's outputs folder
+dir.create(out_dir, showWarnings = FALSE)
+
+write_csv(group_summary,    file.path(out_dir, "week8_kpis_by_group.csv"))
+write_csv(monthly_summary,  file.path(out_dir, "week8_monthly_revenue.csv"))
+list.files(out_dir)
+```
+
+*In Excel:* **Data → From Text/CSV**, select the file, then **Insert → PivotChart**.
+*In Power BI Desktop:* **Home → Get data → Text/CSV**, then drag fields onto bar and line chart visuals and add **slicers** for Region and Product_Category.
+
+> 💡 **Going further (optional).** The R package `patchwork` can place several `ggplot2` charts on one page, and the package `shiny` builds a fully interactive dashboard in R with real filter menus. Both are beyond this course, but they follow naturally from what you did today.
+
+---
+
+## 11. Summary and Reflection (Week 8 PH)
+
+In this Week 8 practical, you have:
+
+- Explored the concept of **Business Intelligence (BI)** and its role in decision-making.
+- Loaded a dataset and computed **KPIs** such as total revenue, average order value and profit margin.
+- Aggregated KPIs by category (region, product) and visualised them with bar charts.
+- Analysed **time-based trends** and **seasonality** with line charts.
+- Simulated dashboard **filters** with `filter()` and a reusable function.
+- Exported summary tables for **Excel / Power BI**.
+
+> 🧠 **Final Reflection (1–2 paragraphs):**
+> - Which type of BI visual (bar chart, line chart, summary table) did you find most informative, and why?
+> - How do BI dashboards differ from raw reports or spreadsheets?
+> - How might these BI skills connect to future topics like machine learning, forecasting, or AI-driven decision support systems?

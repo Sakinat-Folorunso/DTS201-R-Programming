@@ -1,0 +1,398 @@
+---
+title: "DTS 201 – Introduction to Data Science"
+subtitle: "Week 0 Practical (PH): Downloading and Installing R and RStudio – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy)"
+author: "Dr. Sakinat Folorunso — Associate Professor of AI Systems and FAIR Data, Department of Computer Sciences, Olabisi Onabanjo University, Ago-Iwoye, Ogun State, Nigeria"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: readable
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.width = 7, fig.height = 4.2)
+set.seed(42)
+data_dir <- if (dir.exists("../data")) "../data" else "data"
+```
+
+**Course Code:** DTS 201  **Practical Week:** 0 – Setting Up Your Data Science Workstation
+
+---
+
+### 🎯 Practical Learning Objectives
+
+By the end of this practical session, you should be able to:
+
+- **Describe** the difference between **R** (the language) and **RStudio** (the workspace you use to write R).
+- **Install** R and RStudio Desktop on your own computer, in the correct order.
+- **Navigate** the four panes of RStudio and **create** an RStudio Project for this course.
+- **Install** the R packages used in Weeks 1–11 and **verify** your setup with a check script.
+- **Run** your first R commands and **knit** your first R Markdown (`.Rmd`) notebook.
+- **Diagnose** the most common installation problems using the troubleshooting table.
+
+> ✅ **This is a "do-it-yourself" week.** There is no statistics in Week 0. If you finish with a green `[PASS]` report from the check script in Section 8, you are ready for Week 1.
+
+> ⏱️ **Time needed:** about 60–90 minutes, mostly waiting for downloads. **Download the installers and packages before the lab session, on a good internet connection.** Installing the tidyverse packages is the largest download.
+
+---
+
+## 1. Why R, and why RStudio?
+
+Think of a car. **R** is the **engine**: it does the computing. **RStudio** is the **dashboard and steering wheel**: it gives you windows for writing code, seeing results, viewing plots, and managing files. You can run R without RStudio, but almost nobody does, because RStudio makes the work much easier.
+
+| | **R** | **RStudio Desktop** |
+|---|---|---|
+| What it is | A programming language and statistical computing environment | An editor (IDE) that sits on top of R |
+| What it does | Runs your calculations, models and plots | Helps you write, run, organise and share R code |
+| Can it work alone? | Yes (plain console) | **No** – it needs R to be installed first |
+| Cost | Free, open source | Free (Desktop edition) |
+| Install order | **Step 1** | **Step 2** |
+
+> 💡 **Why this course uses R:** R was built for statistics and data analysis. It is widely used in universities, health research, finance, and government statistics, and it has excellent tools for visualisation (`ggplot2`) and reproducible reports (R Markdown).
+
+---
+
+## 2. Before you start: checklist
+
+- [ ] A laptop or desktop computer where **you are allowed to install software** (administrator rights on Windows, or an administrator password on macOS/Linux).
+- [ ] About **2–3 GB of free disk space** (R + RStudio + packages).
+- [ ] At least **4 GB RAM** (8 GB is more comfortable).
+- [ ] A stable internet connection **for the downloads only**. Once installed, R works offline.
+- [ ] The course folder `DTS201_R` copied to your computer and **unzipped** (do not work from inside a `.zip` file).
+
+> ⚠️ **Operating-system requirements change with each release.** Always read the requirements shown on the download page itself. Very old systems (for example Windows 7 or macOS older than about five years) may not be supported by the current RStudio. If your computer is too old, use one of the browser-based options in **Section 9**.
+
+---
+
+## 3. Step 1 – Install R
+
+> ⚠️ **Install R first. Do not install RStudio first.**
+
+Always download from the official site: **<https://cran.r-project.org>** (CRAN = Comprehensive R Archive Network). Do not download R from other websites.
+
+Install the **current release** of R. Do not choose an older version unless your lecturer tells you to.
+
+### 3.1 Windows
+
+1. Open <https://cran.r-project.org> and click **Download R for Windows**.
+2. Click **base** (or "install R for the first time").
+3. Click the link at the top, **Download R-x.y.z for Windows** (x.y.z is the current version number).
+4. Open the downloaded `.exe` file. If Windows asks *"Do you want to allow this app to make changes?"*, click **Yes**.
+5. Choose your language, then click **Next** through the wizard, **accepting the default options** (default folder, default components, "No" to customising start-up options).
+6. Click **Finish**.
+
+*Optional – Rtools.* Back on CRAN, under **Download R for Windows**, there is a link named **Rtools**. Rtools is a compiler that R needs **only when a package must be built from source code**. Most students never need it. Install it later only if a package fails with a message mentioning *"compilation failed"* or *"make"*.
+
+### 3.2 macOS
+
+1. Open <https://cran.r-project.org> and click **Download R for macOS**.
+2. **Check your chip first:** click the Apple menu  → **About This Mac**.
+   - It says **Apple M1/M2/M3/…** → download the **Apple silicon (arm64)** `.pkg` file.
+   - It says **Intel** → download the **Intel (x86_64)** `.pkg` file.
+3. Open the downloaded `.pkg` file and follow the installer, accepting the defaults.
+4. If a later package fails to compile, open **Terminal** and run `xcode-select --install` to add Apple's developer tools.
+
+### 3.3 Linux (Ubuntu / Debian)
+
+Open a terminal and run:
+
+```bash
+sudo apt update
+sudo apt install r-base r-base-dev
+```
+
+The version in the default Ubuntu repository can be older than the current CRAN release. If you need the newest R, follow the "Download R for Linux" instructions on CRAN for your distribution.
+
+### 3.4 Check that R installed
+
+Open the program called **R** (Windows: Start menu → *R x.y.z*; macOS: Applications → *R*). A console window with a `>` prompt appears. Type:
+
+```r
+R.version.string
+```
+
+and press **Enter**. You should see something like `"R version 4.x.x (...)"`. Close the program – from now on you will use R **through RStudio**.
+
+---
+
+## 4. Step 2 – Install RStudio Desktop
+
+1. Open **<https://posit.co/download/rstudio-desktop/>** (RStudio is made by the company Posit).
+2. The page lists the same two steps: *1. Install R*, *2. Install RStudio*. You have done step 1, so scroll to the RStudio download button for **your operating system**.
+3. Download and run the installer:
+   - **Windows:** run the `.exe` installer, accept the defaults.
+   - **macOS:** open the `.dmg` file and **drag RStudio into the Applications folder**. If macOS says the app cannot be opened because it is from an unidentified developer, go to **System Settings → Privacy & Security** and click **Open Anyway**.
+   - **Linux:** download the `.deb` (Ubuntu/Debian) or `.rpm` file for your version and install it with your package manager (for example `sudo apt install ./rstudio-….deb`).
+4. Start **RStudio** (not "R"). The first launch takes a few seconds.
+
+> 💡 Button names and version numbers on websites change from time to time. The **order** never changes: **R first, RStudio second.**
+
+---
+
+## 5. Step 3 – Meet RStudio (a guided tour)
+
+When RStudio opens (and a script is open) you see **four panes**:
+
+```
++----------------------------------+----------------------------------+
+|  1. SOURCE                       |  3. ENVIRONMENT / HISTORY        |
+|  (scripts and .Rmd notebooks:    |  (the objects you have created:  |
+|   where you WRITE code)          |   datasets, variables, functions)|
++----------------------------------+----------------------------------+
+|  2. CONSOLE                      |  4. FILES / PLOTS / PACKAGES /   |
+|  (where R RUNS code and prints   |     HELP / VIEWER                |
+|   results; the > prompt)         |  (file browser, charts, help)    |
++----------------------------------+----------------------------------+
+```
+
+| Pane | What you use it for in this course |
+|---|---|
+| **Source** | Open the weekly `.Rmd` notebooks and your own `.R` scripts. |
+| **Console** | Try one-line commands; see output and error messages. |
+| **Environment** | Check that your data frame loaded (rows and columns shown). |
+| **Files / Plots / Packages / Help** | Browse the course folder; see charts; install packages; read help with `?function_name`. |
+
+### 5.1 Two settings that save you trouble later
+
+Go to **Tools → Global Options → General** and:
+
+1. **Untick** *Restore .RData into workspace at startup*.
+2. Set *Save workspace to .RData on exit* to **Never**.
+
+Why? So that every session starts clean and your results come **only from the code you wrote**, not from hidden leftovers. This is the foundation of **reproducible** analysis.
+
+### 5.2 Useful keyboard shortcuts
+
+| Action | Windows / Linux | macOS |
+|---|---|---|
+| Run the current line or selection | `Ctrl + Enter` | `Cmd + Return` |
+| Run the whole current code chunk (`.Rmd`) | `Ctrl + Shift + Enter` | `Cmd + Shift + Return` |
+| Insert a new code chunk (`.Rmd`) | `Ctrl + Alt + I` | `Cmd + Option + I` |
+| Knit (render) the notebook | `Ctrl + Shift + K` | `Cmd + Shift + K` |
+| Insert the assignment arrow `<-` | `Alt + -` | `Option + -` |
+| Insert the pipe operator (see note) | `Ctrl + Shift + M` | `Cmd + Shift + M` |
+
+> 💡 **Pipe note:** the pipe passes the result on the left into the function on the right. This course writes it as the two characters vertical-bar and greater-than. To make the shortcut insert that form, tick *Tools → Global Options → Code → Use native pipe operator*.
+
+---
+
+## 6. Step 4 – Open the course as an RStudio Project
+
+An **RStudio Project** tells R *"this folder is my working folder"*. Then every file path in the notebooks (like `data/student_score.csv`) just works.
+
+1. Unzip the course folder `DTS201_R` somewhere simple, for example `C:/Users/<your-name>/Documents/DTS201_R` (Windows) or `~/Documents/DTS201_R` (macOS/Linux).
+2. In RStudio: **File → Open Project…** and select the file **`DTS201_R.Rproj`** inside the folder.
+3. Look at the **Files** pane: you should see the folders `notebooks`, `data`, `scripts`, `solutions`.
+
+> ⚠️ **Avoid these folder problems:** a path containing unusual characters, or a folder synchronised by OneDrive/Dropbox, can cause R to lose track of files or packages. If you have trouble, move the project to a simple local folder.
+
+Confirm where you are by typing in the **Console**:
+
+```r
+getwd()
+```
+
+The output should end with `DTS201_R`.
+
+---
+
+## 7. Step 5 – Install the course packages
+
+A **package** is a bundle of extra functions written by the R community. Two ideas you must separate:
+
+- `install.packages("name")` – **download and install once** per computer.
+- `library(name)` – **load it** every time you start a new R session.
+
+(Analogy: installing is buying a book; `library()` is taking it off the shelf to read.)
+
+Install everything the course needs in one go. In the **Console** type:
+
+```r
+source("scripts/install_packages.R")
+```
+
+This installs `tidyverse` (the family that includes `dplyr` and `ggplot2`), `readxl`, `arules`, `rmarkdown` and `knitr`. It can take **5–20 minutes**. If R asks *"Do you want to install from sources the package which needs compilation?"* answer **No** unless you installed Rtools (Windows) or Xcode tools (macOS). If R asks whether to create a **personal library**, answer **Yes**.
+
+---
+
+## 8. Step 6 – Verify your setup
+
+Run the check script:
+
+```r
+source("scripts/check_setup.R")
+```
+
+It prints a report with `[PASS]` / `[FAIL]` lines and draws a small plot. Below is the same idea running inside this notebook (when you knit it, the report appears here):
+
+```{r check-setup, eval=file.exists(file.path(data_dir, "student_score.csv"))}
+cat("R version :", R.version.string, "\n")
+cat("Working folder:", getwd(), "\n")
+pkgs <- c("tidyverse", "readxl", "arules", "rmarkdown", "knitr")
+status <- data.frame(
+  package   = pkgs,
+  installed = vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)
+)
+status
+```
+
+> ✏️ **Student Task 1 – Setup report:**
+> Run `source("scripts/check_setup.R")` and copy the **entire printed report** into your answer sheet. If any line says `[FAIL]`, use the troubleshooting table in Section 12, run the script again, and submit the final all-`[PASS]` report.
+
+---
+
+## 9. If you cannot install on your computer: two browser alternatives
+
+Some students will have a phone-only or shared computer, a locked-down lab PC, or too little disk space. You can still do **every practical** from a browser (internet needed):
+
+| Option | How to start | Good for | Limits |
+|---|---|---|---|
+| **Posit Cloud** (<https://posit.cloud>) | Create a free account → *New Project* → *New RStudio Project*. Upload the `DTS201_R` folder (zip upload is supported) and open the `.Rproj` file. | Looks and feels like RStudio Desktop. | Free plan has monthly usage limits and memory limits; sessions need internet. |
+| **Google Colab with R** (<https://colab.research.google.com>) | *File → New notebook*, then *Runtime → Change runtime type → R*. Upload data files with the Files panel. | You already know Colab from other courses. | Notebook format (not `.Rmd`), so copy the code chunks into cells; packages install each new session. |
+
+> 💡 The practical notebooks in this course are `.Rmd` files, which work best in **RStudio Desktop or Posit Cloud**.
+
+---
+
+## 10. Step 7 – Your first R session
+
+Everything below is code you will meet again in later weeks. In RStudio, put your cursor in a chunk and press `Ctrl + Shift + Enter` (`Cmd + Shift + Return` on macOS), or click the green ▶ at the top-right of the chunk.
+
+### 10.1 R as a calculator
+
+```{r first-calc}
+2 + 3 * 4          # multiplication happens before addition
+(2 + 3) * 4        # brackets change the order
+10 / 3             # division
+10 %/% 3           # integer division
+10 %% 3            # remainder (modulo)
+2 ^ 10             # power
+sqrt(144)          # a built-in function
+```
+
+### 10.2 Storing values in variables
+
+R uses the arrow `<-` to *store* a value in a name:
+
+```{r first-vars}
+my_name  <- "Amina"          # text (character)
+my_score <- 72.5             # number (numeric)
+passed   <- my_score >= 50   # TRUE or FALSE (logical)
+
+my_name
+my_score
+passed
+class(my_score)              # what type of thing is it?
+```
+
+### 10.3 Vectors: several values in one object
+
+```{r first-vectors}
+scores <- c(72, 65, 88, 90, 54)   # c() means "combine"
+scores
+mean(scores)                      # average
+max(scores)
+scores[1]                         # FIRST element: R counts from 1 (not 0)
+scores[scores >= 70]              # keep only scores of 70 or more
+```
+
+### 10.4 Reading a data file and making a plot
+
+```{r first-data}
+library(tidyverse)                                    # load the package family
+students <- read_csv(file.path(data_dir, "student_score.csv"))   # read a CSV file
+students                                              # print the first rows
+glimpse(students)                                     # structure: rows, columns, types
+```
+
+```{r first-plot}
+ggplot(students, aes(x = Hours, y = Scores)) +
+  geom_point(size = 2) +
+  labs(title = "Hours studied and exam score",
+       x = "Hours studied per day", y = "Exam score")
+```
+
+> ✏️ **Student Task 2 – Your first script:**
+> 1. In the **Console**, calculate the average of these five ages: `19, 21, 20, 23, 22` and store it in a variable named `avg_age`.
+> 2. Create a vector `ages` containing those five ages and print only the ages **greater than 20**.
+> 3. Using `students`, print the **largest** value of `Scores` with `max(students$Scores)`.
+
+```{r task2}
+# TODO: write your code here
+```
+
+---
+
+## 11. Step 8 – Your first R Markdown notebook
+
+All weekly practicals are **R Markdown** files (`.Rmd`). An `.Rmd` file mixes **text**, **code chunks**, and the **results** in one document – the R equivalent of a Jupyter or Colab notebook.
+
+An `.Rmd` file has three parts:
+
+1. **YAML header** (between the `---` lines at the top): title, author, output format.
+2. **Text** written in Markdown (`# Heading`, `**bold**`, `- bullet`).
+3. **Code chunks** that start with `` ```{r} `` and end with `` ``` ``.
+
+**Try it:**
+
+1. **File → New File → R Markdown…**, give it a title, click **OK**.
+2. Click **Knit** (or press `Ctrl/Cmd + Shift + K`). RStudio asks you to save – name it `my_first_notebook.Rmd` inside the `notebooks` folder.
+3. A formatted HTML page opens. You have just produced a reproducible report.
+
+> ✏️ **Student Task 3 – Notebook skills:**
+> Open this notebook (`DTS201_Week00_Setup_R_RStudio.Rmd`), then (a) run one chunk with the green ▶, (b) change the numbers in the calculator chunk and re-run it, (c) knit the whole notebook to HTML and open the HTML file.
+
+---
+
+## 12. Troubleshooting table
+
+| Symptom | Likely cause | What to do |
+|---|---|---|
+| RStudio says it **cannot find R**, or a "R installation not found" dialog appears | R is not installed, or installed after RStudio | Install R first (Section 3), then restart RStudio. Or go to *Tools → Global Options → General → R version* and choose your R. |
+| `install.packages()` fails with *"unable to access index"* / *"cannot open URL"* | No internet, firewall, or VPN blocking the download | Check your connection, turn off the VPN, try again. As a second try choose a different CRAN mirror: *Tools → Global Options → Packages → Change…* |
+| Message mentions **"compilation failed"**, `make`, or `gcc` | A package needs to be built from source and there is no compiler | **Windows:** install Rtools from CRAN. **macOS:** run `xcode-select --install`. **Linux:** `sudo apt install build-essential`. Or answer **No** to *"install from source"* so R uses a ready-built binary. |
+| *"there is no package called ‘tidyverse’"* | The package is not installed (or installed in another library) | Run `source("scripts/install_packages.R")`. |
+| *"cannot open file 'data/student_score.csv'"* / *"No such file or directory"* | Wrong working directory | Open the project file `DTS201_R.Rproj`; check `getwd()` ends in `DTS201_R`. When knitting a notebook, paths are relative to the **notebooks** folder, so the notebooks use `../data/`. |
+| Knit button is missing / *"pandoc not found"* | Using plain R, or an incomplete RStudio install | Use RStudio Desktop (it includes pandoc); reinstall RStudio if needed. |
+| A *warning* such as *"package was built under R version 4.x.y"* | Package built with a slightly newer R | Usually harmless. Ignore it, or update R. |
+| Plot window is blank or shows *"figure margins too large"* | The Plots pane is too small | Enlarge the pane, or click **Zoom** in the Plots tab. |
+| The Console shows `+` instead of `>` | R is waiting for you to finish a command (unclosed bracket or quote) | Press `Esc`, then retype the command correctly. |
+| **Permission denied** when installing packages (Linux/macOS) | R cannot write to the system library | Accept the offer to create a **personal library**. Avoid running R with `sudo`. |
+
+---
+
+## 13. Summary and Reflection (Week 0 PH)
+
+In this practical, you:
+
+- Learned the difference between **R** (engine) and **RStudio** (dashboard).
+- **Installed R, then RStudio**, in the correct order.
+- Explored the **four panes** of RStudio and set two options for reproducible work.
+- Opened the course as an **RStudio Project** and installed all required **packages**.
+- Verified your set-up with a **check script**.
+- Ran your first R commands and **knitted** an R Markdown notebook.
+
+> 🧠 **Final Reflection (write 3–5 sentences):**
+> - Which installation step was the most difficult for you, and how did you solve it (or who helped you)?
+> - Why do we tell RStudio *never* to save the workspace on exit? How does that help reproducibility?
+> - What is the difference between `install.packages("tidyverse")` and `library(tidyverse)`?
+
+---
+
+### Appendix – A quick R vs Python guide (for students who already know Python)
+
+| Idea | Python (pandas) | R (tidyverse) |
+|---|---|---|
+| Load a package | `import pandas as pd` | `library(tidyverse)` |
+| Read a CSV | `pd.read_csv("f.csv")` | `read_csv("f.csv")` |
+| First rows | `df.head()` | `head(df)` |
+| Rows × columns | `df.shape` | `dim(df)` |
+| Types and structure | `df.info()` | `glimpse(df)` |
+| Select a column | `df["Score"]` | `df$Score` or `select(df, Score)` |
+| Filter rows | `df[df.Score >= 50]` | `filter(df, Score >= 50)` |
+| Assign | `x = 5` | `x <- 5` |
+| First element | `x[0]` (counts from 0) | `x[1]` (counts from **1**) |
+| Dictionary | `{"a": 1}` | named list: `list(a = 1)` |
+| Comment | `# comment` | `# comment` |

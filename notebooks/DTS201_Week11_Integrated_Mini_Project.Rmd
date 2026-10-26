@@ -1,0 +1,286 @@
+---
+title: "DTS 201 – Introduction to Data Science"
+subtitle: "Week 11 Practical (PH): Integrated Mini Data Science Project – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy)"
+author: "Dr. Sakinat Folorunso — Associate Professor of AI Systems and FAIR Data, Department of Computer Sciences, Olabisi Onabanjo University, Ago-Iwoye, Ogun State, Nigeria"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: readable
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.width = 7, fig.height = 4.5)
+set.seed(42)
+data_dir <- if (dir.exists("../data")) "../data" else "data"
+```
+
+**Course Code:** DTS 201  **Practical Week:** 11 – Laboratory Applications
+
+---
+
+### 🎯 Practical Learning Objectives (Week 11)
+
+This week is a **revision and integration** of what you have learned so far. By the end of this practical session, you should be able to:
+
+- **Formulate** a simple **data science question** from a real or sample dataset.
+- **Carry out** basic **EDA** (loading, cleaning, summarising, visualising).
+- **Apply** at least **one analysis or model** you have seen before (correlation, regression, clustering, association rules, hypothesis test, simple prediction).
+- **Interpret** results in **plain language** and connect them to a real-world context.
+- **Document** your work clearly in a **notebook-style report**.
+
+> 💡 Think of this as a **mini-project** that brings together ideas from Weeks 1–10. In the course outline: *"Mini-project – predictive modelling, data mining, and BI dashboard development."*
+
+> 📌 **How this notebook works.** The notebook is already filled in with a **worked example** on the `heart.csv` data so that every chunk runs. You will **replace the dataset, variables and interpretation with your own**. The worked example shows the *method*, not the answer to your project.
+
+---
+
+## 1. Choosing Your Dataset and Question
+
+For this mini-project you may use:
+
+- A dataset provided by your lecturer (recommended), from the `data` folder.
+- A small open dataset (students' performance, sales records, survey responses).
+- A dataset you used in previous weeks (the cleaned version).
+
+| File in `data/` | One row is... | Example numeric variables | Example categorical / binary |
+|---|---|---|---|
+| `heart.csv` | a patient (anonymised) | `age`, `trestbps`, `chol`, `thalach` | `sex`, `cp`, `target` |
+| `titanic_clean.csv` | a passenger | `Age`, `Fare` | `Survived`, `Pclass`, `Sex` |
+| `advertising.csv` | a website user | `Age`, `Area Income`, `Daily Internet Usage` | `Male`, `Clicked on Ad` |
+| `student_score.csv` | a student | `Hours`, `Scores` | – |
+| `amazon_products_clean.csv` | a product | `actual_price`, `discount_pct`, `rating` | `main_category` |
+| `retail_sales_ng.csv` (synthetic) | a sales transaction | `Sales_Amount`, `Quantity`, `Profit` | `Region`, `Product_Category` |
+| `grocery_transactions.csv` (synthetic) | an item in a basket | – | `Item` (use association rules) |
+| `data.csv` | a breast-tissue sample | `radius_mean`, `texture_mean`, ... | `diagnosis` |
+
+> ✏️ **Student Task 1 – Project Definition:**
+> In the text area below (or in your report), write:
+> 1. **Dataset Description:** the source of your dataset; what one row represents; at least **5 key variables** and what they mean.
+> 2. **Main Question:** one main question you want to explore. Examples:
+>    - "What factors are associated with higher exam scores?"
+>    - "Which product category generates the highest revenue?"
+>    - "Is there a relationship between gender and pass/fail rates?"
+
+*Your answer here:*
+
+---
+
+## 2. Loading Required Packages
+
+```{r packages}
+library(tidyverse)
+theme_set(theme_minimal(base_size = 12))
+
+# Helper: regression metrics used in Week 5
+metrics <- function(y, yhat) {
+  c(RMSE = sqrt(mean((y - yhat)^2)),
+    MAE  = mean(abs(y - yhat)),
+    R2   = 1 - sum((y - yhat)^2) / sum((y - mean(y))^2))
+}
+```
+
+---
+
+## 3. Loading Your Dataset
+
+> 🔧 **Instruction:** Change `dataset_file` to your chosen dataset. If the file has columns with spaces, rename them with `rename_with(~ str_replace_all(.x, " ", "_"))`.
+
+```{r load}
+dataset_file <- "heart.csv"          # TODO: change this to your chosen dataset
+
+df <- read_csv(file.path(data_dir, dataset_file))
+head(df)
+```
+
+> ✏️ **Student Task 2:**
+> - Check visually: do the columns and values look reasonable?
+> - Are there any obvious issues (strange characters, missing column names)?
+
+### 3.1 Basic Structure and Data Types
+
+```{r structure}
+dim(df)
+glimpse(df)
+summary(df)
+```
+
+> ✏️ **Student Task 3:**
+> - Identify at least **three numerical** variables and **two categorical** variables.
+> - Which of these variables are most relevant to your main question?
+
+---
+
+## 4. Light Data Cleaning
+
+Before analysis we may need to handle **missing values**, remove **duplicates**, and convert **data types**. Use only what your dataset needs: do not over-clean.
+
+```{r missing}
+colSums(is.na(df))                 # missing values per column
+```
+
+```{r duplicates}
+duplicates_count <- sum(duplicated(df))
+cat("Number of duplicate rows:", duplicates_count, "\n")
+
+df <- distinct(df)                 # keep one copy of each row
+cat("New shape after removing duplicates:", dim(df), "\n")
+```
+
+> ℹ️ Examples of other cleaning steps (edit and use if needed):
+> `df <- drop_na(df, ImportantColumn)` · `df <- mutate(df, Col = replace_na(Col, median(Col, na.rm = TRUE)))` · `df <- mutate(df, Date = as.Date(Date))`
+
+> ✏️ **Student Task 4:**
+> - Describe **two cleaning steps** you applied (or decided were not necessary).
+> - Explain why they were appropriate for your dataset.
+
+*Your answer here:*
+
+---
+
+## 5. Exploratory Data Analysis (EDA)
+
+Now explore the data in relation to your **main question**. Suggested steps:
+
+- Look at **distributions** (histograms, boxplots) of key numerical variables.
+- Look at **counts** (bar charts) for important categorical variables.
+- Examine **relationships** (scatter plots, group means, correlations).
+
+### 5.1 Distributions of Numerical Variables
+
+```{r hist}
+num_col <- "thalach"          # TODO: change to a numeric variable related to your question
+
+ggplot(df, aes(x = .data[[num_col]])) +
+  geom_histogram(aes(y = after_stat(density)), bins = 25, fill = "steelblue", colour = "white") +
+  geom_density(colour = "firebrick", linewidth = 1) +
+  labs(title = paste("Distribution of", num_col), x = num_col, y = "Density")
+```
+
+### 5.2 Frequency of a Categorical Variable
+
+```{r bar}
+cat_col <- "target"           # TODO: change to a categorical variable
+
+ggplot(df, aes(x = factor(.data[[cat_col]]))) +
+  geom_bar(fill = "steelblue") +
+  geom_text(stat = "count", aes(label = after_stat(count)), vjust = -0.4) +
+  labs(title = paste("Counts of", cat_col), x = cat_col, y = "Count")
+```
+
+### 5.3 Relationship Between Two Numerical Variables
+
+```{r scatter}
+x_col <- "age"                # TODO: change
+y_col <- "thalach"            # TODO: change
+
+pair_df <- df |> select(all_of(c(x_col, y_col))) |> drop_na()
+
+ggplot(pair_df, aes(x = .data[[x_col]], y = .data[[y_col]])) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", colour = "firebrick") +
+  labs(title = paste(y_col, "versus", x_col), x = x_col, y = y_col)
+
+ct <- cor.test(pair_df[[x_col]], pair_df[[y_col]])
+cat(sprintf("Correlation between %s and %s: r = %.3f, 95%% CI [%.3f, %.3f], p = %s\n",
+            x_col, y_col, ct$estimate, ct$conf.int[1], ct$conf.int[2], format.pval(ct$p.value, digits = 3)))
+```
+
+> ✏️ **Student Task 5 – EDA Summary:**
+> Write **3–5 bullet points** summarising what you learned from your EDA. Mention any interesting distributions, patterns, or relationships.
+
+*Your answer here:*
+
+---
+
+## 6. Main Analysis or Model (Choose One Approach)
+
+Choose **one** of the following options (depending on your dataset and question):
+
+1. **Simple Linear Regression** – predict a numerical target from one numerical predictor (Week 5).
+2. **Group Comparison** – compare means between two groups (t-test) or test an association (chi-square) (Week 7).
+3. **Clustering** – group similar records with k-means (Week 6).
+4. **Association Rules (Market Basket)** – if your data are transactional with items per basket (Week 6; use `grocery_transactions.csv`).
+
+Your lecturer may specify which option to use. Below are **templates for options 1–3**; adapt as needed.
+
+### 6.1 Option A: Simple Linear Regression (Prediction)
+
+```{r regression}
+# TODO: write your code here
+```
+
+```{r regression-plot}
+# TODO: write your code here
+```
+
+### 6.2 Option B: Group Comparison (Means / t-Test)
+
+```{r group-comparison}
+# TODO: write your code here
+```
+
+### 6.3 Option C: Clustering (k-Means)
+
+```{r clustering}
+# TODO: write your code here
+```
+
+> ✏️ **Student Task 6 – Main Analysis Interpretation:**
+> In 4–6 sentences, interpret the key result from your chosen method.
+> - **Regression:** what does the slope mean? Is the model fit good?
+> - **Group comparison:** which group has the higher mean? Is the difference statistically significant, and how large is it?
+> - **Clustering or association rules:** briefly describe two interesting patterns.
+
+*Your answer here:*
+
+---
+
+## 7. Optional: Visual Summary or Dashboard Snippet
+
+If time permits, create a small **dashboard-style summary** (Week 8):
+
+- One or two **KPIs** (e.g. average score, total revenue).
+- One main plot (e.g. bar chart, line chart).
+- One secondary plot (e.g. boxplot or scatter plot).
+
+This is not compulsory but helps develop your **communication** skills as a data scientist.
+
+```{r dashboard}
+# TODO: write your code here
+```
+
+---
+
+## 8. Writing a Short Mini-Report (Inside the Notebook)
+
+> 🧪 **Student Activity – Mini-Report Outline:**
+> Create a section at the end of your notebook with the following headings and fill in brief content under each:
+
+1. **Title and Dataset** – e.g. "Analysis of Maximum Heart Rate in a Cardiac Teaching Dataset".
+2. **Main Question** – clearly state the question you tried to answer.
+3. **Data & Methods** – 4–6 sentences summarising the data you used and the methods (EDA, regression, tests, ...).
+4. **Key Findings** – 3–5 bullet points with the most important results (with effect sizes and confidence intervals).
+5. **Limitations** – 2–3 things you could not do (small sample, missing variables, observational data, time).
+6. **Next Steps** – 2–3 ideas for further analysis or for turning this into a bigger project.
+
+*Your answer here:*
+
+---
+
+## 9. Summary and Reflection (Week 11 PH)
+
+In this Week 11 mini-project practical, you have:
+
+- Chosen a dataset and defined a **clear analytical question**.
+- Performed **EDA** and basic cleaning.
+- Applied at least **one analysis or modelling method** from earlier weeks.
+- Interpreted your results in **plain language**, with effect sizes and uncertainty.
+- Structured your work in a **notebook mini-report** format.
+
+> 🧠 **Final Reflection (1–2 paragraphs):**
+> - What part of this mini-project did you enjoy the most (EDA, modelling, visualisation, writing)?
+> - Which skills do you feel more confident about after completing this?
+> - If you had more time and data, how would you extend this mini-project into a full project for a higher-level course?

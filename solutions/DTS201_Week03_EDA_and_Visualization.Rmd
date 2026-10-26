@@ -1,0 +1,356 @@
+---
+title: "DTS 201 – Introduction to Data Science"
+subtitle: "Week 3 Practical (PH): Exploratory Data Analysis (EDA) and Basic Data Visualization – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy) – SOLUTIONS (lecturer copy)"
+author: "Dr. Sakinat Folorunso — Associate Professor of AI Systems and FAIR Data, Department of Computer Sciences, Olabisi Onabanjo University, Ago-Iwoye, Ogun State, Nigeria"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: readable
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.width = 7, fig.height = 4.2)
+set.seed(42)
+data_dir <- if (dir.exists("../data")) "../data" else "data"
+```
+
+**Course Code:** DTS 201  **Practical Week:** 3 – Data Science Process II
+
+---
+
+### 🎯 Practical Learning Objectives (Week 3)
+
+By the end of this practical session, you should be able to:
+
+- **Generate** basic **summary statistics** for numerical and categorical data.
+- **Use** `summary()`, `mean()`, `median()`, `sd()`, `count()` and related functions to summarise datasets.
+- **Plot and interpret** **bar charts**, **histograms**, **boxplots** and **scatter plots** with `ggplot2`.
+- **Comment** on patterns, trends, and possible relationships observed in the plots.
+
+> 💡 This notebook focuses on **hands-on EDA**. You are expected to run, modify, and extend the examples using your own dataset where possible.
+
+---
+
+## 1. Getting Started: Using Your Cleaned Dataset from Week 2
+
+Ideally, you start this practical with a dataset that has already been **cleaned** in Week 2 (missing values handled, types corrected). You can either:
+
+1. Use the cleaned dataset you saved in Week 2 (`titanic_clean.csv`), or
+2. Use any reasonably clean CSV/Excel dataset provided by your lecturer, or
+3. Download a simple open dataset (e.g., students' scores, sales records, survey responses).
+
+> ✅ **Goal:** Focus on **understanding** and **visualising** the data, not on cleaning (that was Week 2).
+
+> 📌 A ready-made copy of `titanic_clean.csv` and `amazon_products_clean.csv` is included in the `data` folder, so you can continue even if your Week 2 files were lost.
+
+---
+
+## 2. Loading Required Packages
+
+```{r packages}
+library(tidyverse)
+
+# A consistent, readable plot style for every chart in this notebook
+theme_set(theme_minimal(base_size = 12))
+```
+
+---
+
+## 3. Loading the Dataset for EDA
+
+> 🔧 **Instruction:** To explore a different dataset, change `data_file` in the next chunk (for example to `"amazon_products_clean.csv"`).
+
+```{r load-data}
+data_file <- "titanic_clean.csv"                # TODO: change to your cleaned dataset
+
+df <- read_csv(file.path(data_dir, data_file))
+
+# CSV files do not remember factors, so restore the labelled categories
+df <- df |>
+  mutate(across(c(Survived, Sex, Embarked), factor),
+         Pclass = factor(Pclass, levels = c("1st", "2nd", "3rd"), ordered = TRUE))
+
+head(df)
+```
+
+> ✏️ **Student Task 1:**
+> - What does **one row** represent in this dataset (e.g., a student, a sale, a transaction)?
+> - List the names of at least **five columns** and briefly state what each one measures or represents.
+
+*Your answer here:*
+
+### 3.1 Checking the Structure of the Dataset
+
+```{r structure}
+dim(df)        # rows, columns
+glimpse(df)    # column types and first values
+```
+
+---
+
+## 4. Generating Summary Statistics
+
+We start EDA by computing summary statistics for **numerical** and **categorical** features. Common functions:
+
+- `summary(df)` – summary of every column.
+- `mean(df$col)`, `median(df$col)`, `sd(df$col)` – single statistics.
+- `count(df, col)` – frequency table for a categorical column.
+
+For a numeric variable $x_1, \dots, x_n$:
+
+$$\bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i, \qquad
+s = \sqrt{\frac{1}{n-1}\sum_{i=1}^{n}\left(x_i - \bar{x}\right)^2}, \qquad
+\mathrm{SE}(\bar{x}) = \frac{s}{\sqrt{n}}.$$
+
+```{r summary-all}
+# Summary of every column (numbers: quartiles and mean; factors: counts)
+summary(df)
+```
+
+```{r summary-one}
+# Statistics for ONE numerical column
+num_col <- "Age"                  # TODO: change to another numeric column (e.g. "Fare")
+x <- df[[num_col]]                # [[ ]] extracts a column by name stored in a variable
+
+cat("n                  :", length(x), "\n")
+cat("Mean               :", round(mean(x), 2), "\n")
+cat("Median             :", round(median(x), 2), "\n")
+cat("Standard deviation :", round(sd(x), 2), "\n")
+cat("IQR                :", round(IQR(x), 2), "\n")
+cat("Min / Max          :", min(x), "/", max(x), "\n")
+
+# 95% confidence interval for the mean (t-distribution)
+ci <- t.test(x)$conf.int
+cat("95% CI for the mean: [", round(ci[1], 2), ",", round(ci[2], 2), "]\n")
+```
+
+> 💡 **Reading the numbers:** if the **mean is much larger than the median**, the distribution is probably *right-skewed* (a few very large values pull the mean up). The standard deviation tells you the typical distance of a value from the mean.
+
+> ✏️ **Student Task 2:**
+> - Choose **two numerical columns** and compute their mean, median, and standard deviation.
+> - Interpret the results: what do the mean and median tell you? Is there a large spread (standard deviation)?
+
+```{r task2}
+# >>> SOLUTION
+df |>
+  summarise(
+    Age_mean = mean(Age),   Age_median = median(Age),   Age_sd = sd(Age),
+    Fare_mean = mean(Fare), Fare_median = median(Fare), Fare_sd = sd(Fare)
+  )
+# Interpretation: Fare has mean (~32) far above median (~14) and SD (~50) larger than the
+# mean -> strongly right-skewed. Age has mean ~ median -> roughly symmetric.
+# <<< SOLUTION
+```
+
+### 4.1 Summary Statistics for Categorical Columns
+
+```{r cat-cols}
+# Which columns are categorical (factor or text)?
+cat_cols <- df |> select(where(is.factor) | where(is.character)) |> names()
+cat_cols
+```
+
+```{r cat-count}
+# Frequency table (counts and percentages) for one categorical column
+cat_col <- "Embarked"             # TODO: change to another categorical column
+
+df |>
+  count(.data[[cat_col]], sort = TRUE) |>
+  mutate(percent = round(100 * n / sum(n), 1))
+```
+
+> ✏️ **Student Task 3:**
+> - Pick one categorical column and list the **top 3 most frequent categories** and their counts.
+> - Comment: does the distribution look **balanced** or **imbalanced**? What might this imply?
+
+```{r task3}
+# >>> SOLUTION
+df |>
+  count(Pclass, sort = TRUE) |>
+  mutate(percent = round(100 * n / sum(n), 1)) |>
+  slice_head(n = 3)
+# 3rd class is ~55% of passengers: imbalanced. Any analysis of survival must remember
+# that results are dominated by 3rd-class passengers.
+# <<< SOLUTION
+```
+
+---
+
+## 5. Visualising Categorical Data with Bar Charts
+
+Bar charts are useful for showing the frequency of categories (e.g., gender, department, grade). In `ggplot2` every chart is built in layers: **data** → **aesthetics** (`aes`: what maps to x, y, colour) → **geometry** (`geom_*`: bars, points, lines) → **labels and theme**.
+
+```{r bar-chart}
+cat_col <- "Embarked"             # TODO: change to another categorical variable
+
+ggplot(df, aes(x = .data[[cat_col]])) +
+  geom_bar(fill = "steelblue") +
+  geom_text(stat = "count", aes(label = after_stat(count)), vjust = -0.4) +
+  labs(title = paste("Bar chart of", cat_col), x = cat_col, y = "Count")
+```
+
+A bar chart can also show a **second variable** through colour. Here the bars are scaled to 100% so that proportions are comparable across groups:
+
+```{r bar-fill}
+ggplot(df, aes(x = Pclass, fill = Survived)) +
+  geom_bar(position = "fill") +
+  scale_y_continuous(labels = scales::percent) +
+  scale_fill_manual(values = c(No = "grey65", Yes = "seagreen")) +
+  labs(title = "Survival rate by passenger class", x = "Class", y = "Share of passengers", fill = "Survived")
+```
+
+> ✏️ **Student Task 4:**
+> - Change `cat_col` to another categorical variable and re-run the first chart.
+> - Describe what you observe: which category is most common? Are any categories rare?
+> - Then draw a proportional bar chart of survival by `Sex` and describe the result.
+
+```{r task4}
+# >>> SOLUTION
+ggplot(df, aes(x = Sex, fill = Survived)) +
+  geom_bar(position = "fill") +
+  scale_y_continuous(labels = scales::percent) +
+  scale_fill_manual(values = c(No = "grey65", Yes = "seagreen")) +
+  labs(title = "Survival rate by sex", x = "Sex", y = "Share of passengers")
+# Women survived at a much higher rate (~74%) than men (~19%).
+# <<< SOLUTION
+```
+
+---
+
+## 6. Visualising Numerical Data with Histograms and Boxplots
+
+Histograms help you understand the **distribution** of a numerical variable (scores, ages, income):
+
+- Is the distribution **symmetric** or **skewed**?
+- Are there **multiple peaks**?
+- Are there **outliers** (very large or small values)?
+
+```{r histogram}
+num_col <- "Age"                  # TODO: change to a different numeric variable
+
+ggplot(df, aes(x = .data[[num_col]])) +
+  geom_histogram(aes(y = after_stat(density)), bins = 30,
+                 fill = "steelblue", colour = "white") +
+  geom_density(colour = "firebrick", linewidth = 1) +     # smooth density curve
+  labs(title = paste("Histogram of", num_col), x = num_col, y = "Density")
+```
+
+A **boxplot** summarises the distribution with five numbers (minimum, Q1, median, Q3, maximum) and flags potential outliers (points beyond $1.5\times\mathrm{IQR}$ from the box):
+
+```{r boxplot}
+ggplot(df, aes(x = Pclass, y = Fare, fill = Pclass)) +
+  geom_boxplot(show.legend = FALSE) +
+  labs(title = "Fare by passenger class", x = "Class", y = "Fare (pounds)")
+```
+
+> ✏️ **Student Task 5:**
+> - Change `num_col` to a different numerical variable (e.g. `"Fare"`).
+> - Comment on the distribution: is it skewed left/right? Are there many low or high values?
+> - Draw the histogram of `Fare` on a **log scale** (`scale_x_log10()`) and explain why a log scale helps.
+
+```{r task5}
+# >>> SOLUTION
+ggplot(filter(df, Fare > 0), aes(x = Fare)) +
+  geom_histogram(bins = 30, fill = "steelblue", colour = "white") +
+  scale_x_log10() +
+  labs(title = "Histogram of Fare (log10 scale)", x = "Fare (log scale)", y = "Count")
+# Fare is strongly right-skewed. The log scale compresses the long right tail so the
+# bulk of the data becomes visible and the shape is closer to symmetric.
+# <<< SOLUTION
+```
+
+---
+
+## 7. Exploring Relationships with Scatter Plots
+
+Scatter plots help you investigate relationships between **two numerical variables**, for example hours studied vs exam score, age vs income, price vs quantity sold. For two variables the **Pearson correlation coefficient** is
+
+$$r = \frac{\sum_{i}(x_i-\bar{x})(y_i-\bar{y})}{\sqrt{\sum_i (x_i-\bar{x})^2}\sqrt{\sum_i (y_i-\bar{y})^2}}, \qquad -1 \le r \le 1.$$
+
+```{r scatter}
+x_col <- "Age"       # TODO: change to a real numerical column (x-axis)
+y_col <- "Fare"      # TODO: change to a real numerical column (y-axis)
+
+ggplot(df, aes(x = .data[[x_col]], y = .data[[y_col]])) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", se = TRUE, colour = "firebrick") +
+  labs(title = paste("Scatter plot of", y_col, "vs", x_col), x = x_col, y = y_col)
+```
+
+```{r correlation}
+# Pearson correlation with 95% confidence interval and p-value
+ct <- cor.test(df[[x_col]], df[[y_col]])
+cat(sprintf("Pearson r = %.3f, 95%% CI [%.3f, %.3f], p = %.4f, n = %d\n",
+            ct$estimate, ct$conf.int[1], ct$conf.int[2], ct$p.value, nrow(df)))
+
+# Spearman rank correlation: robust to skewed variables such as Fare
+cs <- suppressWarnings(cor.test(df[[x_col]], df[[y_col]], method = "spearman"))
+cat(sprintf("Spearman rho = %.3f, p = %.4f\n", cs$estimate, cs$p.value))
+```
+
+> ✏️ **Student Task 6:**
+> - Choose two numerical variables that you think might be related.
+> - Plot a scatter plot and compute their correlation.
+> - Interpret the result: is the relationship positive, negative, or weak? Does the scatter plot support this?
+> - *Hint:* load `amazon_products_clean.csv` and compare `actual_price` with `discounted_price` (use log scales).
+
+```{r task6}
+# >>> SOLUTION
+amazon <- read_csv(file.path(data_dir, "amazon_products_clean.csv"))
+
+ggplot(amazon, aes(x = actual_price, y = discounted_price)) +
+  geom_point(alpha = 0.4) +
+  scale_x_log10(labels = scales::comma) + scale_y_log10(labels = scales::comma) +
+  geom_smooth(method = "lm", colour = "firebrick") +
+  labs(title = "Discounted vs actual price (log-log)", x = "Actual price (INR)", y = "Discounted price (INR)")
+
+cor.test(log10(amazon$actual_price), log10(amazon$discounted_price))
+# A very strong positive relationship (r = 0.94 on the log scale): products with a higher list
+# price also have a higher selling price, which is expected because the discount is a
+# percentage of the list price.
+# <<< SOLUTION
+```
+
+> ⚠️ **Correlation is not causation.** A strong correlation tells you that two variables move together, not that one *causes* the other.
+
+---
+
+## 8. Mini EDA Exercise (Apply Everything)
+
+> 🧪 **Student Activity:**
+> Pick **one** of the following options and perform a mini-EDA:
+
+1. **Titanic Passengers** (`titanic_clean.csv`) – explore age, fare, class, survival.
+2. **Amazon Products** (`amazon_products_clean.csv`) – explore price, discount, rating by main category.
+3. **Student Scores** (`student_score.csv`) – explore hours studied and scores.
+4. **Your own dataset** – a survey, sales sheet, or other CSV you have collected.
+
+Your mini-EDA should include:
+
+- At least **two summary tables** (e.g., `summary()`, `count()`).
+- At least **three plots**:
+  - One bar chart (categorical).
+  - One histogram (numerical).
+  - One scatter plot (relationship).
+- A short **written summary** of your findings.
+
+*Your mini-EDA starts here:*
+
+---
+
+## 9. Summary and Reflection (Week 3 PH)
+
+In this Week 3 practical, you have:
+
+- Loaded a cleaned dataset and inspected its basic structure.
+- Generated summary statistics for numerical and categorical variables, with a confidence interval.
+- Created and interpreted bar charts, histograms, boxplots and scatter plots with `ggplot2`.
+- Explored potential relationships between variables using correlation (Pearson and Spearman) and visual patterns.
+
+> 🧠 **Final Reflection (write 1–2 paragraphs):**
+> - Which type of plot (bar, histogram, scatter) did you find most useful, and why?
+> - Mention one **insight** you discovered about your dataset that you did not know before plotting.
+> - How might these EDA skills help you in later topics like modelling and prediction?

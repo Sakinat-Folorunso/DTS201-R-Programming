@@ -1,0 +1,4191 @@
+TransactionID,Item
+1,Palm oil
+1,Onions
+1,Pepper
+2,Eggs
+2,Milk
+2,Tea
+2,Pepper
+2,Rice
+3,Butter
+3,Tea
+4,Groundnut
+4,Sugar
+4,Pepper
+4,Soft drink
+5,Biscuits
+5,Soft drink
+5,Indomie noodles
+5,Water sachet
+5,Butter
+6,Beans
+6,Palm oil
+6,Plantain
+6,Onions
+6,Pepper
+6,Groundnut
+7,Palm oil
+7,Plantain
+7,Pepper
+8,Beans
+8,Palm oil
+8,Plantain
+8,Onions
+8,Pepper
+8,Garri
+9,Bread
+9,Butter
+9,Eggs
+9,Milk
+9,Tea
+10,Rice
+10,Tomatoes
+10,Vegetable oil
+10,Onions
+10,Pepper
+11,Rice
+11,Tomatoes
+11,Vegetable oil
+11,Onions
+12,Bread
+12,Butter
+12,Tea
+13,Bread
+13,Butter
+13,Eggs
+13,Milk
+13,Tea
+14,Butter
+14,Eggs
+14,Milk
+14,Tea
+14,Plantain
+14,Soft drink
+15,Rice
+15,Tomatoes
+15,Vegetable oil
+15,Onions
+15,Pepper
+16,Beans
+16,Palm oil
+16,Pepper
+16,Sugar
+17,Rice
+17,Vegetable oil
+17,Onions
+17,Pepper
+18,Beans
+18,Palm oil
+18,Plantain
+18,Onions
+18,Pepper
+19,Butter
+19,Eggs
+19,Milk
+19,Tea
+20,Bread
+20,Butter
+20,Eggs
+20,Milk
+21,Bread
+21,Milk
+21,Tea
+21,Rice
+22,Beans
+22,Plantain
+22,Onions
+22,Pepper
+23,Biscuits
+23,Soft drink
+23,Indomie noodles
+23,Water sachet
+23,Garri
+24,Butter
+24,Milk
+24,Tea
+25,Butter
+25,Eggs
+25,Tea
+26,Garri
+26,Sugar
+26,Milk
+26,Onions
+27,Garri
+27,Groundnut
+27,Sugar
+28,Bread
+28,Butter
+28,Eggs
+28,Milk
+28,Beans
+28,Groundnut
+28,Indomie noodles
+29,Rice
+29,Tomatoes
+29,Onions
+30,Rice
+30,Tomatoes
+30,Vegetable oil
+30,Onions
+31,Rice
+31,Tomatoes
+31,Vegetable oil
+31,Onions
+31,Pepper
+32,Palm oil
+32,Plantain
+32,Onions
+32,Pepper
+33,Bread
+33,Butter
+33,Eggs
+33,Milk
+33,Tea
+34,Biscuits
+34,Soft drink
+34,Indomie noodles
+35,Biscuits
+35,Soft drink
+35,Indomie noodles
+35,Water sachet
+36,Rice
+36,Tomatoes
+36,Vegetable oil
+37,Garri
+37,Bread
+37,Vegetable oil
+38,Beans
+38,Plantain
+38,Onions
+38,Pepper
+38,Sugar
+39,Biscuits
+39,Water sachet
+39,Vegetable oil
+40,Rice
+40,Tomatoes
+40,Vegetable oil
+40,Onions
+40,Pepper
+40,Bread
+40,Indomie noodles
+40,Water sachet
+41,Soft drink
+41,Indomie noodles
+41,Water sachet
+42,Garri
+42,Groundnut
+42,Sugar
+42,Onions
+43,Garri
+43,Sugar
+43,Milk
+44,Bread
+44,Eggs
+44,Milk
+44,Tea
+45,Groundnut
+45,Sugar
+45,Milk
+45,Palm oil
+46,Rice
+46,Tomatoes
+46,Vegetable oil
+46,Onions
+46,Pepper
+46,Soft drink
+47,Bread
+47,Butter
+47,Eggs
+47,Milk
+47,Tea
+48,Bread
+48,Eggs
+48,Milk
+48,Palm oil
+48,Tomatoes
+49,Butter
+49,Eggs
+49,Milk
+49,Tea
+50,Palm oil
+50,Plantain
+50,Onions
+50,Pepper
+50,Water sachet
+51,Biscuits
+51,Soft drink
+51,Indomie noodles
+51,Water sachet
+51,Eggs
+52,Bread
+52,Eggs
+52,Milk
+52,Plantain
+53,Biscuits
+53,Soft drink
+53,Indomie noodles
+53,Water sachet
+54,Biscuits
+54,Soft drink
+54,Water sachet
+54,Sugar
+54,Vegetable oil
+55,Rice
+55,Tomatoes
+55,Vegetable oil
+55,Onions
+55,Pepper
+55,Groundnut
+55,Soft drink
+56,Beans
+56,Palm oil
+56,Onions
+56,Pepper
+56,Water sachet
+57,Tomatoes
+57,Onions
+57,Pepper
+57,Water sachet
+58,Butter
+58,Eggs
+58,Milk
+58,Tea
+59,Butter
+59,Eggs
+59,Milk
+59,Tea
+59,Pepper
+60,Butter
+60,Eggs
+60,Tea
+61,Garri
+61,Groundnut
+61,Sugar
+61,Milk
+62,Rice
+62,Tomatoes
+62,Vegetable oil
+62,Onions
+62,Pepper
+62,Garri
+63,Rice
+63,Tomatoes
+63,Onions
+64,Beans
+64,Palm oil
+64,Plantain
+65,Tomatoes
+65,Vegetable oil
+65,Onions
+65,Pepper
+66,Rice
+66,Tomatoes
+66,Onions
+66,Pepper
+67,Bread
+67,Butter
+67,Eggs
+67,Milk
+67,Garri
+67,Onions
+68,Garri
+68,Groundnut
+68,Sugar
+68,Milk
+69,Soft drink
+70,Palm oil
+70,Plantain
+70,Onions
+70,Pepper
+70,Butter
+71,Biscuits
+71,Soft drink
+71,Water sachet
+71,Tea
+72,Bread
+72,Butter
+72,Eggs
+72,Milk
+72,Tea
+72,Onions
+72,Sugar
+72,Water sachet
+73,Garri
+73,Sugar
+73,Milk
+74,Garri
+74,Sugar
+74,Milk
+75,Garri
+75,Groundnut
+75,Sugar
+75,Milk
+76,Garri
+76,Groundnut
+76,Milk
+76,Tea
+77,Rice
+77,Tomatoes
+77,Vegetable oil
+77,Onions
+77,Pepper
+78,Garri
+78,Sugar
+78,Onions
+78,Soft drink
+79,Palm oil
+79,Plantain
+79,Onions
+79,Pepper
+79,Milk
+79,Sugar
+80,Beans
+80,Plantain
+80,Onions
+80,Pepper
+80,Eggs
+80,Tomatoes
+81,Soft drink
+81,Indomie noodles
+81,Water sachet
+81,Sugar
+82,Bread
+82,Butter
+82,Eggs
+82,Milk
+82,Tea
+83,Garri
+83,Groundnut
+83,Sugar
+83,Milk
+84,Bread
+84,Butter
+84,Eggs
+84,Milk
+84,Tea
+85,Palm oil
+85,Plantain
+85,Onions
+86,Rice
+86,Tomatoes
+86,Vegetable oil
+86,Onions
+86,Pepper
+86,Eggs
+87,Rice
+87,Vegetable oil
+87,Onions
+87,Pepper
+88,Eggs
+88,Tea
+89,Indomie noodles
+89,Water sachet
+90,Beans
+90,Palm oil
+90,Plantain
+90,Onions
+90,Eggs
+91,Soft drink
+91,Indomie noodles
+91,Water sachet
+91,Garri
+92,Bread
+92,Butter
+92,Milk
+93,Beans
+93,Palm oil
+93,Plantain
+93,Onions
+93,Pepper
+94,Beans
+94,Palm oil
+94,Plantain
+94,Onions
+94,Pepper
+95,Beans
+95,Plantain
+95,Pepper
+96,Bread
+96,Butter
+96,Eggs
+96,Vegetable oil
+97,Bread
+97,Butter
+97,Milk
+97,Tea
+98,Bread
+98,Butter
+98,Milk
+98,Tea
+99,Bread
+99,Butter
+99,Eggs
+99,Milk
+99,Tea
+100,Rice
+100,Tomatoes
+100,Vegetable oil
+100,Onions
+100,Pepper
+100,Biscuits
+100,Eggs
+101,Garri
+101,Groundnut
+101,Sugar
+101,Milk
+102,Rice
+102,Vegetable oil
+102,Pepper
+102,Biscuits
+103,Garri
+103,Groundnut
+103,Milk
+103,Palm oil
+104,Biscuits
+104,Soft drink
+104,Indomie noodles
+104,Water sachet
+104,Onions
+105,Rice
+105,Tomatoes
+105,Vegetable oil
+105,Onions
+106,Garri
+106,Groundnut
+106,Sugar
+106,Milk
+107,Beans
+107,Palm oil
+107,Plantain
+107,Onions
+108,Bread
+108,Butter
+108,Eggs
+108,Milk
+108,Tea
+109,Tomatoes
+109,Vegetable oil
+109,Onions
+109,Pepper
+110,Garri
+110,Groundnut
+110,Sugar
+110,Milk
+111,Milk
+111,Butter
+112,Bread
+112,Butter
+112,Eggs
+112,Milk
+112,Tea
+113,Garri
+113,Milk
+114,Rice
+114,Tomatoes
+114,Vegetable oil
+114,Onions
+114,Pepper
+114,Beans
+115,Bread
+115,Butter
+115,Milk
+115,Tomatoes
+116,Biscuits
+116,Indomie noodles
+116,Water sachet
+116,Tomatoes
+117,Groundnut
+117,Sugar
+117,Milk
+117,Palm oil
+118,Biscuits
+118,Soft drink
+118,Indomie noodles
+118,Water sachet
+119,Rice
+119,Tomatoes
+119,Onions
+119,Pepper
+119,Soft drink
+120,Biscuits
+120,Indomie noodles
+120,Water sachet
+121,Beans
+121,Palm oil
+121,Plantain
+121,Pepper
+121,Vegetable oil
+122,Bread
+122,Butter
+122,Eggs
+122,Milk
+122,Tea
+122,Biscuits
+123,Bread
+123,Butter
+123,Eggs
+123,Milk
+123,Tea
+124,Garri
+124,Groundnut
+124,Sugar
+124,Water sachet
+125,Beans
+125,Palm oil
+125,Plantain
+125,Onions
+126,Rice
+126,Tomatoes
+126,Vegetable oil
+126,Onions
+126,Pepper
+127,Soft drink
+127,Indomie noodles
+127,Water sachet
+128,Bread
+128,Butter
+128,Eggs
+128,Milk
+128,Tea
+129,Soft drink
+129,Indomie noodles
+129,Water sachet
+130,Biscuits
+130,Soft drink
+130,Indomie noodles
+130,Water sachet
+131,Butter
+131,Milk
+132,Rice
+132,Tomatoes
+132,Vegetable oil
+132,Onions
+132,Pepper
+133,Bread
+133,Butter
+133,Eggs
+133,Milk
+133,Tea
+134,Rice
+134,Tomatoes
+134,Vegetable oil
+134,Onions
+134,Pepper
+135,Rice
+135,Onions
+136,Garri
+136,Sugar
+136,Milk
+136,Palm oil
+137,Butter
+137,Eggs
+137,Milk
+137,Tea
+138,Biscuits
+138,Soft drink
+138,Water sachet
+138,Eggs
+138,Palm oil
+139,Biscuits
+139,Soft drink
+139,Indomie noodles
+139,Water sachet
+140,Bread
+140,Butter
+140,Eggs
+140,Milk
+140,Tea
+141,Garri
+141,Groundnut
+141,Sugar
+141,Milk
+141,Bread
+142,Biscuits
+142,Soft drink
+142,Indomie noodles
+142,Water sachet
+142,Beans
+143,Sugar
+143,Eggs
+144,Rice
+144,Tomatoes
+144,Vegetable oil
+144,Onions
+144,Pepper
+144,Palm oil
+145,Biscuits
+145,Indomie noodles
+145,Water sachet
+145,Plantain
+146,Beans
+146,Palm oil
+146,Onions
+146,Pepper
+146,Garri
+146,Groundnut
+146,Rice
+147,Beans
+147,Palm oil
+147,Plantain
+147,Pepper
+147,Tomatoes
+147,Vegetable oil
+148,Bread
+148,Eggs
+148,Tea
+148,Onions
+149,Bread
+149,Butter
+149,Eggs
+149,Milk
+150,Plantain
+150,Onions
+151,Beans
+151,Palm oil
+151,Plantain
+151,Pepper
+152,Bread
+152,Butter
+152,Eggs
+152,Milk
+152,Tea
+152,Tomatoes
+153,Bread
+153,Butter
+153,Eggs
+153,Tea
+154,Rice
+154,Tomatoes
+155,Bread
+155,Butter
+155,Eggs
+155,Milk
+155,Tea
+156,Rice
+156,Tomatoes
+156,Vegetable oil
+156,Onions
+156,Pepper
+157,Biscuits
+158,Rice
+158,Tomatoes
+158,Vegetable oil
+158,Onions
+158,Pepper
+159,Rice
+159,Vegetable oil
+159,Pepper
+159,Sugar
+160,Groundnut
+160,Sugar
+161,Biscuits
+161,Soft drink
+161,Indomie noodles
+161,Water sachet
+162,Beans
+162,Palm oil
+162,Plantain
+162,Onions
+163,Rice
+163,Tomatoes
+163,Vegetable oil
+164,Bread
+164,Butter
+164,Eggs
+164,Tea
+165,Soft drink
+165,Indomie noodles
+165,Water sachet
+165,Rice
+166,Bread
+166,Eggs
+166,Tea
+167,Butter
+167,Eggs
+167,Milk
+168,Bread
+168,Butter
+168,Eggs
+168,Tea
+169,Beans
+169,Palm oil
+169,Onions
+169,Pepper
+169,Soft drink
+169,Sugar
+170,Tomatoes
+170,Vegetable oil
+170,Onions
+170,Pepper
+170,Bread
+171,Butter
+171,Eggs
+171,Milk
+171,Tea
+172,Rice
+172,Tomatoes
+172,Vegetable oil
+172,Onions
+172,Pepper
+172,Soft drink
+173,Biscuits
+173,Indomie noodles
+174,Bread
+174,Butter
+174,Eggs
+174,Milk
+175,Beans
+175,Palm oil
+175,Onions
+175,Pepper
+176,Biscuits
+176,Indomie noodles
+177,Butter
+177,Milk
+178,Beans
+178,Pepper
+178,Milk
+179,Rice
+179,Tomatoes
+180,Rice
+180,Tomatoes
+180,Vegetable oil
+180,Pepper
+181,Bread
+181,Butter
+181,Eggs
+182,Butter
+182,Milk
+183,Bread
+183,Eggs
+183,Milk
+183,Tea
+184,Garri
+184,Groundnut
+184,Sugar
+184,Milk
+185,Rice
+185,Tomatoes
+185,Vegetable oil
+185,Onions
+185,Pepper
+185,Bread
+186,Bread
+186,Eggs
+186,Milk
+186,Tea
+187,Bread
+187,Butter
+187,Eggs
+187,Milk
+187,Tea
+188,Rice
+188,Onions
+188,Pepper
+189,Garri
+189,Groundnut
+189,Milk
+189,Tomatoes
+190,Rice
+190,Tomatoes
+190,Vegetable oil
+190,Pepper
+191,Tomatoes
+191,Vegetable oil
+191,Onions
+191,Pepper
+191,Plantain
+192,Bread
+192,Butter
+192,Eggs
+192,Milk
+192,Tea
+192,Plantain
+193,Plantain
+193,Onions
+193,Pepper
+194,Soft drink
+194,Indomie noodles
+194,Water sachet
+194,Groundnut
+195,Plantain
+195,Pepper
+196,Rice
+196,Vegetable oil
+196,Onions
+196,Pepper
+197,Beans
+197,Palm oil
+197,Plantain
+197,Onions
+197,Pepper
+197,Indomie noodles
+198,Garri
+198,Groundnut
+198,Sugar
+198,Milk
+199,Biscuits
+199,Soft drink
+199,Indomie noodles
+199,Groundnut
+199,Pepper
+200,Soft drink
+200,Indomie noodles
+201,Bread
+201,Eggs
+201,Milk
+201,Tea
+202,Bread
+202,Butter
+202,Eggs
+202,Tea
+203,Rice
+203,Tomatoes
+203,Vegetable oil
+203,Onions
+204,Rice
+204,Vegetable oil
+204,Pepper
+204,Soft drink
+205,Butter
+205,Eggs
+205,Tea
+206,Onions
+207,Rice
+207,Tomatoes
+207,Onions
+207,Pepper
+208,Garri
+208,Groundnut
+208,Sugar
+208,Milk
+209,Rice
+209,Tomatoes
+209,Onions
+209,Pepper
+210,Garri
+210,Groundnut
+210,Sugar
+210,Milk
+211,Bread
+211,Eggs
+211,Tea
+212,Rice
+212,Tomatoes
+212,Vegetable oil
+212,Pepper
+213,Vegetable oil
+213,Onions
+213,Groundnut
+214,Bread
+214,Butter
+214,Eggs
+214,Milk
+214,Tea
+215,Beans
+215,Palm oil
+215,Onions
+215,Pepper
+215,Groundnut
+216,Rice
+216,Tomatoes
+216,Vegetable oil
+216,Pepper
+216,Plantain
+216,Sugar
+217,Bread
+217,Butter
+217,Milk
+217,Tea
+217,Biscuits
+218,Rice
+218,Tomatoes
+218,Vegetable oil
+218,Pepper
+219,Biscuits
+219,Indomie noodles
+220,Rice
+220,Tomatoes
+220,Onions
+220,Pepper
+221,Garri
+221,Groundnut
+221,Milk
+222,Beans
+222,Palm oil
+222,Onions
+222,Garri
+223,Rice
+223,Vegetable oil
+223,Tea
+224,Garri
+224,Groundnut
+224,Sugar
+224,Milk
+224,Beans
+225,Rice
+225,Vegetable oil
+225,Pepper
+226,Bread
+226,Butter
+226,Eggs
+226,Milk
+226,Tea
+226,Garri
+227,Palm oil
+227,Plantain
+227,Onions
+227,Pepper
+228,Groundnut
+228,Sugar
+228,Milk
+228,Eggs
+229,Bread
+229,Butter
+229,Eggs
+229,Milk
+229,Tea
+229,Pepper
+230,Garri
+230,Groundnut
+230,Sugar
+230,Milk
+231,Bread
+231,Butter
+231,Milk
+231,Tea
+232,Garri
+232,Groundnut
+232,Sugar
+232,Milk
+233,Rice
+233,Tomatoes
+233,Vegetable oil
+233,Onions
+233,Pepper
+234,Garri
+234,Groundnut
+234,Sugar
+234,Milk
+235,Bread
+235,Butter
+235,Eggs
+235,Milk
+235,Tea
+236,Garri
+236,Groundnut
+236,Sugar
+236,Milk
+237,Rice
+237,Onions
+237,Pepper
+238,Plantain
+238,Onions
+238,Pepper
+239,Garri
+239,Groundnut
+239,Sugar
+239,Milk
+239,Onions
+239,Rice
+239,Tea
+240,Bread
+240,Butter
+240,Eggs
+240,Tea
+241,Beans
+241,Palm oil
+241,Plantain
+241,Pepper
+241,Water sachet
+242,Bread
+242,Butter
+242,Eggs
+242,Milk
+242,Tea
+243,Bread
+243,Butter
+243,Eggs
+243,Milk
+243,Tea
+244,Garri
+244,Groundnut
+244,Sugar
+244,Milk
+245,Garri
+245,Groundnut
+245,Sugar
+245,Milk
+245,Butter
+246,Palm oil
+246,Plantain
+246,Onions
+246,Pepper
+247,Beans
+247,Palm oil
+247,Plantain
+247,Onions
+248,Biscuits
+248,Soft drink
+248,Pepper
+249,Biscuits
+249,Soft drink
+249,Water sachet
+250,Beans
+250,Palm oil
+250,Plantain
+250,Onions
+251,Beans
+251,Palm oil
+251,Plantain
+251,Onions
+251,Pepper
+251,Indomie noodles
+252,Biscuits
+252,Indomie noodles
+252,Water sachet
+252,Plantain
+253,Bread
+253,Butter
+253,Eggs
+253,Milk
+254,Bread
+254,Butter
+254,Eggs
+254,Milk
+254,Groundnut
+254,Onions
+254,Sugar
+255,Garri
+255,Groundnut
+255,Sugar
+255,Milk
+255,Soft drink
+256,Beans
+256,Palm oil
+256,Plantain
+256,Onions
+256,Pepper
+256,Bread
+257,Soft drink
+257,Water sachet
+257,Garri
+258,Rice
+258,Vegetable oil
+258,Pepper
+258,Eggs
+259,Butter
+259,Eggs
+259,Milk
+259,Tea
+259,Beans
+260,Butter
+260,Eggs
+260,Tea
+261,Soft drink
+261,Indomie noodles
+261,Water sachet
+261,Milk
+262,Rice
+262,Tomatoes
+262,Vegetable oil
+262,Pepper
+263,Beans
+263,Plantain
+263,Onions
+263,Pepper
+263,Indomie noodles
+264,Biscuits
+264,Soft drink
+264,Indomie noodles
+264,Water sachet
+264,Tea
+265,Bread
+265,Butter
+265,Eggs
+265,Milk
+265,Tea
+265,Garri
+265,Groundnut
+266,Garri
+266,Groundnut
+266,Sugar
+266,Milk
+266,Plantain
+267,Butter
+267,Eggs
+267,Milk
+268,Rice
+268,Tomatoes
+268,Onions
+268,Pepper
+269,Garri
+269,Groundnut
+269,Sugar
+269,Milk
+270,Garri
+270,Groundnut
+270,Sugar
+270,Milk
+271,Garri
+271,Groundnut
+271,Sugar
+271,Milk
+272,Rice
+272,Vegetable oil
+272,Onions
+272,Pepper
+273,Rice
+273,Vegetable oil
+273,Onions
+273,Tea
+274,Palm oil
+274,Plantain
+274,Onions
+274,Pepper
+275,Indomie noodles
+275,Water sachet
+276,Beans
+276,Palm oil
+276,Plantain
+276,Onions
+276,Pepper
+276,Water sachet
+277,Tomatoes
+277,Vegetable oil
+277,Onions
+277,Pepper
+278,Garri
+278,Groundnut
+278,Sugar
+278,Milk
+278,Rice
+279,Garri
+279,Groundnut
+279,Sugar
+279,Butter
+280,Rice
+280,Tomatoes
+280,Pepper
+280,Palm oil
+280,Soft drink
+281,Rice
+281,Tomatoes
+281,Vegetable oil
+281,Onions
+281,Pepper
+282,Rice
+282,Tomatoes
+282,Vegetable oil
+283,Palm oil
+283,Onions
+283,Pepper
+284,Rice
+284,Tomatoes
+285,Garri
+285,Groundnut
+285,Sugar
+285,Milk
+286,Plantain
+286,Onions
+286,Pepper
+286,Tomatoes
+287,Eggs
+287,Milk
+287,Tea
+288,Rice
+288,Tomatoes
+288,Vegetable oil
+288,Onions
+288,Pepper
+288,Biscuits
+289,Rice
+289,Tomatoes
+289,Onions
+289,Pepper
+290,Rice
+290,Tomatoes
+290,Vegetable oil
+290,Onions
+290,Pepper
+291,Biscuits
+291,Soft drink
+291,Indomie noodles
+292,Tomatoes
+292,Vegetable oil
+292,Onions
+292,Pepper
+293,Tomatoes
+293,Vegetable oil
+293,Onions
+294,Tomatoes
+294,Vegetable oil
+294,Pepper
+295,Bread
+295,Eggs
+295,Milk
+295,Tea
+296,Beans
+296,Plantain
+296,Bread
+297,Butter
+297,Eggs
+297,Milk
+297,Tea
+298,Garri
+298,Sugar
+298,Beans
+299,Rice
+299,Tomatoes
+299,Vegetable oil
+299,Onions
+299,Pepper
+300,Tomatoes
+300,Vegetable oil
+300,Onions
+300,Pepper
+301,Beans
+301,Palm oil
+301,Plantain
+301,Garri
+302,Biscuits
+302,Soft drink
+302,Indomie noodles
+303,Bread
+303,Butter
+303,Eggs
+303,Milk
+303,Soft drink
+304,Beans
+304,Plantain
+304,Onions
+304,Pepper
+305,Bread
+305,Eggs
+305,Milk
+305,Onions
+305,Soft drink
+306,Beans
+306,Plantain
+306,Onions
+306,Pepper
+307,Biscuits
+308,Biscuits
+308,Soft drink
+308,Indomie noodles
+308,Water sachet
+308,Groundnut
+309,Garri
+309,Groundnut
+309,Sugar
+309,Beans
+309,Vegetable oil
+310,Bread
+310,Butter
+310,Eggs
+310,Milk
+310,Tea
+311,Rice
+311,Tomatoes
+311,Onions
+311,Sugar
+312,Rice
+312,Tomatoes
+312,Vegetable oil
+312,Onions
+312,Pepper
+312,Sugar
+313,Garri
+313,Groundnut
+313,Sugar
+313,Milk
+314,Biscuits
+314,Soft drink
+314,Water sachet
+314,Groundnut
+315,Rice
+315,Tomatoes
+315,Vegetable oil
+315,Pepper
+315,Soft drink
+316,Tomatoes
+316,Vegetable oil
+316,Onions
+316,Pepper
+316,Palm oil
+316,Water sachet
+317,Soft drink
+317,Indomie noodles
+317,Water sachet
+318,Rice
+318,Tomatoes
+318,Vegetable oil
+318,Onions
+318,Pepper
+319,Bread
+319,Eggs
+319,Milk
+320,Beans
+320,Palm oil
+320,Plantain
+320,Onions
+320,Pepper
+321,Butter
+321,Milk
+321,Tea
+322,Garri
+322,Sugar
+323,Butter
+323,Eggs
+323,Milk
+323,Tea
+323,Indomie noodles
+324,Biscuits
+324,Soft drink
+324,Indomie noodles
+324,Water sachet
+325,Bread
+325,Butter
+325,Eggs
+325,Milk
+325,Tea
+326,Biscuits
+326,Soft drink
+326,Indomie noodles
+327,Bread
+327,Butter
+327,Eggs
+327,Milk
+327,Tea
+327,Palm oil
+328,Garri
+328,Groundnut
+328,Milk
+329,Bread
+329,Butter
+329,Eggs
+329,Milk
+329,Tea
+329,Biscuits
+330,Garri
+330,Groundnut
+330,Sugar
+330,Milk
+331,Garri
+331,Groundnut
+331,Eggs
+332,Palm oil
+332,Plantain
+332,Onions
+332,Bread
+332,Indomie noodles
+333,Garri
+333,Groundnut
+333,Sugar
+333,Milk
+333,Eggs
+333,Tea
+334,Rice
+334,Vegetable oil
+334,Onions
+334,Pepper
+334,Sugar
+335,Biscuits
+335,Soft drink
+335,Indomie noodles
+335,Water sachet
+336,Rice
+336,Tomatoes
+336,Vegetable oil
+336,Onions
+336,Pepper
+336,Soft drink
+337,Bread
+337,Milk
+337,Tea
+337,Indomie noodles
+338,Biscuits
+338,Soft drink
+338,Water sachet
+338,Eggs
+339,Bread
+339,Tea
+339,Rice
+340,Biscuits
+340,Indomie noodles
+340,Water sachet
+340,Eggs
+341,Rice
+341,Vegetable oil
+341,Onions
+341,Pepper
+342,Bread
+342,Butter
+342,Eggs
+342,Milk
+342,Tea
+342,Pepper
+343,Bread
+343,Butter
+343,Eggs
+343,Milk
+343,Tea
+344,Beans
+344,Palm oil
+344,Plantain
+344,Pepper
+345,Rice
+345,Tomatoes
+345,Vegetable oil
+345,Pepper
+346,Groundnut
+346,Sugar
+346,Milk
+347,Bread
+347,Butter
+347,Eggs
+347,Tea
+347,Beans
+348,Tomatoes
+348,Vegetable oil
+348,Onions
+348,Pepper
+349,Biscuits
+349,Indomie noodles
+349,Water sachet
+350,Biscuits
+350,Soft drink
+350,Indomie noodles
+350,Water sachet
+351,Rice
+351,Tomatoes
+351,Vegetable oil
+351,Onions
+352,Rice
+352,Vegetable oil
+352,Onions
+353,Rice
+353,Vegetable oil
+353,Onions
+353,Pepper
+353,Palm oil
+353,Sugar
+354,Butter
+354,Eggs
+354,Milk
+354,Tea
+355,Rice
+355,Tomatoes
+355,Vegetable oil
+355,Onions
+355,Pepper
+356,Onions
+357,Rice
+357,Onions
+357,Pepper
+358,Bread
+358,Butter
+358,Eggs
+358,Milk
+358,Tea
+358,Garri
+358,Rice
+359,Beans
+359,Palm oil
+359,Plantain
+359,Onions
+359,Pepper
+360,Rice
+360,Tomatoes
+360,Vegetable oil
+360,Onions
+360,Pepper
+361,Garri
+361,Groundnut
+361,Sugar
+361,Milk
+361,Vegetable oil
+362,Bread
+362,Butter
+362,Eggs
+362,Milk
+362,Indomie noodles
+363,Rice
+363,Tomatoes
+363,Vegetable oil
+363,Onions
+363,Pepper
+364,Rice
+364,Tomatoes
+364,Vegetable oil
+364,Onions
+364,Pepper
+364,Soft drink
+365,Rice
+365,Tomatoes
+365,Vegetable oil
+365,Onions
+365,Pepper
+366,Tomatoes
+366,Onions
+366,Pepper
+367,Bread
+367,Butter
+367,Eggs
+367,Milk
+367,Tea
+367,Onions
+367,Plantain
+368,Garri
+368,Beans
+369,Garri
+369,Groundnut
+369,Sugar
+369,Soft drink
+370,Bread
+370,Butter
+370,Eggs
+370,Tea
+371,Beans
+371,Onions
+371,Pepper
+372,Rice
+372,Tomatoes
+372,Vegetable oil
+372,Onions
+372,Pepper
+372,Sugar
+373,Bread
+373,Butter
+373,Eggs
+373,Tea
+374,Biscuits
+374,Indomie noodles
+374,Water sachet
+375,Bread
+375,Butter
+375,Eggs
+375,Milk
+375,Tea
+375,Indomie noodles
+376,Bread
+376,Butter
+376,Eggs
+376,Milk
+376,Tea
+377,Bread
+377,Butter
+377,Milk
+378,Palm oil
+378,Plantain
+378,Onions
+378,Pepper
+379,Biscuits
+379,Indomie noodles
+379,Water sachet
+379,Palm oil
+380,Biscuits
+380,Indomie noodles
+380,Water sachet
+381,Rice
+381,Onions
+381,Pepper
+382,Rice
+382,Tomatoes
+382,Vegetable oil
+382,Onions
+382,Pepper
+382,Biscuits
+383,Tomatoes
+383,Vegetable oil
+383,Onions
+383,Pepper
+383,Sugar
+384,Bread
+384,Butter
+384,Eggs
+384,Milk
+384,Tea
+385,Eggs
+385,Milk
+385,Tea
+385,Vegetable oil
+386,Garri
+386,Groundnut
+386,Milk
+387,Rice
+387,Tomatoes
+387,Vegetable oil
+387,Onions
+387,Pepper
+387,Sugar
+388,Beans
+388,Palm oil
+388,Plantain
+388,Onions
+388,Pepper
+388,Water sachet
+389,Milk
+389,Tea
+389,Sugar
+390,Soft drink
+390,Indomie noodles
+390,Beans
+390,Rice
+390,Sugar
+391,Garri
+391,Groundnut
+391,Sugar
+391,Milk
+392,Bread
+392,Butter
+392,Eggs
+392,Milk
+392,Biscuits
+393,Bread
+393,Butter
+393,Eggs
+393,Milk
+393,Tea
+394,Rice
+394,Tomatoes
+394,Vegetable oil
+394,Pepper
+395,Bread
+395,Butter
+395,Eggs
+395,Milk
+396,Rice
+396,Tomatoes
+396,Vegetable oil
+396,Onions
+396,Pepper
+397,Biscuits
+397,Soft drink
+397,Water sachet
+398,Butter
+398,Eggs
+398,Milk
+398,Tea
+398,Onions
+399,Biscuits
+399,Soft drink
+399,Indomie noodles
+399,Water sachet
+400,Butter
+400,Milk
+400,Tea
+401,Butter
+401,Eggs
+401,Milk
+401,Tea
+401,Plantain
+402,Rice
+402,Vegetable oil
+402,Onions
+402,Sugar
+403,Biscuits
+403,Soft drink
+403,Indomie noodles
+403,Water sachet
+403,Bread
+404,Biscuits
+404,Soft drink
+404,Indomie noodles
+404,Water sachet
+405,Bread
+405,Butter
+405,Tea
+406,Biscuits
+406,Soft drink
+406,Indomie noodles
+406,Water sachet
+407,Butter
+407,Tea
+408,Onions
+408,Pepper
+409,Groundnut
+409,Sugar
+409,Milk
+409,Eggs
+410,Biscuits
+410,Soft drink
+410,Indomie noodles
+410,Water sachet
+410,Beans
+410,Palm oil
+411,Bread
+411,Butter
+411,Eggs
+411,Milk
+411,Tea
+412,Groundnut
+412,Sugar
+412,Milk
+413,Sugar
+413,Milk
+414,Rice
+414,Tomatoes
+414,Vegetable oil
+414,Onions
+414,Pepper
+414,Bread
+415,Sugar
+415,Milk
+416,Soft drink
+416,Water sachet
+417,Biscuits
+417,Soft drink
+417,Indomie noodles
+417,Water sachet
+418,Palm oil
+418,Plantain
+418,Onions
+418,Vegetable oil
+419,Biscuits
+419,Soft drink
+419,Water sachet
+420,Indomie noodles
+421,Indomie noodles
+421,Water sachet
+421,Milk
+421,Tea
+422,Bread
+422,Butter
+422,Eggs
+422,Milk
+422,Tea
+422,Vegetable oil
+423,Palm oil
+423,Plantain
+423,Onions
+423,Pepper
+424,Soft drink
+424,Indomie noodles
+424,Water sachet
+425,Biscuits
+425,Indomie noodles
+426,Bread
+426,Butter
+426,Eggs
+426,Milk
+426,Tea
+427,Beans
+427,Palm oil
+427,Plantain
+427,Onions
+427,Pepper
+428,Biscuits
+428,Soft drink
+428,Indomie noodles
+428,Water sachet
+429,Rice
+429,Vegetable oil
+429,Onions
+429,Pepper
+430,Butter
+430,Eggs
+430,Milk
+430,Tea
+431,Bread
+431,Butter
+431,Eggs
+431,Milk
+431,Tea
+432,Garri
+432,Sugar
+432,Milk
+432,Tea
+433,Biscuits
+433,Soft drink
+433,Indomie noodles
+433,Water sachet
+433,Milk
+434,Sugar
+434,Milk
+435,Bread
+435,Butter
+435,Eggs
+435,Milk
+435,Indomie noodles
+436,Rice
+436,Tomatoes
+436,Pepper
+437,Biscuits
+437,Soft drink
+437,Indomie noodles
+437,Water sachet
+437,Sugar
+438,Biscuits
+438,Soft drink
+438,Indomie noodles
+438,Water sachet
+438,Bread
+439,Bread
+439,Butter
+439,Eggs
+439,Milk
+439,Tea
+440,Bread
+440,Butter
+440,Eggs
+440,Milk
+440,Tea
+440,Vegetable oil
+441,Biscuits
+441,Soft drink
+441,Indomie noodles
+441,Water sachet
+442,Biscuits
+442,Indomie noodles
+442,Eggs
+443,Rice
+443,Tomatoes
+443,Onions
+443,Palm oil
+444,Garri
+444,Groundnut
+444,Sugar
+444,Milk
+445,Groundnut
+445,Sugar
+445,Milk
+446,Beans
+446,Plantain
+446,Water sachet
+447,Biscuits
+447,Soft drink
+447,Indomie noodles
+447,Water sachet
+448,Rice
+448,Tomatoes
+448,Vegetable oil
+448,Onions
+448,Pepper
+449,Rice
+449,Vegetable oil
+449,Onions
+449,Pepper
+449,Butter
+450,Beans
+450,Palm oil
+450,Plantain
+450,Pepper
+451,Bread
+451,Eggs
+451,Milk
+451,Tea
+452,Rice
+452,Tomatoes
+452,Onions
+452,Pepper
+452,Milk
+453,Rice
+453,Tomatoes
+453,Vegetable oil
+454,Bread
+454,Butter
+454,Eggs
+454,Milk
+454,Tea
+455,Garri
+455,Groundnut
+455,Sugar
+455,Milk
+455,Plantain
+455,Soft drink
+456,Soft drink
+456,Water sachet
+456,Milk
+457,Beans
+457,Palm oil
+457,Plantain
+457,Onions
+457,Pepper
+457,Eggs
+457,Indomie noodles
+458,Beans
+458,Palm oil
+458,Indomie noodles
+459,Beans
+459,Palm oil
+459,Plantain
+459,Onions
+459,Pepper
+460,Groundnut
+460,Sugar
+460,Milk
+461,Garri
+461,Groundnut
+461,Sugar
+461,Milk
+462,Rice
+462,Vegetable oil
+462,Onions
+462,Pepper
+462,Biscuits
+463,Beans
+463,Palm oil
+463,Onions
+463,Pepper
+463,Tomatoes
+464,Garri
+464,Groundnut
+464,Sugar
+464,Milk
+465,Biscuits
+465,Soft drink
+465,Indomie noodles
+466,Rice
+466,Vegetable oil
+466,Onions
+466,Pepper
+467,Rice
+467,Tomatoes
+467,Vegetable oil
+467,Onions
+467,Pepper
+468,Plantain
+468,Onions
+468,Pepper
+468,Indomie noodles
+469,Bread
+469,Butter
+469,Milk
+469,Soft drink
+470,Butter
+470,Eggs
+470,Milk
+471,Bread
+471,Butter
+471,Eggs
+471,Milk
+471,Tea
+472,Rice
+472,Tomatoes
+472,Onions
+472,Pepper
+472,Butter
+473,Rice
+473,Onions
+473,Pepper
+474,Plantain
+474,Onions
+474,Pepper
+474,Eggs
+475,Rice
+475,Tomatoes
+475,Onions
+476,Bread
+476,Butter
+476,Eggs
+476,Milk
+476,Indomie noodles
+477,Biscuits
+477,Soft drink
+477,Indomie noodles
+477,Water sachet
+478,Bread
+478,Butter
+478,Eggs
+478,Tea
+479,Rice
+479,Vegetable oil
+479,Onions
+479,Pepper
+480,Rice
+480,Vegetable oil
+480,Pepper
+481,Rice
+481,Tomatoes
+481,Vegetable oil
+481,Onions
+482,Bread
+482,Butter
+482,Eggs
+482,Tea
+482,Garri
+483,Rice
+483,Vegetable oil
+483,Onions
+483,Pepper
+483,Bread
+484,Garri
+484,Groundnut
+484,Milk
+485,Rice
+485,Vegetable oil
+485,Onions
+485,Bread
+486,Rice
+486,Tomatoes
+486,Onions
+486,Pepper
+487,Biscuits
+487,Soft drink
+487,Indomie noodles
+487,Water sachet
+488,Beans
+488,Palm oil
+488,Plantain
+488,Onions
+488,Pepper
+489,Biscuits
+489,Soft drink
+489,Indomie noodles
+489,Eggs
+489,Garri
+489,Onions
+490,Rice
+490,Tomatoes
+490,Pepper
+491,Rice
+491,Vegetable oil
+491,Onions
+491,Pepper
+492,Bread
+492,Butter
+492,Eggs
+492,Tea
+493,Rice
+493,Tomatoes
+493,Vegetable oil
+493,Onions
+493,Pepper
+494,Biscuits
+494,Indomie noodles
+494,Water sachet
+495,Rice
+495,Vegetable oil
+495,Onions
+495,Pepper
+496,Garri
+496,Milk
+497,Garri
+497,Sugar
+497,Milk
+497,Biscuits
+498,Beans
+498,Palm oil
+498,Plantain
+498,Onions
+498,Pepper
+499,Biscuits
+499,Soft drink
+499,Indomie noodles
+500,Bread
+500,Butter
+500,Eggs
+500,Milk
+500,Tea
+501,Bread
+501,Butter
+501,Eggs
+501,Tea
+502,Bread
+502,Butter
+502,Eggs
+502,Milk
+502,Tea
+503,Beans
+503,Palm oil
+503,Plantain
+503,Onions
+503,Pepper
+503,Groundnut
+503,Rice
+504,Butter
+504,Eggs
+504,Milk
+504,Tea
+505,Garri
+505,Groundnut
+505,Sugar
+505,Beans
+505,Bread
+506,Eggs
+506,Milk
+506,Tea
+507,Bread
+507,Eggs
+507,Milk
+507,Tea
+507,Rice
+507,Soft drink
+508,Garri
+508,Sugar
+508,Milk
+508,Plantain
+509,Beans
+509,Palm oil
+509,Onions
+509,Pepper
+510,Rice
+510,Vegetable oil
+510,Onions
+510,Pepper
+510,Butter
+510,Garri
+511,Bread
+511,Butter
+511,Eggs
+511,Milk
+511,Tea
+511,Vegetable oil
+512,Bread
+512,Butter
+512,Eggs
+512,Tea
+513,Rice
+513,Tomatoes
+513,Onions
+513,Pepper
+513,Palm oil
+514,Rice
+514,Tomatoes
+514,Vegetable oil
+514,Onions
+514,Pepper
+515,Bread
+515,Eggs
+515,Tea
+515,Sugar
+516,Beans
+516,Palm oil
+516,Plantain
+516,Onions
+516,Pepper
+517,Bread
+517,Butter
+517,Eggs
+517,Milk
+517,Tea
+518,Biscuits
+518,Indomie noodles
+518,Water sachet
+519,Bread
+519,Butter
+519,Eggs
+519,Milk
+519,Tea
+520,Bread
+520,Butter
+520,Eggs
+520,Milk
+520,Tea
+520,Rice
+520,Water sachet
+521,Biscuits
+521,Soft drink
+521,Water sachet
+522,Beans
+522,Palm oil
+522,Plantain
+522,Pepper
+523,Beans
+523,Pepper
+524,Rice
+524,Tomatoes
+524,Vegetable oil
+524,Pepper
+525,Rice
+525,Tomatoes
+525,Vegetable oil
+525,Pepper
+525,Tea
+526,Vegetable oil
+526,Onions
+526,Pepper
+527,Biscuits
+527,Soft drink
+527,Indomie noodles
+528,Rice
+528,Vegetable oil
+528,Onions
+529,Biscuits
+529,Indomie noodles
+529,Onions
+530,Bread
+530,Butter
+530,Milk
+530,Tea
+531,Garri
+531,Groundnut
+531,Sugar
+531,Milk
+531,Tea
+532,Tomatoes
+532,Vegetable oil
+532,Onions
+532,Pepper
+532,Milk
+533,Bread
+533,Butter
+533,Eggs
+533,Milk
+533,Tea
+534,Tomatoes
+534,Vegetable oil
+534,Pepper
+535,Tomatoes
+535,Vegetable oil
+535,Onions
+535,Pepper
+535,Tea
+536,Garri
+536,Sugar
+537,Bread
+537,Butter
+537,Milk
+538,Groundnut
+538,Sugar
+538,Milk
+539,Garri
+539,Sugar
+539,Milk
+539,Pepper
+540,Tomatoes
+540,Vegetable oil
+540,Onions
+540,Pepper
+540,Biscuits
+540,Soft drink
+541,Rice
+541,Tomatoes
+541,Vegetable oil
+541,Onions
+541,Pepper
+542,Rice
+542,Vegetable oil
+542,Pepper
+543,Rice
+543,Vegetable oil
+543,Onions
+543,Pepper
+543,Garri
+544,Beans
+544,Palm oil
+544,Plantain
+544,Onions
+544,Pepper
+545,Beans
+545,Palm oil
+545,Onions
+545,Pepper
+545,Rice
+546,Rice
+546,Tomatoes
+546,Vegetable oil
+546,Pepper
+546,Indomie noodles
+546,Sugar
+547,Garri
+547,Groundnut
+547,Milk
+548,Bread
+548,Butter
+548,Eggs
+548,Milk
+548,Tea
+549,Vegetable oil
+549,Onions
+549,Pepper
+549,Soft drink
+550,Soft drink
+550,Water sachet
+550,Rice
+551,Rice
+551,Tomatoes
+551,Vegetable oil
+551,Onions
+551,Pepper
+551,Beans
+551,Tea
+552,Garri
+552,Groundnut
+552,Soft drink
+553,Rice
+553,Tomatoes
+553,Onions
+553,Pepper
+554,Bread
+554,Butter
+554,Eggs
+554,Milk
+554,Tea
+555,Rice
+555,Tomatoes
+555,Vegetable oil
+555,Onions
+555,Pepper
+555,Eggs
+555,Indomie noodles
+555,Plantain
+556,Rice
+556,Tomatoes
+556,Onions
+557,Bread
+557,Butter
+557,Milk
+557,Tea
+558,Rice
+558,Tomatoes
+558,Vegetable oil
+558,Onions
+558,Pepper
+558,Garri
+559,Beans
+559,Palm oil
+559,Plantain
+559,Pepper
+560,Beans
+560,Palm oil
+560,Plantain
+560,Onions
+560,Pepper
+561,Garri
+561,Groundnut
+561,Sugar
+561,Milk
+562,Bread
+562,Butter
+562,Eggs
+562,Milk
+562,Tea
+563,Rice
+563,Tomatoes
+563,Vegetable oil
+563,Onions
+564,Rice
+564,Tomatoes
+564,Vegetable oil
+564,Onions
+564,Pepper
+564,Sugar
+565,Rice
+565,Pepper
+566,Biscuits
+566,Indomie noodles
+566,Water sachet
+566,Onions
+567,Garri
+567,Sugar
+567,Milk
+568,Bread
+568,Eggs
+568,Tea
+569,Bread
+569,Butter
+569,Eggs
+569,Milk
+569,Tea
+570,Bread
+570,Butter
+570,Milk
+570,Tea
+571,Butter
+571,Milk
+571,Tea
+571,Plantain
+572,Bread
+572,Butter
+572,Eggs
+572,Milk
+572,Tea
+573,Bread
+573,Butter
+573,Eggs
+573,Milk
+573,Tea
+573,Beans
+573,Soft drink
+574,Biscuits
+574,Soft drink
+574,Indomie noodles
+574,Water sachet
+575,Rice
+575,Tomatoes
+575,Vegetable oil
+575,Onions
+575,Pepper
+575,Bread
+576,Garri
+576,Groundnut
+576,Sugar
+576,Milk
+577,Rice
+577,Tomatoes
+578,Rice
+578,Tomatoes
+578,Onions
+579,Bread
+579,Butter
+579,Eggs
+579,Milk
+579,Tea
+580,Bread
+580,Butter
+580,Eggs
+580,Milk
+580,Tea
+580,Water sachet
+581,Butter
+581,Eggs
+581,Milk
+581,Tea
+582,Rice
+582,Tomatoes
+582,Vegetable oil
+582,Onions
+582,Pepper
+583,Groundnut
+584,Tomatoes
+584,Vegetable oil
+584,Pepper
+585,Rice
+585,Tomatoes
+585,Vegetable oil
+585,Onions
+585,Pepper
+586,Rice
+586,Tomatoes
+586,Vegetable oil
+586,Pepper
+587,Bread
+587,Butter
+587,Eggs
+587,Milk
+587,Tea
+588,Soft drink
+588,Indomie noodles
+588,Water sachet
+589,Soft drink
+589,Indomie noodles
+590,Biscuits
+590,Soft drink
+590,Indomie noodles
+591,Beans
+591,Palm oil
+591,Plantain
+591,Onions
+591,Pepper
+592,Biscuits
+592,Soft drink
+592,Indomie noodles
+593,Groundnut
+593,Sugar
+593,Milk
+593,Palm oil
+594,Tomatoes
+594,Onions
+594,Butter
+595,Butter
+595,Eggs
+595,Tea
+595,Tomatoes
+595,Water sachet
+596,Beans
+596,Palm oil
+596,Plantain
+596,Pepper
+596,Eggs
+597,Rice
+597,Vegetable oil
+597,Onions
+598,Rice
+598,Tomatoes
+598,Vegetable oil
+598,Pepper
+598,Bread
+599,Tomatoes
+599,Vegetable oil
+599,Onions
+599,Pepper
+600,Biscuits
+600,Soft drink
+600,Indomie noodles
+600,Groundnut
+600,Rice
+601,Soft drink
+601,Indomie noodles
+601,Water sachet
+601,Pepper
+602,Garri
+602,Groundnut
+602,Sugar
+603,Bread
+603,Butter
+603,Eggs
+603,Milk
+603,Tea
+603,Indomie noodles
+604,Bread
+604,Milk
+604,Tea
+605,Rice
+605,Tomatoes
+605,Vegetable oil
+605,Garri
+606,Bread
+606,Eggs
+606,Tea
+607,Biscuits
+607,Soft drink
+607,Indomie noodles
+607,Water sachet
+608,Beans
+608,Palm oil
+608,Plantain
+608,Onions
+608,Pepper
+609,Bread
+609,Butter
+609,Eggs
+609,Tomatoes
+610,Beans
+610,Plantain
+610,Onions
+610,Pepper
+611,Butter
+611,Eggs
+611,Milk
+611,Rice
+612,Garri
+612,Groundnut
+612,Sugar
+612,Milk
+612,Vegetable oil
+613,Garri
+613,Groundnut
+613,Sugar
+614,Butter
+614,Eggs
+614,Milk
+615,Biscuits
+615,Soft drink
+615,Indomie noodles
+615,Water sachet
+616,Beans
+616,Palm oil
+616,Plantain
+616,Onions
+616,Pepper
+617,Garri
+617,Tea
+618,Rice
+618,Tomatoes
+618,Vegetable oil
+618,Onions
+618,Pepper
+619,Groundnut
+619,Sugar
+619,Milk
+620,Tomatoes
+620,Vegetable oil
+620,Pepper
+620,Sugar
+621,Soft drink
+621,Indomie noodles
+621,Milk
+622,Eggs
+622,Milk
+622,Tea
+622,Indomie noodles
+623,Bread
+623,Butter
+623,Tea
+623,Plantain
+624,Bread
+624,Butter
+624,Eggs
+624,Milk
+624,Tea
+625,Beans
+625,Palm oil
+625,Plantain
+625,Onions
+625,Pepper
+626,Garri
+626,Groundnut
+626,Sugar
+626,Milk
+627,Biscuits
+627,Soft drink
+627,Indomie noodles
+627,Water sachet
+627,Sugar
+628,Butter
+628,Milk
+628,Tea
+629,Butter
+629,Eggs
+629,Tea
+629,Garri
+630,Bread
+630,Butter
+630,Eggs
+630,Tea
+631,Bread
+631,Eggs
+631,Tea
+632,Bread
+632,Butter
+632,Eggs
+632,Tea
+633,Bread
+633,Butter
+633,Eggs
+633,Tea
+634,Garri
+634,Groundnut
+634,Milk
+635,Rice
+635,Tomatoes
+635,Pepper
+636,Garri
+636,Groundnut
+636,Sugar
+636,Milk
+637,Rice
+637,Tomatoes
+637,Vegetable oil
+637,Onions
+637,Pepper
+638,Beans
+638,Palm oil
+638,Plantain
+638,Onions
+638,Pepper
+639,Eggs
+639,Milk
+639,Tea
+640,Rice
+640,Tomatoes
+640,Vegetable oil
+640,Pepper
+641,Rice
+641,Tomatoes
+641,Onions
+641,Pepper
+641,Plantain
+642,Beans
+642,Palm oil
+642,Plantain
+642,Onions
+642,Pepper
+643,Rice
+643,Tomatoes
+643,Onions
+644,Bread
+644,Butter
+644,Milk
+644,Tea
+644,Biscuits
+645,Biscuits
+645,Indomie noodles
+645,Water sachet
+646,Biscuits
+646,Soft drink
+646,Indomie noodles
+646,Water sachet
+646,Rice
+647,Beans
+647,Palm oil
+647,Plantain
+647,Onions
+647,Pepper
+647,Tea
+648,Bread
+648,Butter
+648,Eggs
+648,Milk
+648,Tea
+648,Beans
+649,Rice
+649,Tomatoes
+649,Vegetable oil
+649,Onions
+649,Pepper
+650,Bread
+650,Butter
+650,Tea
+650,Indomie noodles
+651,Rice
+651,Tomatoes
+651,Vegetable oil
+651,Onions
+651,Pepper
+651,Biscuits
+652,Beans
+652,Palm oil
+652,Plantain
+652,Onions
+652,Pepper
+652,Biscuits
+653,Groundnut
+653,Sugar
+653,Milk
+654,Indomie noodles
+654,Water sachet
+655,Garri
+655,Groundnut
+655,Sugar
+655,Milk
+656,Bread
+656,Butter
+656,Milk
+657,Beans
+657,Palm oil
+657,Plantain
+657,Onions
+657,Pepper
+658,Garri
+658,Groundnut
+658,Sugar
+658,Milk
+659,Bread
+659,Butter
+659,Milk
+659,Tea
+660,Rice
+660,Tomatoes
+660,Vegetable oil
+660,Pepper
+661,Onions
+661,Pepper
+662,Rice
+662,Tomatoes
+662,Vegetable oil
+662,Onions
+662,Pepper
+662,Biscuits
+662,Indomie noodles
+663,Bread
+663,Butter
+663,Milk
+664,Rice
+664,Onions
+664,Butter
+665,Beans
+665,Plantain
+665,Onions
+665,Pepper
+666,Bread
+666,Butter
+666,Eggs
+666,Milk
+666,Tea
+667,Beans
+667,Palm oil
+667,Plantain
+667,Onions
+667,Bread
+667,Soft drink
+668,Butter
+668,Eggs
+668,Milk
+668,Tea
+668,Groundnut
+669,Rice
+669,Tomatoes
+669,Onions
+669,Pepper
+670,Garri
+670,Groundnut
+670,Sugar
+670,Milk
+671,Bread
+671,Eggs
+671,Milk
+672,Beans
+672,Plantain
+672,Onions
+672,Pepper
+672,Sugar
+673,Biscuits
+673,Soft drink
+673,Indomie noodles
+673,Water sachet
+673,Garri
+673,Plantain
+674,Bread
+674,Butter
+674,Eggs
+675,Rice
+675,Tomatoes
+675,Vegetable oil
+675,Onions
+675,Pepper
+676,Bread
+676,Butter
+676,Milk
+676,Tea
+676,Tomatoes
+677,Beans
+677,Palm oil
+677,Plantain
+677,Onions
+677,Pepper
+677,Tea
+678,Rice
+678,Tomatoes
+678,Vegetable oil
+678,Groundnut
+679,Butter
+679,Eggs
+679,Milk
+679,Tea
+680,Garri
+680,Sugar
+680,Milk
+681,Garri
+681,Sugar
+681,Milk
+681,Pepper
+682,Rice
+682,Tomatoes
+682,Vegetable oil
+682,Onions
+682,Pepper
+683,Groundnut
+683,Sugar
+683,Milk
+684,Rice
+684,Tomatoes
+684,Onions
+684,Pepper
+685,Rice
+685,Tomatoes
+685,Vegetable oil
+685,Onions
+685,Pepper
+685,Plantain
+686,Bread
+686,Milk
+686,Tea
+686,Garri
+686,Onions
+686,Pepper
+687,Rice
+687,Tomatoes
+687,Vegetable oil
+687,Pepper
+687,Biscuits
+687,Plantain
+688,Garri
+688,Groundnut
+688,Sugar
+688,Milk
+689,Vegetable oil
+689,Onions
+689,Pepper
+689,Milk
+690,Bread
+690,Butter
+690,Eggs
+690,Milk
+690,Tea
+691,Bread
+691,Eggs
+691,Tea
+691,Palm oil
+692,Groundnut
+692,Sugar
+692,Milk
+693,Butter
+693,Eggs
+693,Milk
+693,Tea
+693,Groundnut
+694,Bread
+694,Butter
+694,Eggs
+694,Milk
+694,Tea
+695,Biscuits
+695,Soft drink
+695,Indomie noodles
+695,Water sachet
+695,Vegetable oil
+696,Groundnut
+696,Sugar
+696,Milk
+697,Biscuits
+697,Soft drink
+697,Indomie noodles
+697,Water sachet
+698,Rice
+698,Tomatoes
+698,Vegetable oil
+698,Onions
+698,Pepper
+699,Biscuits
+699,Soft drink
+699,Indomie noodles
+700,Garri
+700,Groundnut
+700,Sugar
+701,Beans
+701,Palm oil
+701,Plantain
+701,Onions
+701,Pepper
+701,Biscuits
+701,Sugar
+702,Palm oil
+702,Plantain
+702,Onions
+702,Pepper
+703,Rice
+703,Tomatoes
+703,Vegetable oil
+703,Onions
+703,Pepper
+703,Groundnut
+704,Soft drink
+704,Indomie noodles
+704,Water sachet
+705,Rice
+705,Tomatoes
+705,Vegetable oil
+706,Butter
+706,Eggs
+706,Milk
+706,Tea
+707,Garri
+707,Sugar
+707,Milk
+708,Tomatoes
+708,Vegetable oil
+708,Onions
+708,Pepper
+709,Rice
+709,Tomatoes
+709,Onions
+709,Pepper
+710,Rice
+710,Pepper
+711,Garri
+711,Groundnut
+711,Sugar
+711,Milk
+712,Beans
+712,Palm oil
+712,Plantain
+712,Onions
+712,Pepper
+713,Butter
+713,Eggs
+713,Milk
+713,Tea
+713,Beans
+713,Tomatoes
+714,Rice
+714,Vegetable oil
+714,Onions
+714,Pepper
+714,Eggs
+715,Bread
+715,Butter
+715,Eggs
+715,Tea
+715,Indomie noodles
+716,Tomatoes
+716,Vegetable oil
+716,Onions
+716,Pepper
+717,Biscuits
+717,Soft drink
+717,Indomie noodles
+717,Water sachet
+718,Rice
+718,Tomatoes
+718,Vegetable oil
+718,Onions
+718,Pepper
+718,Beans
+719,Biscuits
+719,Soft drink
+719,Indomie noodles
+719,Water sachet
+719,Milk
+720,Indomie noodles
+720,Water sachet
+720,Groundnut
+720,Onions
+720,Pepper
+721,Beans
+721,Palm oil
+721,Onions
+721,Pepper
+722,Bread
+722,Butter
+722,Eggs
+722,Milk
+722,Tea
+722,Groundnut
+723,Bread
+723,Butter
+723,Eggs
+723,Milk
+724,Beans
+724,Palm oil
+724,Plantain
+724,Onions
+725,Rice
+725,Tomatoes
+725,Vegetable oil
+725,Onions
+725,Pepper
+725,Garri
+725,Milk
+726,Biscuits
+726,Indomie noodles
+726,Water sachet
+726,Eggs
+726,Sugar
+727,Bread
+727,Butter
+727,Eggs
+727,Milk
+728,Bread
+728,Butter
+728,Eggs
+728,Milk
+728,Tea
+728,Beans
+728,Groundnut
+729,Beans
+729,Palm oil
+729,Plantain
+729,Pepper
+730,Beans
+730,Palm oil
+730,Plantain
+730,Onions
+730,Pepper
+731,Bread
+731,Butter
+731,Eggs
+732,Rice
+732,Tomatoes
+732,Vegetable oil
+732,Pepper
+733,Rice
+733,Tomatoes
+733,Vegetable oil
+733,Onions
+733,Pepper
+734,Biscuits
+734,Soft drink
+734,Indomie noodles
+734,Water sachet
+734,Palm oil
+735,Rice
+735,Tomatoes
+735,Onions
+735,Pepper
+736,Rice
+736,Tomatoes
+736,Vegetable oil
+736,Onions
+736,Pepper
+736,Eggs
+737,Bread
+737,Butter
+737,Milk
+737,Tea
+738,Bread
+738,Butter
+738,Eggs
+738,Milk
+738,Tea
+739,Garri
+739,Sugar
+739,Milk
+739,Pepper
+740,Biscuits
+740,Soft drink
+740,Sugar
+741,Biscuits
+741,Soft drink
+741,Indomie noodles
+741,Water sachet
+742,Beans
+742,Palm oil
+742,Plantain
+742,Onions
+742,Pepper
+743,Bread
+743,Butter
+743,Eggs
+743,Tea
+743,Rice
+744,Rice
+744,Tomatoes
+744,Vegetable oil
+744,Onions
+745,Rice
+745,Vegetable oil
+745,Onions
+745,Pepper
+746,Biscuits
+746,Water sachet
+747,Bread
+747,Butter
+747,Milk
+747,Tea
+748,Rice
+748,Tomatoes
+748,Onions
+748,Pepper
+749,Biscuits
+749,Soft drink
+749,Indomie noodles
+749,Water sachet
+749,Eggs
+750,Rice
+750,Tomatoes
+750,Onions
+750,Pepper
+751,Groundnut
+751,Sugar
+751,Milk
+751,Indomie noodles
+752,Garri
+752,Groundnut
+752,Sugar
+752,Milk
+753,Bread
+753,Butter
+753,Eggs
+753,Milk
+753,Tea
+753,Pepper
+754,Soft drink
+754,Indomie noodles
+754,Water sachet
+754,Rice
+755,Biscuits
+755,Soft drink
+755,Indomie noodles
+755,Water sachet
+755,Tea
+756,Rice
+756,Tomatoes
+756,Vegetable oil
+756,Onions
+756,Pepper
+757,Palm oil
+757,Plantain
+757,Water sachet
+758,Rice
+758,Tomatoes
+758,Vegetable oil
+758,Pepper
+759,Soft drink
+759,Indomie noodles
+759,Water sachet
+759,Pepper
+760,Sugar
+761,Bread
+761,Butter
+761,Milk
+761,Tea
+761,Pepper
+762,Garri
+762,Groundnut
+762,Sugar
+762,Soft drink
+763,Rice
+763,Tomatoes
+763,Vegetable oil
+763,Onions
+763,Pepper
+764,Palm oil
+764,Plantain
+764,Pepper
+764,Biscuits
+765,Rice
+765,Onions
+765,Pepper
+765,Sugar
+766,Indomie noodles
+766,Eggs
+767,Garri
+767,Groundnut
+767,Sugar
+767,Milk
+768,Rice
+768,Onions
+768,Pepper
+769,Butter
+769,Milk
+769,Tea
+769,Soft drink
+770,Rice
+770,Tomatoes
+770,Vegetable oil
+770,Onions
+770,Pepper
+771,Bread
+771,Butter
+771,Eggs
+771,Milk
+772,Butter
+772,Eggs
+772,Tea
+773,Eggs
+773,Milk
+773,Tea
+774,Bread
+774,Butter
+774,Milk
+774,Tea
+775,Bread
+775,Eggs
+775,Tea
+776,Rice
+776,Tomatoes
+776,Vegetable oil
+776,Onions
+776,Pepper
+776,Indomie noodles
+777,Beans
+777,Palm oil
+777,Plantain
+777,Onions
+777,Pepper
+778,Rice
+778,Tomatoes
+778,Vegetable oil
+778,Onions
+778,Pepper
+778,Groundnut
+779,Garri
+779,Sugar
+779,Tomatoes
+780,Beans
+780,Palm oil
+780,Plantain
+780,Onions
+780,Pepper
+781,Soft drink
+781,Indomie noodles
+782,Beans
+782,Palm oil
+782,Plantain
+782,Onions
+783,Beans
+783,Palm oil
+783,Plantain
+783,Onions
+783,Pepper
+784,Biscuits
+784,Soft drink
+784,Indomie noodles
+784,Water sachet
+784,Pepper
+785,Garri
+785,Groundnut
+785,Sugar
+785,Milk
+786,Bread
+786,Butter
+786,Tea
+787,Eggs
+787,Tea
+788,Beans
+788,Palm oil
+788,Plantain
+788,Onions
+788,Pepper
+789,Palm oil
+789,Plantain
+789,Onions
+789,Pepper
+790,Biscuits
+790,Soft drink
+790,Water sachet
+791,Tomatoes
+791,Vegetable oil
+791,Onions
+791,Pepper
+791,Garri
+791,Indomie noodles
+791,Milk
+792,Soft drink
+792,Water sachet
+793,Bread
+793,Butter
+793,Eggs
+793,Milk
+793,Tea
+794,Beans
+794,Palm oil
+794,Plantain
+794,Onions
+794,Pepper
+795,Rice
+795,Tomatoes
+795,Onions
+795,Pepper
+795,Indomie noodles
+796,Palm oil
+796,Plantain
+796,Pepper
+797,Palm oil
+797,Plantain
+797,Onions
+798,Rice
+798,Tomatoes
+798,Vegetable oil
+798,Onions
+798,Pepper
+798,Bread
+798,Plantain
+799,Biscuits
+799,Indomie noodles
+799,Water sachet
+800,Garri
+800,Groundnut
+800,Sugar
+800,Milk
+800,Plantain
+801,Groundnut
+801,Sugar
+801,Milk
+802,Tomatoes
+802,Onions
+802,Pepper
+803,Rice
+803,Tomatoes
+803,Vegetable oil
+803,Onions
+803,Pepper
+804,Tomatoes
+804,Vegetable oil
+804,Pepper
+805,Butter
+805,Eggs
+805,Tea
+806,Beans
+806,Palm oil
+806,Plantain
+806,Onions
+806,Pepper
+807,Garri
+807,Groundnut
+807,Sugar
+807,Milk
+807,Indomie noodles
+808,Butter
+808,Eggs
+808,Milk
+808,Tea
+809,Bread
+809,Eggs
+809,Milk
+810,Groundnut
+810,Sugar
+810,Milk
+811,Biscuits
+811,Soft drink
+811,Indomie noodles
+812,Rice
+812,Tomatoes
+812,Vegetable oil
+812,Onions
+812,Pepper
+813,Groundnut
+813,Sugar
+813,Milk
+813,Vegetable oil
+814,Plantain
+814,Onions
+814,Pepper
+815,Bread
+815,Butter
+815,Eggs
+815,Tea
+816,Rice
+816,Tomatoes
+816,Vegetable oil
+816,Onions
+816,Pepper
+817,Rice
+817,Tomatoes
+817,Vegetable oil
+817,Pepper
+818,Bread
+818,Butter
+818,Eggs
+818,Indomie noodles
+819,Butter
+819,Milk
+819,Tea
+820,Rice
+820,Tomatoes
+820,Vegetable oil
+820,Pepper
+820,Milk
+821,Rice
+821,Tomatoes
+821,Vegetable oil
+821,Onions
+821,Pepper
+821,Eggs
+822,Biscuits
+822,Soft drink
+822,Indomie noodles
+822,Water sachet
+823,Biscuits
+823,Soft drink
+823,Indomie noodles
+823,Water sachet
+824,Rice
+824,Tomatoes
+824,Vegetable oil
+824,Onions
+824,Garri
+824,Indomie noodles
+825,Biscuits
+825,Soft drink
+825,Indomie noodles
+825,Water sachet
+825,Beans
+826,Beans
+826,Palm oil
+826,Plantain
+826,Onions
+826,Pepper
+827,Rice
+827,Tomatoes
+827,Vegetable oil
+827,Onions
+827,Pepper
+828,Bread
+828,Butter
+828,Eggs
+828,Milk
+828,Tea
+829,Rice
+829,Tomatoes
+829,Vegetable oil
+829,Onions
+829,Pepper
+830,Butter
+830,Eggs
+830,Milk
+830,Tea
+831,Biscuits
+831,Soft drink
+831,Indomie noodles
+831,Water sachet
+832,Biscuits
+832,Soft drink
+832,Indomie noodles
+832,Water sachet
+833,Bread
+833,Butter
+833,Eggs
+833,Milk
+833,Tea
+834,Vegetable oil
+834,Onions
+834,Pepper
+835,Garri
+835,Groundnut
+836,Garri
+836,Groundnut
+836,Milk
+837,Butter
+837,Milk
+837,Tea
+837,Plantain
+838,Bread
+838,Butter
+838,Milk
+838,Tea
+839,Biscuits
+839,Soft drink
+839,Indomie noodles
+839,Water sachet
+840,Palm oil
+840,Plantain
+840,Pepper
+841,Biscuits
+841,Soft drink
+841,Indomie noodles
+841,Water sachet
+842,Garri
+842,Sugar
+843,Soft drink
+843,Indomie noodles
+843,Water sachet
+843,Tea
+844,Rice
+844,Vegetable oil
+844,Onions
+844,Pepper
+844,Sugar
+845,Beans
+845,Onions
+845,Pepper
+846,Beans
+846,Palm oil
+846,Plantain
+846,Onions
+846,Pepper
+847,Biscuits
+847,Soft drink
+847,Indomie noodles
+848,Rice
+848,Tomatoes
+848,Vegetable oil
+848,Onions
+848,Pepper
+849,Bread
+849,Butter
+849,Eggs
+849,Milk
+849,Tea
+850,Rice
+850,Vegetable oil
+850,Pepper
+850,Butter
+851,Tomatoes
+851,Vegetable oil
+851,Onions
+851,Pepper
+851,Palm oil
+852,Garri
+852,Groundnut
+852,Sugar
+852,Milk
+853,Rice
+853,Onions
+853,Pepper
+854,Bread
+854,Butter
+854,Eggs
+854,Milk
+855,Garri
+855,Groundnut
+855,Sugar
+855,Milk
+856,Garri
+856,Sugar
+857,Beans
+857,Palm oil
+857,Plantain
+857,Onions
+857,Pepper
+857,Tea
+858,Rice
+858,Vegetable oil
+858,Onions
+858,Pepper
+858,Biscuits
+859,Rice
+859,Tomatoes
+859,Vegetable oil
+859,Onions
+859,Pepper
+859,Eggs
+860,Bread
+860,Butter
+860,Eggs
+860,Milk
+860,Tea
+861,Rice
+861,Vegetable oil
+861,Onions
+861,Pepper
+861,Bread
+861,Sugar
+862,Butter
+862,Milk
+862,Tea
+863,Soft drink
+863,Indomie noodles
+863,Water sachet
+863,Milk
+864,Garri
+864,Groundnut
+864,Sugar
+864,Milk
+864,Butter
+865,Palm oil
+865,Onions
+865,Pepper
+866,Bread
+866,Eggs
+866,Milk
+866,Tea
+866,Rice
+867,Bread
+867,Butter
+867,Eggs
+867,Tea
+868,Garri
+868,Sugar
+868,Milk
+869,Bread
+869,Butter
+869,Eggs
+869,Milk
+869,Tea
+869,Beans
+870,Bread
+870,Butter
+870,Eggs
+870,Milk
+870,Tea
+870,Palm oil
+871,Beans
+871,Palm oil
+871,Plantain
+871,Onions
+871,Pepper
+871,Biscuits
+871,Soft drink
+872,Garri
+872,Sugar
+872,Water sachet
+873,Garri
+873,Groundnut
+873,Milk
+874,Bread
+874,Butter
+874,Eggs
+874,Milk
+874,Tea
+874,Groundnut
+874,Tomatoes
+875,Garri
+875,Groundnut
+875,Sugar
+875,Milk
+875,Butter
+876,Rice
+876,Onions
+876,Pepper
+877,Rice
+877,Tomatoes
+877,Onions
+878,Biscuits
+878,Soft drink
+879,Rice
+879,Tomatoes
+879,Vegetable oil
+879,Onions
+879,Pepper
+880,Garri
+880,Groundnut
+880,Sugar
+880,Milk
+881,Garri
+881,Groundnut
+881,Sugar
+881,Milk
+881,Butter
+882,Bread
+882,Butter
+882,Tea
+883,Groundnut
+883,Milk
+883,Pepper
+884,Bread
+884,Butter
+884,Eggs
+884,Tea
+885,Biscuits
+885,Soft drink
+885,Indomie noodles
+885,Water sachet
+886,Rice
+886,Vegetable oil
+886,Onions
+887,Rice
+887,Tomatoes
+887,Vegetable oil
+887,Onions
+887,Pepper
+888,Beans
+888,Palm oil
+888,Onions
+888,Pepper
+888,Butter
+889,Beans
+889,Plantain
+889,Onions
+889,Pepper
+890,Vegetable oil
+890,Onions
+890,Pepper
+891,Rice
+891,Tomatoes
+891,Onions
+891,Pepper
+892,Beans
+892,Palm oil
+892,Plantain
+892,Onions
+892,Pepper
+892,Soft drink
+893,Garri
+893,Groundnut
+893,Milk
+894,Garri
+894,Groundnut
+894,Milk
+895,Sugar
+895,Milk
+896,Bread
+896,Butter
+896,Eggs
+896,Milk
+896,Tea
+896,Sugar
+897,Garri
+897,Sugar
+897,Milk
+898,Biscuits
+898,Soft drink
+898,Indomie noodles
+898,Water sachet
+898,Garri
+898,Tomatoes
+899,Beans
+899,Plantain
+899,Onions
+899,Pepper
+899,Eggs
+899,Vegetable oil
+900,Milk
+901,Tomatoes
+901,Vegetable oil
+901,Pepper
+902,Rice
+902,Tomatoes
+902,Onions
+902,Pepper
+902,Beans
+903,Palm oil
+903,Onions
+904,Bread
+904,Butter
+904,Eggs
+904,Milk
+904,Tea
+905,Rice
+905,Tomatoes
+905,Vegetable oil
+905,Pepper
+906,Beans
+906,Palm oil
+906,Onions
+906,Biscuits
+907,Palm oil
+907,Plantain
+907,Onions
+907,Pepper
+908,Garri
+908,Groundnut
+908,Milk
+909,Tomatoes
+909,Vegetable oil
+909,Onions
+909,Pepper
+910,Beans
+910,Palm oil
+910,Plantain
+910,Pepper
+911,Soft drink
+911,Indomie noodles
+911,Water sachet
+912,Bread
+912,Butter
+912,Eggs
+912,Milk
+912,Garri
+913,Bread
+913,Butter
+913,Eggs
+913,Milk
+913,Tea
+913,Sugar
+914,Bread
+914,Butter
+914,Eggs
+914,Milk
+914,Tea
+915,Palm oil
+915,Plantain
+915,Onions
+915,Pepper
+916,Biscuits
+916,Soft drink
+916,Indomie noodles
+916,Water sachet
+916,Onions
+916,Rice
+917,Beans
+917,Palm oil
+917,Pepper
+918,Garri
+918,Groundnut
+918,Sugar
+919,Rice
+919,Tomatoes
+919,Vegetable oil
+919,Onions
+919,Pepper
+919,Beans
+919,Plantain
+920,Garri
+920,Groundnut
+920,Sugar
+920,Milk
+920,Water sachet
+921,Rice
+921,Tomatoes
+921,Vegetable oil
+921,Onions
+921,Garri
+922,Rice
+922,Tomatoes
+922,Vegetable oil
+922,Onions
+923,Beans
+923,Palm oil
+923,Plantain
+923,Onions
+923,Pepper
+923,Eggs
+923,Soft drink
+924,Rice
+924,Tomatoes
+924,Vegetable oil
+924,Onions
+924,Pepper
+924,Plantain
+925,Garri
+925,Sugar
+926,Bread
+926,Butter
+926,Eggs
+926,Milk
+926,Tea
+926,Soft drink
+927,Tomatoes
+927,Vegetable oil
+927,Onions
+927,Pepper
+928,Tomatoes
+928,Vegetable oil
+928,Onions
+928,Pepper
+929,Biscuits
+929,Soft drink
+929,Indomie noodles
+929,Water sachet
+929,Butter
+930,Vegetable oil
+930,Pepper
+930,Water sachet
+931,Garri
+931,Groundnut
+931,Sugar
+931,Milk
+932,Bread
+932,Eggs
+932,Tea
+933,Rice
+933,Tomatoes
+933,Vegetable oil
+933,Onions
+933,Pepper
+934,Bread
+934,Butter
+934,Eggs
+934,Milk
+934,Tea
+934,Garri
+935,Bread
+935,Eggs
+935,Milk
+935,Tea
+936,Soft drink
+936,Indomie noodles
+936,Water sachet
+937,Rice
+937,Vegetable oil
+937,Onions
+937,Pepper
+938,Rice
+938,Vegetable oil
+938,Onions
+938,Pepper
+939,Bread
+939,Butter
+939,Eggs
+939,Milk
+939,Tea
+939,Onions
+939,Pepper
+939,Tomatoes
+940,Biscuits
+940,Soft drink
+940,Indomie noodles
+940,Water sachet
+940,Tomatoes
+941,Garri
+941,Groundnut
+941,Sugar
+942,Palm oil
+942,Plantain
+942,Onions
+942,Pepper
+942,Milk
+943,Biscuits
+943,Soft drink
+943,Indomie noodles
+943,Water sachet
+943,Groundnut
+944,Bread
+944,Butter
+944,Eggs
+944,Milk
+945,Rice
+945,Tomatoes
+945,Vegetable oil
+946,Beans
+946,Palm oil
+946,Onions
+946,Pepper
+947,Garri
+947,Sugar
+947,Milk
+948,Biscuits
+948,Soft drink
+948,Indomie noodles
+948,Water sachet
+948,Plantain
+948,Sugar
+949,Biscuits
+949,Soft drink
+949,Indomie noodles
+949,Water sachet
+949,Vegetable oil
+950,Bread
+950,Butter
+950,Milk
+951,Bread
+951,Butter
+951,Milk
+951,Tea
+951,Groundnut
+952,Bread
+952,Butter
+952,Milk
+952,Tea
+953,Butter
+953,Eggs
+953,Milk
+953,Tea
+954,Biscuits
+954,Water sachet
+955,Bread
+955,Butter
+955,Eggs
+955,Milk
+956,Bread
+956,Butter
+956,Eggs
+956,Milk
+957,Rice
+957,Tomatoes
+957,Vegetable oil
+957,Onions
+958,Bread
+958,Eggs
+958,Milk
+958,Tea
+958,Plantain
+959,Biscuits
+959,Indomie noodles
+959,Water sachet
+959,Eggs
+960,Bread
+960,Butter
+960,Eggs
+960,Milk
+960,Tea
+961,Rice
+961,Tomatoes
+961,Vegetable oil
+961,Pepper
+962,Bread
+962,Butter
+962,Eggs
+962,Milk
+962,Tea
+963,Rice
+963,Tomatoes
+963,Vegetable oil
+963,Onions
+963,Pepper
+963,Soft drink
+964,Bread
+964,Butter
+964,Milk
+964,Tea
+964,Plantain
+965,Bread
+965,Butter
+965,Milk
+965,Tea
+966,Beans
+966,Palm oil
+966,Plantain
+966,Onions
+966,Pepper
+966,Milk
+967,Butter
+967,Eggs
+967,Milk
+968,Rice
+968,Tomatoes
+968,Pepper
+968,Beans
+969,Tomatoes
+969,Onions
+969,Pepper
+970,Groundnut
+970,Sugar
+970,Milk
+971,Bread
+971,Eggs
+971,Milk
+971,Tea
+972,Onions
+972,Indomie noodles
+973,Butter
+973,Eggs
+973,Milk
+973,Tea
+974,Rice
+974,Tomatoes
+974,Onions
+974,Pepper
+974,Palm oil
+975,Bread
+975,Butter
+975,Eggs
+975,Milk
+975,Tea
+976,Tomatoes
+976,Vegetable oil
+976,Onions
+976,Pepper
+976,Butter
+977,Rice
+977,Tomatoes
+977,Vegetable oil
+977,Onions
+977,Water sachet
+978,Butter
+978,Eggs
+978,Milk
+979,Soft drink
+979,Indomie noodles
+979,Water sachet
+980,Garri
+980,Groundnut
+980,Sugar
+980,Milk
+980,Beans
+980,Vegetable oil
+981,Beans
+981,Palm oil
+981,Onions
+981,Milk
+982,Rice
+982,Vegetable oil
+982,Onions
+982,Pepper
+983,Tomatoes
+983,Vegetable oil
+983,Onions
+983,Pepper
+983,Biscuits
+983,Eggs
+983,Water sachet
+984,Butter
+984,Milk
+985,Bread
+985,Butter
+985,Eggs
+985,Milk
+985,Sugar
+986,Biscuits
+986,Soft drink
+987,Plantain
+987,Onions
+987,Pepper
+987,Indomie noodles
+988,Bread
+988,Butter
+988,Eggs
+988,Palm oil
+989,Soft drink
+989,Indomie noodles
+989,Water sachet
+989,Palm oil
+990,Bread
+990,Butter
+990,Eggs
+990,Milk
+991,Tomatoes
+991,Vegetable oil
+991,Onions
+991,Pepper
+992,Biscuits
+992,Soft drink
+992,Indomie noodles
+993,Bread
+993,Eggs
+993,Tea
+993,Soft drink
+994,Groundnut
+994,Sugar
+994,Milk
+995,Garri
+995,Groundnut
+995,Milk
+995,Plantain
+995,Tea
+996,Groundnut
+996,Sugar
+997,Biscuits
+997,Soft drink
+997,Indomie noodles
+997,Water sachet
+997,Bread
+998,Garri
+998,Groundnut
+998,Sugar
+998,Milk
+999,Beans
+999,Plantain
+999,Onions
+999,Pepper
+999,Vegetable oil
+1000,Bread
+1000,Butter
+1000,Eggs
+1000,Milk
+1000,Tea
