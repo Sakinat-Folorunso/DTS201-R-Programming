@@ -3,7 +3,11 @@
 Olabisi Onabanjo University · Dr. Sakinat Folorunso · R / RStudio / R Markdown version of the original Python (Colab) course.
 
 ## Lecture note
-The R edition of the course outline and weekly lecture notes (Weeks 0–12, with an R practical in every week) is in [`docs/DTS201_Course_Outline_and_Lecture_Notes_R_Edition.docx`](docs/DTS201_Course_Outline_and_Lecture_Notes_R_Edition.docx).
+The R edition of the course outline and weekly lecture notes (Weeks 0–12, with an R practical in every week) is in 
+
+[Open the DTS 201 Class Note on Google Docs](https://docs.google.com/document/d/1bIfX-ji2wZgDNOhSoo3csQWm1ctP066KMOFHXPm0EaY/edit?usp=sharing).
+
+
 
 ## Ways to run the notebooks
 | Option | Steps |
@@ -101,3 +105,19 @@ The simulated files replace placeholder datasets that the Python notebooks refer
 
 ## Requirements
 R ≥ 4.1, RStudio, and the packages in `scripts/install_packages.R` (`tidyverse`, `readxl`, `arules`, `rmarkdown`, `knitr`; `jsonlite`, `broom` and `scales` come with the tidyverse; `cluster` ships with R). Licence: see `LICENSE`.
+
+📌 Important
+
+This repository is a learning resource for DTS 201: Introduction to Data Science.
+
+Students should use the repository together with the official course teaching materials and instructions provided by the lecturer.
+
+👩🏽‍🏫 Course Instructor
+
+Dr. Sakinat Folorunso
+Department of Computer Science
+Olabisi Onabanjo University
+
+📜 License
+
+See the LICENSE file for information about permitted use and redistribution of the repository materials.
