@@ -1,4 +1,4 @@
-# DTS 201 – Introduction to Data Science (R edition)
+# DTS 201 – Introduction to Data Science (R Edition)
 
 Olabisi Onabanjo University · Dr. Sakinat Folorunso · R / RStudio / R Markdown version of the original Python (Colab) course.
 
